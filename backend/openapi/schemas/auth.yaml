@@ -1,0 +1,48 @@
+AuthRegisterRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    email: { type: string, format: email }
+    password:
+      type: string
+      minLength: 8
+      description: Vive en tu capa Auth.
+    full_name: { type: string, minLength: 2 }
+    phone: { type: string }
+    role: { $ref: "../schemas/common.yaml#/ProfileRole" }
+  required: [email, password, full_name, role]
+
+AuthRegisterResponse:
+  type: object
+  additionalProperties: false
+  properties:
+    auth_user_id: { type: string, format: uuid }
+    profile_id: { type: string, format: uuid }
+    caregiver_id: { type: string, format: uuid, nullable: true }
+  required: [auth_user_id, profile_id]
+
+AuthLoginRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    email: { type: string, format: email }
+    password: { type: string }
+  required: [email, password]
+
+AuthLoginResponse:
+  type: object
+  additionalProperties: false
+  properties:
+    access_token: { type: string }
+    token_type: { type: string, example: "Bearer" }
+    expires_in: { type: integer, example: 3600 }
+  required: [access_token, token_type, expires_in]
+
+MeResponse:
+  type: object
+  additionalProperties: false
+  properties:
+    auth_user_id: { type: string, format: uuid }
+    profile: { $ref: "../schemas/profiles.yaml#/Profile" }
+    caregiver_id: { type: string, format: uuid, nullable: true }
+  required: [auth_user_id, profile]

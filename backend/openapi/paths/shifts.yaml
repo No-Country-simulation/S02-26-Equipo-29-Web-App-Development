@@ -1,0 +1,207 @@
+shifts:
+  get:
+    tags: [Shifts]
+    operationId: listShifts
+    summary: Listar SHIFTS (admin / cuidador / familia)
+    parameters:
+      - $ref: "../components/parameters.yaml#/Limit"
+      - $ref: "../components/parameters.yaml#/Offset"
+      - in: query
+        name: caregiver_id
+        schema: { type: string, format: uuid }
+      - in: query
+        name: patient_id
+        schema: { type: string, format: uuid }
+      - in: query
+        name: from
+        schema: { type: string, format: date-time }
+      - in: query
+        name: to
+        schema: { type: string, format: date-time }
+      - in: query
+        name: status
+        schema: { $ref: "../schemas/common.yaml#/ShiftStatus" }
+      - in: query
+        name: approved
+        schema: { type: boolean }
+        description: Si true, filtra approved_at != null
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: "../schemas/shifts.yaml#/PagedShifts" }
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+  post:
+    tags: [Shifts]
+    operationId: createShift
+    summary: Crear SHIFT (admin o cuidador)
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: "../schemas/shifts.yaml#/ShiftCreateRequest" }
+    responses:
+      "201":
+        description: Creado
+        content:
+          application/json:
+            schema: { $ref: "../schemas/shifts.yaml#/Shift" }
+      "409":
+        $ref: "../components/responses.yaml#/Conflict"
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+shiftsMine:
+  get:
+    tags: [Shifts]
+    operationId: listMyShifts
+    summary: Mis SHIFTS (cuidador)
+    description: >
+      En MVP sin auth, este endpoint puede comportarse igual que /shifts filtrado.
+      Cuando haya auth, usa caregiver_id asociado al usuario autenticado.
+    parameters:
+      - $ref: "../components/parameters.yaml#/Limit"
+      - $ref: "../components/parameters.yaml#/Offset"
+      - in: query
+        name: from
+        schema: { type: string, format: date-time }
+      - in: query
+        name: to
+        schema: { type: string, format: date-time }
+      - in: query
+        name: status
+        schema: { $ref: "../schemas/common.yaml#/ShiftStatus" }
+      - in: query
+        name: approved
+        schema: { type: boolean }
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: "../schemas/shifts.yaml#/PagedShifts" }
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+shiftsByPatient:
+  get:
+    tags: [Shifts]
+    operationId: listPatientShifts
+    summary: SHIFTS de un paciente (familia vinculada o admin)
+    parameters:
+      - $ref: "../components/parameters.yaml#/PatientId"
+      - $ref: "../components/parameters.yaml#/Limit"
+      - $ref: "../components/parameters.yaml#/Offset"
+      - in: query
+        name: from
+        schema: { type: string, format: date-time }
+      - in: query
+        name: to
+        schema: { type: string, format: date-time }
+      - in: query
+        name: approved
+        schema: { type: boolean }
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: "../schemas/shifts.yaml#/PagedShifts" }
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+shiftById:
+  get:
+    tags: [Shifts]
+    operationId: getShift
+    summary: Obtener SHIFT
+    parameters:
+      - $ref: "../components/parameters.yaml#/ShiftId"
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: "../schemas/shifts.yaml#/Shift" }
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+
+  patch:
+    tags: [Shifts]
+    operationId: updateShift
+    summary: Actualizar SHIFT (admin o cuidador según reglas)
+    parameters:
+      - $ref: "../components/parameters.yaml#/ShiftId"
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: "../schemas/shifts.yaml#/ShiftUpdateRequest" }
+    responses:
+      "200":
+        description: Actualizado
+        content:
+          application/json:
+            schema: { $ref: "../schemas/shifts.yaml#/Shift" }
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+      "409":
+        $ref: "../components/responses.yaml#/Conflict"
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+shiftSubmit:
+  post:
+    tags: [Shifts]
+    operationId: submitShift
+    summary: Enviar SHIFT (pasa a status=submitted)
+    description: >
+      Valida que report no esté vacío, y que start/end/hours sean válidos.
+      Solo cuidador dueño o admin (cuando haya auth).
+    parameters:
+      - $ref: "../components/parameters.yaml#/ShiftId"
+    responses:
+      "200":
+        description: Enviado
+        content:
+          application/json:
+            schema: { $ref: "../schemas/shifts.yaml#/Shift" }
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+      "409":
+        $ref: "../components/responses.yaml#/Conflict"
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+shiftApprove:
+  post:
+    tags: [Shifts]
+    operationId: approveShift
+    summary: Aprobar SHIFT (setea approved_by y approved_at)
+    description: >
+      Solo admin o family vinculado al patient_id del shift (cuando haya auth).
+      Requiere status=submitted.
+    parameters:
+      - $ref: "../components/parameters.yaml#/ShiftId"
+    requestBody:
+      required: false
+      content:
+        application/json:
+          schema: { $ref: "../schemas/shifts.yaml#/ShiftApproveRequest" }
+    responses:
+      "200":
+        description: Aprobado
+        content:
+          application/json:
+            schema: { $ref: "../schemas/shifts.yaml#/Shift" }
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+      "403":
+        $ref: "../components/responses.yaml#/Forbidden"
+      "409":
+        $ref: "../components/responses.yaml#/Conflict"
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"

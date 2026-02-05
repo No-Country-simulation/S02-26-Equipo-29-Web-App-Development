@@ -1,0 +1,17 @@
+UploadPresignRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    filename: { type: string }
+    content_type: { type: string }
+    folder: { type: string }
+  required: [filename, content_type]
+
+UploadPresignResponse:
+  type: object
+  additionalProperties: false
+  properties:
+    upload_url: { type: string }
+    public_url: { type: string }
+    expires_in: { type: integer }
+  required: [upload_url, public_url, expires_in]

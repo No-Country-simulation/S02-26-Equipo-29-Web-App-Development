@@ -1,0 +1,50 @@
+Payroll:
+  type: object
+  additionalProperties: false
+  properties:
+    id: { type: string, format: uuid }
+    caregiver_id: { type: string, format: uuid }
+    period_start: { type: string, format: date }
+    period_end: { type: string, format: date }
+    total_hours: { type: number }
+    total_amount: { type: number }
+    status: { $ref: "../schemas/common.yaml#/PayrollStatus" }
+    created_at: { type: string, format: date-time }
+  required: [id, caregiver_id, period_start, period_end, total_hours, total_amount, status, created_at]
+
+PayrollCalculateRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    period_start: { type: string, format: date }
+    period_end: { type: string, format: date }
+    caregiver_id:
+      type: string
+      format: uuid
+      nullable: true
+      description: Si se envía, calcula solo ese cuidador
+  required: [period_start, period_end]
+
+PayrollCalculateResponse:
+  type: object
+  additionalProperties: false
+  properties:
+    period_start: { type: string, format: date }
+    period_end: { type: string, format: date }
+    generated: { type: integer, minimum: 0 }
+    payroll_ids:
+      type: array
+      items: { type: string, format: uuid }
+  required: [period_start, period_end, generated, payroll_ids]
+
+PagedPayrolls:
+  type: object
+  additionalProperties: false
+  properties:
+    items:
+      type: array
+      items: { $ref: "../schemas/payrolls.yaml#/Payroll" }
+    total: { type: integer, minimum: 0 }
+    limit: { type: integer }
+    offset: { type: integer }
+  required: [items, total, limit, offset]

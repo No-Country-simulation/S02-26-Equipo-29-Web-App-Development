@@ -1,0 +1,93 @@
+documentsByCaregiver:
+  get:
+    tags: [CaregiverDocuments]
+    operationId: listCaregiverDocuments
+    summary: Listar DOCUMENTS de un CAREGIVER
+    description: >
+      Devuelve los documentos asociados a un cuidador.
+      En MVP sin auth, lista todos los documentos del caregiver indicado.
+    parameters:
+      - $ref: "../components/parameters.yaml#/CaregiverId"
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: "../schemas/caregiver-documents.yaml#/CaregiverDocument" }
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+
+  post:
+    tags: [CaregiverDocuments]
+    operationId: createCaregiverDocument
+    summary: Crear CAREGIVER_DOCUMENT
+    description: >
+      Registra un documento para un cuidador.
+      file_url suele provenir del endpoint /uploads/presign.
+      Estado inicial recomendado: pending.
+    parameters:
+      - $ref: "../components/parameters.yaml#/CaregiverId"
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: "../schemas/caregiver-documents.yaml#/CaregiverDocumentCreateRequest" }
+    responses:
+      "201":
+        description: Creado
+        content:
+          application/json:
+            schema: { $ref: "../schemas/caregiver-documents.yaml#/CaregiverDocument" }
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+      "409":
+        $ref: "../components/responses.yaml#/Conflict"
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+documentById:
+  patch:
+    tags: [CaregiverDocuments]
+    operationId: updateCaregiverDocument
+    summary: Actualizar estado de CAREGIVER_DOCUMENT
+    description: >
+      Permite aprobar o rechazar un documento del cuidador.
+      Regla típica: solo se puede cambiar estado desde pending.
+    parameters:
+      - $ref: "../components/parameters.yaml#/DocumentId"
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: "../schemas/caregiver-documents.yaml#/CaregiverDocumentUpdateRequest" }
+    responses:
+      "200":
+        description: Actualizado
+        content:
+          application/json:
+            schema: { $ref: "../schemas/caregiver-documents.yaml#/CaregiverDocument" }
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+      "409":
+        $ref: "../components/responses.yaml#/Conflict"
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+  delete:
+    tags: [CaregiverDocuments]
+    operationId: deleteCaregiverDocument
+    summary: Eliminar CAREGIVER_DOCUMENT
+    description: >
+      Elimina un documento (ej: error de carga).
+      Recomendado: no permitir borrar si está approved.
+    parameters:
+      - $ref: "../components/parameters.yaml#/DocumentId"
+    responses:
+      "204":
+        $ref: "../components/responses.yaml#/NoContent"
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+      "409":
+        $ref: "../components/responses.yaml#/Conflict"
