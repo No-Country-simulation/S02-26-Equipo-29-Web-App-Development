@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+  /* Base */
+  --color-background: #f6f3ee;
+  --color-surface: #ffffff;
+  --color-border: #e5e7eb;
+
+  /* Texto */
+  --color-text-primary: #334155;
+  --color-text-secondary: #475569;
+
+  /* Marca */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+
+  /* Estados */
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+}
