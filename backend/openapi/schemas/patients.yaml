@@ -1,0 +1,48 @@
+Patient:
+  type: object
+  additionalProperties: false
+  properties:
+    id: { type: string, format: uuid }
+    full_name: { type: string }
+    dni: { type: string, nullable: true }
+    birth_date: { type: string, format: date, nullable: true }
+    address: { type: string, nullable: true }
+    notes: { type: string, nullable: true }
+    is_active: { type: boolean }
+    created_at: { type: string, format: date-time }
+  required: [id, full_name, is_active, created_at]
+
+PatientCreateRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    full_name: { type: string, minLength: 2 }
+    dni: { type: string }
+    birth_date: { type: string, format: date }
+    address: { type: string }
+    notes: { type: string }
+    is_active: { type: boolean, default: true }
+  required: [full_name]
+
+PatientUpdateRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    full_name: { type: string }
+    dni: { type: string, nullable: true }
+    birth_date: { type: string, format: date, nullable: true }
+    address: { type: string, nullable: true }
+    notes: { type: string, nullable: true }
+    is_active: { type: boolean }
+
+PagedPatients:
+  type: object
+  additionalProperties: false
+  properties:
+    items:
+      type: array
+      items: { $ref: "../schemas/patients.yaml#/Patient" }
+    total: { type: integer, minimum: 0 }
+    limit: { type: integer }
+    offset: { type: integer }
+  required: [items, total, limit, offset]

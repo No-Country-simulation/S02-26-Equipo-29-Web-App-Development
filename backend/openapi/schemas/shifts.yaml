@@ -1,0 +1,68 @@
+Shift:
+  type: object
+  additionalProperties: false
+  properties:
+    id: { type: string, format: uuid }
+    caregiver_id: { type: string, format: uuid }
+    patient_id: { type: string, format: uuid }
+    start_time: { type: string, format: date-time }
+    end_time: { type: string, format: date-time }
+    hours:
+      type: number
+      nullable: true
+      description: Calculado por backend (end-start). Puede ser null en draft.
+    status: { $ref: "../schemas/common.yaml#/ShiftStatus" }
+    report: { type: string, nullable: true }
+    approved_by:
+      type: string
+      format: uuid
+      nullable: true
+      description: PROFILES.id del aprobador
+    approved_at: { type: string, format: date-time, nullable: true }
+    created_at: { type: string, format: date-time }
+  required: [id, caregiver_id, patient_id, start_time, end_time, status, created_at]
+
+ShiftCreateRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    caregiver_id:
+      type: string
+      format: uuid
+      nullable: true
+      description: "Solo admin. Si sos caregiver, se infiere del JWT."
+    patient_id: { type: string, format: uuid }
+    start_time: { type: string, format: date-time }
+    end_time: { type: string, format: date-time }
+    report: { type: string, nullable: true }
+  required: [patient_id, start_time, end_time]
+
+ShiftUpdateRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    start_time: { type: string, format: date-time }
+    end_time: { type: string, format: date-time }
+    report: { type: string, nullable: true }
+    status: { $ref: "../schemas/common.yaml#/ShiftStatus" }
+
+ShiftApproveRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    approved_at:
+      type: string
+      format: date-time
+      description: Si no se envía, backend usa now()
+
+PagedShifts:
+  type: object
+  additionalProperties: false
+  properties:
+    items:
+      type: array
+      items: { $ref: "../schemas/shifts.yaml#/Shift" }
+    total: { type: integer, minimum: 0 }
+    limit: { type: integer }
+    offset: { type: integer }
+  required: [items, total, limit, offset]

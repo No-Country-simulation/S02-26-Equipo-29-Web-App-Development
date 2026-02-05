@@ -1,0 +1,33 @@
+Caregiver:
+  type: object
+  additionalProperties: false
+  properties:
+    id: { type: string, format: uuid }
+    cbu: { type: string, nullable: true }
+    mercado_pago_alias: { type: string, nullable: true }
+    hourly_rate: { type: number, nullable: true }
+    is_verified: { type: boolean, default: false }
+    created_at: { type: string, format: date-time }
+    updated_at: { type: string, format: date-time }
+  required: [id, is_verified]
+
+CaregiverUpdateRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    cbu: { type: string, nullable: true }
+    mercado_pago_alias: { type: string, nullable: true }
+    hourly_rate: { type: number, nullable: true }
+    is_verified: { type: boolean }
+
+PagedCaregivers:
+  type: object
+  additionalProperties: false
+  properties:
+    items:
+      type: array
+      items: { $ref: "#/Caregiver" }
+    total: { type: integer, minimum: 0 }
+    limit: { type: integer }
+    offset: { type: integer }
+  required: [items, total, limit, offset]

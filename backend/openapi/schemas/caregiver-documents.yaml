@@ -1,0 +1,28 @@
+CaregiverDocument:
+  type: object
+  additionalProperties: false
+  properties:
+    id: { type: string, format: uuid }
+    caregiver_id: { type: string, format: uuid }
+    document_type: { type: string, example: "dni_front" }
+    file_url: { type: string }
+    status: { $ref: "./common.yaml#/CaregiverDocumentStatus" }
+    uploaded_at: { type: string, format: date-time }
+    reviewed_at: { type: string, format: date-time, nullable: true }
+    reviewed_by: { type: string, format: uuid, nullable: true }
+  required: [id, caregiver_id, document_type, file_url, status, uploaded_at]
+
+CaregiverDocumentCreateRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    document_type: { type: string }
+    file_url: { type: string }
+  required: [document_type, file_url]
+
+CaregiverDocumentUpdateRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    status: { $ref: "./common.yaml#/CaregiverDocumentStatus" }
+  required: [status]

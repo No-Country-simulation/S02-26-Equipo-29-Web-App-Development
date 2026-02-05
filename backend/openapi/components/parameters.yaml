@@ -1,0 +1,57 @@
+Limit:
+  in: query
+  name: limit
+  schema: { type: integer, minimum: 1, maximum: 200, default: 20 }
+
+Offset:
+  in: query
+  name: offset
+  schema: { type: integer, minimum: 0, default: 0 }
+
+ProfileId:
+  in: path
+  name: profileId
+  required: true
+  schema: { type: string, format: uuid }
+
+PatientId:
+  in: path
+  name: patientId
+  required: true
+  schema: { type: string, format: uuid }
+
+CaregiverId:
+  in: path
+  name: caregiverId
+  required: true
+  schema: { type: string, format: uuid }
+
+FamilyPatientId:
+  in: path
+  name: familyPatientId
+  required: true
+  schema: { type: string, format: uuid }
+
+ShiftId:
+  in: path
+  name: shiftId
+  required: true
+  schema: { type: string, format: uuid }
+
+PayrollId:
+  in: path
+  name: payrollId
+  required: true
+  schema: { type: string, format: uuid }
+
+PaymentId:
+  in: path
+  name: paymentId
+  required: true
+  schema: { type: string, format: uuid }
+
+DocumentId:
+  in: path
+  name: documentId
+  required: true
+  schema: { type: string, format: uuid }

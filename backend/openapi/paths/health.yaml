@@ -1,0 +1,18 @@
+health:
+  get:
+    tags: [Health]
+    security: []
+    summary: Healthcheck
+    operationId: healthcheck
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ok: { type: boolean }
+                service: { type: string }
+                version: { type: string }
+              required: [ok]

@@ -1,0 +1,30 @@
+Payment:
+  type: object
+  additionalProperties: false
+  properties:
+    id: { type: string, format: uuid }
+    payroll_id: { type: string, format: uuid }
+    payment_method: { $ref: "../schemas/common.yaml#/PaymentMethod" }
+    external_reference: { type: string, nullable: true }
+    status: { $ref: "../schemas/common.yaml#/PaymentStatus" }
+    paid_at: { type: string, format: date-time, nullable: true }
+  required: [id, payroll_id, payment_method, status]
+
+PaymentCreateRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    payment_method: { $ref: "../schemas/common.yaml#/PaymentMethod" }
+    external_reference: { type: string }
+    status: { $ref: "../schemas/common.yaml#/PaymentStatus" }
+    paid_at: { type: string, format: date-time }
+  required: [payment_method, status]
+
+PaymentUpdateRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    payment_method: { $ref: "../schemas/common.yaml#/PaymentMethod" }
+    external_reference: { type: string, nullable: true }
+    status: { $ref: "../schemas/common.yaml#/PaymentStatus" }
+    paid_at: { type: string, format: date-time, nullable: true }

@@ -1,0 +1,36 @@
+Profile:
+  type: object
+  additionalProperties: false
+  properties:
+    id: { type: string, format: uuid }
+    full_name: { type: string }
+    phone: { type: string, nullable: true }
+    role: { $ref: "../schemas/common.yaml#/ProfileRole" }
+    is_active: { type: boolean }
+    created_at: { type: string, format: date-time }
+    email:
+      type: string
+      format: email
+      nullable: true
+      description: Proviene de AUTH_USERS.email
+  required: [id, full_name, role, is_active, created_at]
+
+ProfileUpdateRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    full_name: { type: string }
+    phone: { type: string, nullable: true }
+    is_active: { type: boolean }
+
+PagedProfiles:
+  type: object
+  additionalProperties: false
+  properties:
+    items:
+      type: array
+      items: { $ref: "../schemas/profiles.yaml#/Profile" }
+    total: { type: integer, minimum: 0 }
+    limit: { type: integer }
+    offset: { type: integer }
+  required: [items, total, limit, offset]

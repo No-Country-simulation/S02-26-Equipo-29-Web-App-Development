@@ -1,0 +1,63 @@
+caregivers:
+  get:
+    tags: [Caregivers]
+    operationId: listCaregivers
+    summary: Listado de CAREGIVERS
+    parameters:
+      - $ref: "../components/parameters.yaml#/Limit"
+      - $ref: "../components/parameters.yaml#/Offset"
+      - in: query
+        name: is_verified
+        schema: { type: boolean }
+        description: Filtra cuidadores verificados/no verificados
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: "../schemas/caregivers.yaml#/PagedCaregivers" }
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+caregiverById:
+  get:
+    tags: [Caregivers]
+    operationId: getCaregiver
+    summary: Obtener CAREGIVER
+    parameters:
+      - $ref: "../components/parameters.yaml#/CaregiverId"
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: "../schemas/caregivers.yaml#/Caregiver" }
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+
+  patch:
+    tags: [Caregivers]
+    operationId: updateCaregiver
+    summary: Actualizar CAREGIVER
+    description: >
+      Actualiza datos del cuidador (cbu, mercado_pago_alias, hourly_rate, is_verified).
+      En MVP sin auth se permite; con auth debería ser admin o dueño.
+    parameters:
+      - $ref: "../components/parameters.yaml#/CaregiverId"
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: "../schemas/caregivers.yaml#/CaregiverUpdateRequest" }
+    responses:
+      "200":
+        description: Actualizado
+        content:
+          application/json:
+            schema: { $ref: "../schemas/caregivers.yaml#/Caregiver" }
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+      "409":
+        $ref: "../components/responses.yaml#/Conflict"
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
