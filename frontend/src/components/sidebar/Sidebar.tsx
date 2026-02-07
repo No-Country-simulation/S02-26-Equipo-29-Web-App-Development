@@ -21,7 +21,7 @@ export function Sidebar() {
   const { pathname } = useLocation();
 
   return (
-    <aside className="sticky top-0 h-screen bg-white shadow-lg w-[72px] md:w-[220px] transition-all duration-300">
+    <aside className="sticky top-0 h-screen bg-white shadow-lg w-18 md:w-55 transition-all duration-300">
       {/* Header */}
       <div className="p-4 md:p-5">
         <div className="flex items-center justify-center gap-2">

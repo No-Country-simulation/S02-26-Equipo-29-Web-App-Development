@@ -8,7 +8,7 @@ export const InputLogin = forwardRef<HTMLInputElement, InputLoginProps>(
     return (
       <input
         ref={ref}
-        className={`w-full rounded-2xl border border-[var(--color-border)] bg-transparent px-4 py-3 text-[var(--color-text-primary)] outline-none transition focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 ${className}`.trim()}
+        className={`w-full rounded-2xl border border-border bg-transparent px-4 py-3 text-text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 ${className}`.trim()}
         {...rest}
       />
     );
@@ -24,7 +24,7 @@ export const InputSignUp = forwardRef<HTMLInputElement, InputSignUpProps>(
     return (
       <input
         ref={ref}
-        className={`w-full rounded-2xl border border-[var(--color-border)] bg-transparent px-4 py-3 text-[var(--color-text-primary)] outline-none transition focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 ${className}`.trim()}
+        className={`w-full rounded-2xl border border-border bg-transparent px-4 py-3 text-text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 ${className}`.trim()}
         {...rest}
       />
     );

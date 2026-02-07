@@ -34,23 +34,23 @@ const [Mode, setMode] = useState(false);
     <>
       {Mode ? <SignUp /> : (
 
-    <section className="min-h-screen bg-[var(--color-background)] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xl p-8">
+    <section className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md rounded-3xl border border-border bg-surface shadow-xl p-8">
         <div className="space-y-2 text-center mb-8">
-          <p className="text-sm uppercase tracking-[0.25em] text-[var(--color-text-secondary)]">
+          <p className="text-sm uppercase tracking-[0.25em] text-text-secondary">
             Bienvenido
           </p>
-          <h1 className="text-3xl font-semibold text-[var(--color-text-primary)]">
+          <h1 className="text-3xl font-semibold text-text-primary">
             Inicia sesión
           </h1>
-          <p className="text-sm text-[var(--color-text-secondary)]">
+          <p className="text-sm text-text-secondary">
             Ingresa tu correo y contraseña para continuar
           </p>
         </div>
 
         <form onSubmit={onSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-[var(--color-text-primary)]" htmlFor="email">
+            <label className="text-sm font-medium text-text-primary" htmlFor="email">
               Correo electrónico
             </label>
 
@@ -68,12 +68,12 @@ const [Mode, setMode] = useState(false);
             />
 
             {errors.email && (
-              <p className="text-sm text-[var(--color-danger)]">{errors.email.message}</p>
+              <p className="text-sm text-danger">{errors.email.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-[var(--color-text-primary)]" htmlFor="password">
+            <label className="text-sm font-medium text-text-primary" htmlFor="password">
               Contraseña
             </label>
             <InputLogin
@@ -89,20 +89,20 @@ const [Mode, setMode] = useState(false);
               })}
             />
             {errors.password && (
-              <p className="text-sm text-[var(--color-danger)]">{errors.password.message}</p>
+              <p className="text-sm text-danger">{errors.password.message}</p>
             )}
           </div>
 
           <button
             type="submit"
-            className="w-full rounded-2xl bg-[var(--color-primary)] px-4 py-3 text-white font-medium transition hover:bg-[var(--color-primary-hover)] disabled:opacity-70"
+            className="w-full rounded-2xl bg-primary px-4 py-3 text-white font-medium transition hover:bg-primary-hover disabled:opacity-70"
             disabled={isSubmitting}
           >
             {isSubmitting ? "Ingresando..." : "Entrar"}
           </button>
           <button
             onClick={() => setMode(!Mode)}
-            className="w-full rounded-2xl bg-[var(--color-primary)] px-4 py-3 text-white font-medium transition hover:bg-[var(--color-primary-hover)] disabled:opacity-70"
+            className="w-full rounded-2xl bg-primary px-4 py-3 text-white font-medium transition hover:bg-primary-hover disabled:opacity-70"
 
           >
             {isSubmitting ? "Ingresando..." : "Crear una cuenta"}

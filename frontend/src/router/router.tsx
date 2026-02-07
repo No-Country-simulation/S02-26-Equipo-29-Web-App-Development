@@ -8,10 +8,10 @@ export const router = createBrowserRouter([
     path: "/",
     element: <Home />,
   },
-  //   {
-  //     path: "/perfil/:id",
-  //     element: <UserProfile />,
-  //   },
+  // {
+  //   path: "/patient/:id",
+  //   element: <Patient />,
+  // },
   {
     path: "/login",
     element: <Login />,
