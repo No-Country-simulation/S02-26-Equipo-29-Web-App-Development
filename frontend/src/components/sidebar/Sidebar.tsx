@@ -6,19 +6,42 @@ import {
   UserPlusIcon,
   TrendingUpIcon,
   LogOutIcon,
+  type LucideIcon,
 } from "lucide-react";
 import { DashboardLink } from "../UI/DashboardLink";
+import { useRole } from "../../context/RoleContext";
 
-const navLinks = [
-  { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
-  { title: "Pacientes", href: "/patients", icon: UserIcon },
-  { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
-  { title: "Métricas", href: "/metrics", icon: TrendingUpIcon },
-  { title: "Administradores", href: "/admins", icon: UserPlusIcon },
-];
+const navLinks: Record<
+  "admin" | "caregiver" | "patient",
+  { title: string; href: string; icon: LucideIcon }[]
+> = {
+  admin: [
+    { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
+    { title: "Registro", href: "/registration", icon: UserPlusIcon },
+    { title: "Pacientes", href: "/patients", icon: UserIcon },
+    { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
+    { title: "Métricas", href: "/metrics", icon: TrendingUpIcon },
+    { title: "Administradores", href: "/admins", icon: UserPlusIcon },
+  ],
+  caregiver: [
+    { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
+    { title: "Registro", href: "/registration", icon: UserPlusIcon },
+    { title: "Pacientes", href: "/patients", icon: UserIcon },
+    { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
+    { title: "Métricas", href: "/metrics", icon: TrendingUpIcon },
+  ],
+  patient: [
+    { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
+    { title: "Registro", href: "/registration", icon: UserPlusIcon },
+    { title: "Pacientes", href: "/patients", icon: UserIcon },
+    { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
+    { title: "Métricas", href: "/metrics", icon: TrendingUpIcon },
+  ],
+};
 
 export function Sidebar() {
   const { pathname } = useLocation();
+  const { role } = useRole();
 
   return (
     <aside className="sticky top-0 h-screen bg-white shadow-lg w-18 md:w-55 transition-all duration-300">
@@ -44,7 +67,7 @@ export function Sidebar() {
       {/* Navigation */}
       <nav>
         <ul className="flex flex-col gap-2 px-2 mt-10 md:mt-5 ">
-          {navLinks.map((link) => {
+          {navLinks[role].map((link) => {
             const isActive = pathname === link.href;
             return (
               <li key={link.title}>

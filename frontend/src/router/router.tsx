@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import { Home } from "../components/home/Home";
 import { Login } from "../components/login/LogIn";
 import { MainDashboard } from "../components/dashboard/Dashboard";
+import { PanelAdmin, Registration } from "../views";
 
 export const router = createBrowserRouter([
   {
@@ -17,7 +18,16 @@ export const router = createBrowserRouter([
     element: <Login />,
   },
   {
-    path: "/dashboard",
     element: <MainDashboard />,
+    children: [
+      {
+        path: "/dashboard",
+        element: <PanelAdmin />,
+      },
+      {
+        path: "/registration",
+        element: <Registration />,
+      },
+    ],
   },
 ]);
