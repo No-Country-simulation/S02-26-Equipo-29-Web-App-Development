@@ -1,4 +1,3 @@
-// src/modules/profiles/entities/profile.entity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -8,7 +7,8 @@ import {
   CreateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { AuthUser } from '../users/auth-user.entity';
+
+import { AuthUser } from '../auth/auth-user.entity';
 import { Patient } from '../patients/patient.entity';
 import { FamilyPatient } from '../family/family-patient.entity';
 import { Shift } from '../shifts/shift.entity';
@@ -23,35 +23,37 @@ export enum ProfileRole {
 @Entity('profiles')
 export class Profile {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
-  @OneToOne(() => AuthUser, (user) => user.profile, { nullable: false })
+  @OneToOne(() => AuthUser, (user: AuthUser) => user.profile, {
+    nullable: false,
+  })
   @JoinColumn({ name: 'user_id' })
-  user: AuthUser;
+  user!: AuthUser;
 
   @Column()
-  full_name: string;
+  full_name!: string;
 
   @Column({ nullable: true })
-  phone: string;
+  phone?: string;
 
   @Column({ type: 'enum', enum: ProfileRole })
-  role: ProfileRole;
+  role!: ProfileRole;
 
   @Column({ default: true })
-  is_active: boolean;
+  is_active!: boolean;
 
   @CreateDateColumn()
-  created_at: Date;
+  created_at!: Date;
 
   /* Relaciones */
 
-  @OneToMany(() => Patient, (patient) => patient.primary_contact)
-  managed_patients: Patient[];
+  @OneToMany(() => Patient, (patient: Patient) => patient.primary_contact)
+  managed_patients!: Patient[];
 
-  @OneToMany(() => FamilyPatient, (fp) => fp.profile)
-  family_links: FamilyPatient[];
+  @OneToMany(() => FamilyPatient, (fp: FamilyPatient) => fp.profile)
+  family_links!: FamilyPatient[];
 
-  @OneToMany(() => Shift, (shift) => shift.approved_by)
-  approved_shifts: Shift[];
+  @OneToMany(() => Shift, (shift: Shift) => shift.approved_by)
+  approved_shifts!: Shift[];
 }

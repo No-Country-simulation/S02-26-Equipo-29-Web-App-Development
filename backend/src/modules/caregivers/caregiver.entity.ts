@@ -1,4 +1,3 @@
-// src/modules/caregivers/entities/caregiver.entity.ts
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { CaregiverDocument } from './caregiver-document.entity';
 import { Shift } from '../shifts/shift.entity';

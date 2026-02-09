@@ -68,4 +68,35 @@ export default tseslint.config(
       '@typescript-eslint/class-methods-use-this': 'off',
     },
   },
+  {
+    files: ['**/*.entity.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/class-methods-use-this': 'off',
+    },
+  },
+
+  // 🔐 OVERRIDE PARA AUTH (bcrypt, jwt, passport)
+  {
+    files: ['**/auth/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+    },
+  },
+
+// 🔥 OVERRIDE PARA INFRA (cloudinary / media)
+{
+  files: ['**/shared/media/**/*.ts', '**/cloudinary/**/*.ts'],
+  rules: {
+    '@typescript-eslint/no-unsafe-call': 'off',
+    '@typescript-eslint/no-unsafe-member-access': 'off',
+    '@typescript-eslint/no-unsafe-assignment': 'off',
+  },
+},
+
+  
 );
