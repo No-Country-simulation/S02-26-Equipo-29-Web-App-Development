@@ -20,7 +20,12 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "openapi:lint": "redocly lint openapi/openapi.yaml",
     "openapi:bundle": "redocly bundle openapi/openapi.yaml -o openapi/bundled.yaml",
-    "openapi:check": "pnpm openapi:lint && pnpm openapi:bundle"
+    "openapi:check": "pnpm openapi:lint && pnpm openapi:bundle",
+    "typeorm": "typeorm-ts-node-commonjs -d src/database/typeorm.config.ts",
+    "migration:create": "typeorm-ts-node-commonjs migration:create",
+    "migration:generate": "pnpm typeorm migration:generate src/database/migrations/InitSchema",
+    "migration:run": "pnpm typeorm migration:run",
+    "migration:revert": "pnpm typeorm migration:revert"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
