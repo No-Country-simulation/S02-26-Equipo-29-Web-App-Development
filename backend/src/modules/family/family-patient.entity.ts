@@ -1,4 +1,3 @@
-// src/modules/family/entities/family-patient.entity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
