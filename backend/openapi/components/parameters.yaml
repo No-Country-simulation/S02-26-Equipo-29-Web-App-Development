@@ -24,7 +24,10 @@ CaregiverId:
   in: path
   name: caregiverId
   required: true
-  schema: { type: string, format: uuid }
+  description: Profile ID of the caregiver
+  schema:
+    type: string
+    format: uuid
 
 FamilyPatientId:
   in: path

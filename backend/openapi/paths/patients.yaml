@@ -6,22 +6,29 @@ patients:
     parameters:
       - $ref: "../components/parameters.yaml#/Limit"
       - $ref: "../components/parameters.yaml#/Offset"
+
       - in: query
         name: q
-        schema: { type: string }
+        schema:
+          type: string
         description: Búsqueda por full_name o dni
+
       - in: query
         name: is_active
-        schema: { type: boolean }
-        description: Filtra por estado activo/inactivo
+        schema:
+          type: boolean
+        description: Filtra pacientes activos/inactivos
+
     responses:
       "200":
         description: OK
         content:
           application/json:
-            schema: { $ref: "../schemas/patients.yaml#/PagedPatients" }
+            schema:
+              $ref: "../schemas/patients.yaml#/PagedPatients"
       "422":
         $ref: "../components/responses.yaml#/UnprocessableEntity"
+
 
   post:
     tags: [Patients]
@@ -31,17 +38,20 @@ patients:
       required: true
       content:
         application/json:
-          schema: { $ref: "../schemas/patients.yaml#/PatientCreateRequest" }
+          schema:
+            $ref: "../schemas/patients.yaml#/PatientCreateRequest"
     responses:
       "201":
         description: Creado
         content:
           application/json:
-            schema: { $ref: "../schemas/patients.yaml#/Patient" }
+            schema:
+              $ref: "../schemas/patients.yaml#/Patient"
       "409":
         $ref: "../components/responses.yaml#/Conflict"
       "422":
         $ref: "../components/responses.yaml#/UnprocessableEntity"
+
 
 patientById:
   get:
@@ -55,9 +65,11 @@ patientById:
         description: OK
         content:
           application/json:
-            schema: { $ref: "../schemas/patients.yaml#/Patient" }
+            schema:
+              $ref: "../schemas/patients.yaml#/Patient"
       "404":
         $ref: "../components/responses.yaml#/NotFound"
+
 
   patch:
     tags: [Patients]
@@ -69,13 +81,15 @@ patientById:
       required: true
       content:
         application/json:
-          schema: { $ref: "../schemas/patients.yaml#/PatientUpdateRequest" }
+          schema:
+            $ref: "../schemas/patients.yaml#/PatientUpdateRequest"
     responses:
       "200":
         description: Actualizado
         content:
           application/json:
-            schema: { $ref: "../schemas/patients.yaml#/Patient" }
+            schema:
+              $ref: "../schemas/patients.yaml#/Patient"
       "404":
         $ref: "../components/responses.yaml#/NotFound"
       "409":

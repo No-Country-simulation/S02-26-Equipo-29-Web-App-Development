@@ -6,33 +6,54 @@ shifts:
     parameters:
       - $ref: "../components/parameters.yaml#/Limit"
       - $ref: "../components/parameters.yaml#/Offset"
+
       - in: query
-        name: caregiver_id
-        schema: { type: string, format: uuid }
+        name: caregiverProfileId
+        schema:
+          type: string
+          format: uuid
+        description: Profile ID del cuidador
+
       - in: query
-        name: patient_id
-        schema: { type: string, format: uuid }
+        name: patientId
+        schema:
+          type: string
+          format: uuid
+        description: Patient ID
+
       - in: query
         name: from
-        schema: { type: string, format: date-time }
+        schema:
+          type: string
+          format: date-time
+
       - in: query
         name: to
-        schema: { type: string, format: date-time }
+        schema:
+          type: string
+          format: date-time
+
       - in: query
         name: status
-        schema: { $ref: "../schemas/common.yaml#/ShiftStatus" }
+        schema:
+          $ref: "../schemas/common.yaml#/ShiftStatus"
+
       - in: query
         name: approved
-        schema: { type: boolean }
+        schema:
+          type: boolean
         description: Si true, filtra approved_at != null
+
     responses:
       "200":
         description: OK
         content:
           application/json:
-            schema: { $ref: "../schemas/shifts.yaml#/PagedShifts" }
+            schema:
+              $ref: "../schemas/shifts.yaml#/PagedShifts"
       "422":
         $ref: "../components/responses.yaml#/UnprocessableEntity"
+
 
   post:
     tags: [Shifts]
@@ -42,17 +63,20 @@ shifts:
       required: true
       content:
         application/json:
-          schema: { $ref: "../schemas/shifts.yaml#/ShiftCreateRequest" }
+          schema:
+            $ref: "../schemas/shifts.yaml#/ShiftCreateRequest"
     responses:
       "201":
         description: Creado
         content:
           application/json:
-            schema: { $ref: "../schemas/shifts.yaml#/Shift" }
+            schema:
+              $ref: "../schemas/shifts.yaml#/Shift"
       "409":
         $ref: "../components/responses.yaml#/Conflict"
       "422":
         $ref: "../components/responses.yaml#/UnprocessableEntity"
+
 
 shiftsMine:
   get:
@@ -61,30 +85,43 @@ shiftsMine:
     summary: Mis SHIFTS (cuidador)
     description: >
       En MVP sin auth, este endpoint puede comportarse igual que /shifts filtrado.
-      Cuando haya auth, usa caregiver_id asociado al usuario autenticado.
+      Cuando haya auth, usa el caregiver_profile_id asociado al usuario autenticado.
     parameters:
       - $ref: "../components/parameters.yaml#/Limit"
       - $ref: "../components/parameters.yaml#/Offset"
+
       - in: query
         name: from
-        schema: { type: string, format: date-time }
+        schema:
+          type: string
+          format: date-time
+
       - in: query
         name: to
-        schema: { type: string, format: date-time }
+        schema:
+          type: string
+          format: date-time
+
       - in: query
         name: status
-        schema: { $ref: "../schemas/common.yaml#/ShiftStatus" }
+        schema:
+          $ref: "../schemas/common.yaml#/ShiftStatus"
+
       - in: query
         name: approved
-        schema: { type: boolean }
+        schema:
+          type: boolean
+
     responses:
       "200":
         description: OK
         content:
           application/json:
-            schema: { $ref: "../schemas/shifts.yaml#/PagedShifts" }
+            schema:
+              $ref: "../schemas/shifts.yaml#/PagedShifts"
       "422":
         $ref: "../components/responses.yaml#/UnprocessableEntity"
+
 
 shiftsByPatient:
   get:
@@ -95,23 +132,34 @@ shiftsByPatient:
       - $ref: "../components/parameters.yaml#/PatientId"
       - $ref: "../components/parameters.yaml#/Limit"
       - $ref: "../components/parameters.yaml#/Offset"
+
       - in: query
         name: from
-        schema: { type: string, format: date-time }
+        schema:
+          type: string
+          format: date-time
+
       - in: query
         name: to
-        schema: { type: string, format: date-time }
+        schema:
+          type: string
+          format: date-time
+
       - in: query
         name: approved
-        schema: { type: boolean }
+        schema:
+          type: boolean
+
     responses:
       "200":
         description: OK
         content:
           application/json:
-            schema: { $ref: "../schemas/shifts.yaml#/PagedShifts" }
+            schema:
+              $ref: "../schemas/shifts.yaml#/PagedShifts"
       "422":
         $ref: "../components/responses.yaml#/UnprocessableEntity"
+
 
 shiftById:
   get:
@@ -125,9 +173,11 @@ shiftById:
         description: OK
         content:
           application/json:
-            schema: { $ref: "../schemas/shifts.yaml#/Shift" }
+            schema:
+              $ref: "../schemas/shifts.yaml#/Shift"
       "404":
         $ref: "../components/responses.yaml#/NotFound"
+
 
   patch:
     tags: [Shifts]
@@ -139,19 +189,22 @@ shiftById:
       required: true
       content:
         application/json:
-          schema: { $ref: "../schemas/shifts.yaml#/ShiftUpdateRequest" }
+          schema:
+            $ref: "../schemas/shifts.yaml#/ShiftUpdateRequest"
     responses:
       "200":
         description: Actualizado
         content:
           application/json:
-            schema: { $ref: "../schemas/shifts.yaml#/Shift" }
+            schema:
+              $ref: "../schemas/shifts.yaml#/Shift"
       "404":
         $ref: "../components/responses.yaml#/NotFound"
       "409":
         $ref: "../components/responses.yaml#/Conflict"
       "422":
         $ref: "../components/responses.yaml#/UnprocessableEntity"
+
 
 shiftSubmit:
   post:
@@ -168,13 +221,15 @@ shiftSubmit:
         description: Enviado
         content:
           application/json:
-            schema: { $ref: "../schemas/shifts.yaml#/Shift" }
+            schema:
+              $ref: "../schemas/shifts.yaml#/Shift"
       "404":
         $ref: "../components/responses.yaml#/NotFound"
       "409":
         $ref: "../components/responses.yaml#/Conflict"
       "422":
         $ref: "../components/responses.yaml#/UnprocessableEntity"
+
 
 shiftApprove:
   post:
@@ -190,13 +245,15 @@ shiftApprove:
       required: false
       content:
         application/json:
-          schema: { $ref: "../schemas/shifts.yaml#/ShiftApproveRequest" }
+          schema:
+            $ref: "../schemas/shifts.yaml#/ShiftApproveRequest"
     responses:
       "200":
         description: Aprobado
         content:
           application/json:
-            schema: { $ref: "../schemas/shifts.yaml#/Shift" }
+            schema:
+              $ref: "../schemas/shifts.yaml#/Shift"
       "404":
         $ref: "../components/responses.yaml#/NotFound"
       "403":

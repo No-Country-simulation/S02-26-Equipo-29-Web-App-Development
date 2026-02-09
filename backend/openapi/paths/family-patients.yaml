@@ -12,36 +12,42 @@ familyPatientsByPatient:
           application/json:
             schema:
               type: array
-              items: { $ref: "../schemas/family-patients.yaml#/FamilyPatient" }
+              items:
+                $ref: "../schemas/family-patients.yaml#/FamilyPatient"
       "404":
         $ref: "../components/responses.yaml#/NotFound"
+
 
   post:
     tags: [FamilyPatients]
     operationId: createFamilyPatientLink
     summary: Crear vínculo FAMILY_PATIENTS para un paciente
     description: >
-      Crea el vínculo entre un paciente y una familia (profile con role=family).
-      Regla típica: no permitir duplicados (family_id + patient_id).
+      Crea el vínculo entre un paciente y un familiar
+      (profile con role=family).
+      No se permiten duplicados (profile_id + patient_id).
     parameters:
       - $ref: "../components/parameters.yaml#/PatientId"
     requestBody:
       required: true
       content:
         application/json:
-          schema: { $ref: "../schemas/family-patients.yaml#/FamilyPatientCreateRequest" }
+          schema:
+            $ref: "../schemas/family-patients.yaml#/FamilyPatientCreateRequest"
     responses:
       "201":
         description: Creado
         content:
           application/json:
-            schema: { $ref: "../schemas/family-patients.yaml#/FamilyPatient" }
+            schema:
+              $ref: "../schemas/family-patients.yaml#/FamilyPatient"
       "404":
         $ref: "../components/responses.yaml#/NotFound"
       "409":
         $ref: "../components/responses.yaml#/Conflict"
       "422":
         $ref: "../components/responses.yaml#/UnprocessableEntity"
+
 
 familyPatientById:
   patch:
@@ -56,17 +62,20 @@ familyPatientById:
       required: true
       content:
         application/json:
-          schema: { $ref: "../schemas/family-patients.yaml#/FamilyPatientUpdateRequest" }
+          schema:
+            $ref: "../schemas/family-patients.yaml#/FamilyPatientUpdateRequest"
     responses:
       "200":
         description: Actualizado
         content:
           application/json:
-            schema: { $ref: "../schemas/family-patients.yaml#/FamilyPatient" }
+            schema:
+              $ref: "../schemas/family-patients.yaml#/FamilyPatient"
       "404":
         $ref: "../components/responses.yaml#/NotFound"
       "422":
         $ref: "../components/responses.yaml#/UnprocessableEntity"
+
 
   delete:
     tags: [FamilyPatients]

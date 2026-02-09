@@ -2,23 +2,54 @@ FamilyPatient:
   type: object
   additionalProperties: false
   properties:
-    id: { type: string, format: uuid }
-    family_id: { type: string, format: uuid }
-    patient_id: { type: string, format: uuid }
-    relationship: { type: string }
-    created_at: { type: string, format: date-time }
-  required: [id, family_id, patient_id, relationship, created_at]
+    id:
+      type: string
+      format: uuid
+
+    profile_id:
+      type: string
+      format: uuid
+      description: Profile ID del familiar
+
+    patient_id:
+      type: string
+      format: uuid
+
+    relationship:
+      type: string
+      description: Relación del familiar con el paciente
+
+    created_at:
+      type: string
+      format: date-time
+
+  required:
+    - id
+    - profile_id
+    - patient_id
+    - relationship
+    - created_at
 
 FamilyPatientCreateRequest:
   type: object
   additionalProperties: false
   properties:
-    family_id: { type: string, format: uuid }
-    relationship: { type: string }
-  required: [family_id, relationship]
+    profile_id:
+      type: string
+      format: uuid
+      description: Profile ID del familiar (role=family)
 
+    relationship:
+      type: string
+
+  required:
+    - profile_id
+    - relationship
+    
 FamilyPatientUpdateRequest:
   type: object
   additionalProperties: false
   properties:
-    relationship: { type: string }
+    relationship:
+      type: string
+
