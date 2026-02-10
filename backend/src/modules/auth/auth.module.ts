@@ -10,6 +10,7 @@ import { JwtStrategy } from './jwt.strategy';
 
 import { AuthUser } from './auth-user.entity';
 import { Profile } from '../profiles/profile.entity';
+import { ProfilesModule } from '../profiles/profile.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { Profile } from '../profiles/profile.entity';
         },
       }),
     }),
+    ProfilesModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],

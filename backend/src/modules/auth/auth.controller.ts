@@ -6,6 +6,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import type { JwtPayload } from './jwt.strategy';
+import { ProfilesService } from '../profiles/profile.service';
 
 interface RequestWithUser extends Request {
   user: JwtPayload;
@@ -13,7 +14,10 @@ interface RequestWithUser extends Request {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly profilesService: ProfilesService,
+  ) {}
 
   @Post('register')
   register(@Body() dto: RegisterDto) {
@@ -27,7 +31,23 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  me(@Req() req: RequestWithUser): JwtPayload {
-    return req.user;
+  async me(@Req() req: RequestWithUser) {
+    const { profileId } = req.user;
+
+    const profile = await this.profilesService.findById(profileId);
+
+    if (!profile) {
+      return null;
+    }
+
+    return {
+      id: profile.id,
+      full_name: profile.full_name,
+      email: profile.user.email,
+      role: profile.role,
+      phone: profile.phone,
+      is_active: profile.is_active,
+      created_at: profile.created_at,
+    };
   }
 }
