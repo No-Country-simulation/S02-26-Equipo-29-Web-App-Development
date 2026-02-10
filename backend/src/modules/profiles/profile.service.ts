@@ -13,6 +13,7 @@ export class ProfilesService {
   findById(id: string) {
     return this.profileRepo.findOne({
       where: { id },
+      relations: ['user'],
     });
   }
 
