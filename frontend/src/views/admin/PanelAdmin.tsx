@@ -1,11 +1,4 @@
-import {
-  ArrowRight,
-  Clock,
-  PersonStanding,
-  Plus,
-  Star,
-  Users2,
-} from "lucide-react";
+import { ArrowRight, Clock, PersonStanding, Star, Users2 } from "lucide-react";
 
 export function PanelAdmin() {
   const caregivers = [
@@ -74,24 +67,27 @@ export function PanelAdmin() {
     },
   ];
 
-  const patients = [
+  const appointments = [
     {
       id: "P-102",
       name: "Don José Pérez",
-      day: "Lunes",
+      day: "11/02/2026",
       schedule: "06:00 - 10:00",
+      caregiver: "María López",
     },
     {
       id: "P-143",
       name: "Sra. Emilia Torres",
-      day: "Martes",
+      day: "12/02/2026",
       schedule: "10:00 - 14:00",
+      caregiver: "Juan Fernández",
     },
     {
       id: "P-210",
       name: "Srta. Lucía Gómez",
-      day: "Miércoles",
+      day: "13/02/2026",
       schedule: "14:00 - 20:00",
+      caregiver: "Juan Fernández",
     },
   ];
 
@@ -101,12 +97,6 @@ export function PanelAdmin() {
         <h1 className="text-2xl font-bold ">Panel Administrativo</h1>
         <p className="text-gray-400">Información general del sistema</p>
       </header>
-
-      <div className="flex justify-end">
-        <button className="cursor-pointer rounded-2xl flex items-center gap-2 bg-primary px-4 py-2  font-medium text-white transition hover:bg-primary-hover">
-          <Plus /> Agregar cuidador
-        </button>
-      </div>
 
       {/* Seccion de cards */}
       <section className="flex gap-4">
@@ -152,6 +142,7 @@ export function PanelAdmin() {
               <thead className="bg-background text-left text-text-secondary">
                 <tr>
                   <th className="px-4 py-3 font-medium">Paciente</th>
+                  <th className="px-4 py-3 font-medium">Cuidador</th>
                   <th className="px-4 py-3 font-medium">Día</th>
                   <th className="px-4 py-3 font-medium">Horario</th>
                   <th className="px-4 py-3 font-medium text-center">
@@ -160,16 +151,17 @@ export function PanelAdmin() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border bg-surface">
-                {patients.map((patient, index) => (
+                {appointments.map((appointment, index) => (
                   <tr key={index} className="hover:bg-white/5">
                     <td className="px-4 py-4">
-                      <p className="font-medium">{patient.name}</p>
+                      <p className="font-medium">{appointment.name}</p>
                       <p className="text-xs text-text-secondary">
-                        {patient.id}
+                        {appointment.id}
                       </p>
                     </td>
-                    <td className="px-4 py-4">{patient.day}</td>
-                    <td className="px-4 py-4">{patient.schedule}</td>
+                    <td className="px-4 py-4">{appointment.caregiver}</td>
+                    <td className="px-4 py-4">{appointment.day}</td>
+                    <td className="px-4 py-4">{appointment.schedule}</td>
                     <td className="px-4 py-4 flex gap-2 justify-center">
                       <button className="cursor-pointer hover:bg-primary/80 hover:text-white rounded-2xl border border-border bg-background px-4 py-2 text-sm flex items-center gap-2">
                         Aprobar

@@ -7,6 +7,7 @@ import {
   TrendingUpIcon,
   LogOutIcon,
   type LucideIcon,
+  CalendarIcon,
 } from "lucide-react";
 import { DashboardLink } from "../UI/DashboardLink";
 import { useRole } from "../../context/RoleContext";
@@ -17,6 +18,7 @@ const navLinks: Record<
 > = {
   admin: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
+    { title: "Agenda", href: "/appointments", icon: CalendarIcon },
     { title: "Registro", href: "/registration", icon: UserPlusIcon },
     { title: "Pacientes", href: "/patients", icon: UserIcon },
     { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
@@ -44,7 +46,7 @@ export function Sidebar() {
   const { role } = useRole();
 
   return (
-    <aside className="sticky top-0 h-screen bg-white shadow-lg w-18 md:w-55 transition-all duration-300">
+    <aside className="sticky top-0 min-h-screen bg-white shadow-lg w-18 md:w-55 transition-all duration-300">
       {/* Header */}
       <div className="p-4 md:p-5">
         <div className="flex items-center justify-center gap-2">
