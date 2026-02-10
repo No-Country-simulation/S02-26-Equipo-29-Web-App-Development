@@ -1,17 +1,21 @@
-
+import axios from "axios";
 import { useForm } from "react-hook-form";
 import { InputLogin } from "../UI/input";
 import { useState } from "react";
 import { SignUp } from "./SignUp";
+import { useNavigate } from "react-router-dom";
 
 type LoginFormValues = {
-  email: string;
-  password: string;
+  email?: string;
+  password?: string;
+  token?: string;
 };
 
 export const Login = () => {
-
+const navigate = useNavigate();
 const [Mode, setMode] = useState(false);
+const [, setUser] = useState<LoginFormValues | null>(null);
+const [, setUserToken] = useState<LoginFormValues | null>(null);
 
   const {
     register,
@@ -25,8 +29,28 @@ const [Mode, setMode] = useState(false);
     mode: "onBlur",
   });
 
-  const onSubmit = handleSubmit((values) => {
-    console.log("Login payload", values);
+  const onSubmit = handleSubmit(async (values: LoginFormValues) => {
+    if (values) {
+      setUser(values);
+      localStorage.setItem("user", JSON.stringify(values));
+
+      // Desmarcar cuando tengamos los endpoints de autenticación
+
+      const response = await axios.post<LoginFormValues>("http://localhost:3002/auth/login", values);
+      if (response.status === 201) {
+        console.log("Login exitoso:", response.data);
+        setUserToken(response.data);
+        localStorage.setItem("userToken", JSON.stringify(response.data));
+        navigate("/dashboard");
+
+      } else {
+        console.error("Error en el login:", response.statusText);
+        console.error("Response data:", response.data);
+      }
+      
+    } else {
+      setUser(null);
+    }
   });
 
 
@@ -113,4 +137,4 @@ const [Mode, setMode] = useState(false);
       )}
     </>
   );
-};
+}; 

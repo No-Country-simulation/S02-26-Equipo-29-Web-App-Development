@@ -1,18 +1,19 @@
-
+import axios from "axios";
 import { useForm } from "react-hook-form";
 import { InputSignUp } from "../UI/input";
 import { useState } from "react";
 import { Login } from "./LogIn";
+import { useNavigate } from "react-router-dom";
 
 type SignUpFormValues = {
   email: string;
   password: string;
-    name: string;
-    lastname: string;
-    phone: number;
+  name: string;
+  lastname: string;
 };
 
 export const SignUp = () => {
+  const navigate = useNavigate();
   const [Mode, setMode] = useState(false);
   const {
     register,
@@ -24,35 +25,53 @@ export const SignUp = () => {
       password: "",
       name: "",
       lastname: "",
-      phone: 0,
     },
     mode: "onBlur",
   });
 
-  const onSubmit = handleSubmit((values) => {
+  const onSubmit = handleSubmit(async (values) => {
     console.log("SignUp payload", values);
+    if (values) {
+
+      const newUser = {
+        email: values.email,
+        password: values.password,
+        full_name: `${values.name} ${values.lastname}`,
+        role: "FAMILY"
+      }
+      // Aquí iría la lógica para enviar los datos al backend
+      const response = await axios.post("http://localhost:3002/auth/register", newUser);
+      console.log("SignUp response", response);
+      if (response.status === 201) {
+        console.log("SignUp exitoso:", response.data);
+        setMode(true); // Cambia al modo de login después de un registro exitoso
+        navigate("/login"); // Redirige al login después de registrarse
+      }
+    } else {
+      console.error("Error en el SignUp: No se proporcionaron datos válidos");
+    }
   });
 
   return (
     <>
     {Mode ? <Login /> : (
-    <section className="min-h-screen bg-[var(--color-background)] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xl p-8">
+    <section className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md rounded-3xl border border-border bg-surface shadow-xl p-8">
         <div className="space-y-2 text-center mb-8">
-          <p className="text-sm uppercase tracking-[0.25em] text-[var(--color-text-secondary)]">
+          <p className="text-sm uppercase tracking-[0.25em] text-text-secondary">
             Bienvenido
           </p>
-          <h1 className="text-3xl font-semibold text-[var(--color-text-primary)]">
+          <h1 className="text-3xl font-semibold text-text-primary">
             Crea una cuenta
           </h1>
-          <p className="text-sm text-[var(--color-text-secondary)]">
+          <p className="text-sm text-text-secondary">
             Ingresa tu correo y contraseña para continuar
           </p>
         </div>
 
         <form onSubmit={onSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-[var(--color-text-primary)]" htmlFor="email">
+            <label className="text-sm font-medium text-text-primary" htmlFor="email">
               Correo electrónico
             </label>
 
@@ -70,12 +89,12 @@ export const SignUp = () => {
             />
 
             {errors.email && (
-              <p className="text-sm text-[var(--color-danger)]">{errors.email.message}</p>
+              <p className="text-sm text-danger">{errors.email.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-[var(--color-text-primary)]" htmlFor="password">
+            <label className="text-sm font-medium text-text-primary" htmlFor="password">
               Contraseña
             </label>
             <InputSignUp 
@@ -91,12 +110,12 @@ export const SignUp = () => {
               })}
             />
             {errors.password && (
-              <p className="text-sm text-[var(--color-danger)]">{errors.password.message}</p>
+              <p className="text-sm text-danger">{errors.password.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-[var(--color-text-primary)]" htmlFor="name">
+            <label className="text-sm font-medium text-text-primary" htmlFor="name">
               Nombre
             </label>
             <InputSignUp 
@@ -112,12 +131,12 @@ export const SignUp = () => {
               })}
             />
             {errors.name && (
-              <p className="text-sm text-[var(--color-danger)]">{errors.name.message}</p>
+              <p className="text-sm text-danger">{errors.name.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-[var(--color-text-primary)]" htmlFor="lastname">
+            <label className="text-sm font-medium text-text-primary" htmlFor="lastname">
               Apellido
             </label>
             <InputSignUp 
@@ -133,34 +152,13 @@ export const SignUp = () => {
               })}
             />
             {errors.lastname && (
-              <p className="text-sm text-[var(--color-danger)]">{errors.lastname.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-[var(--color-text-primary)]" htmlFor="phone">
-              Telefono
-            </label>
-            <InputSignUp 
-              id="phone"
-              type="number"
-              placeholder="••••••••"
-              {...register("phone", {
-                required: "El teléfono es obligatorio",
-                minLength: {
-                  value: 6,
-                  message: "Debe tener al menos 6 caracteres",
-                },
-              })}
-            />
-            {errors.phone && (
-              <p className="text-sm text-[var(--color-danger)]">{errors.phone.message}</p>
+              <p className="text-sm text-danger">{errors.lastname.message}</p>
             )}
           </div>
 
           <button
             type="submit"
-            className="w-full rounded-2xl bg-[var(--color-primary)] px-4 py-3 text-white font-medium transition hover:bg-[var(--color-primary-hover)] disabled:opacity-70"
+            className="w-full rounded-2xl bg-primary px-4 py-3 text-white font-medium transition hover:bg-primary-hover disabled:opacity-70"
             disabled={isSubmitting}
           >
             {isSubmitting ? "Ingresando..." : "Crear Cuenta"}
@@ -168,7 +166,7 @@ export const SignUp = () => {
 
           <button
             onClick={() => setMode(!Mode)}
-            className="w-full rounded-2xl bg-[var(--color-primary)] px-4 py-3 text-white font-medium transition hover:bg-[var(--color-primary-hover)] disabled:opacity-70"
+            className="w-full rounded-2xl bg-primary px-4 py-3 text-white font-medium transition hover:bg-primary-hover disabled:opacity-70"
 
           >
             {isSubmitting ? "Ingresando..." : "Tengo una Cuenta"}
