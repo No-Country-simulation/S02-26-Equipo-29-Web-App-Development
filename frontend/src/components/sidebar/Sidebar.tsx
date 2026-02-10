@@ -13,26 +13,28 @@ import { DashboardLink } from "../UI/DashboardLink";
 import { useRole } from "../../context/RoleContext";
 
 const navLinks: Record<
-  "admin" | "caregiver" | "patient",
+  "ADMIN" | "CAREGIVER" | "PATIENT",
   { title: string; href: string; icon: LucideIcon }[]
 > = {
-  admin: [
+  ADMIN: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
-    { title: "Agenda", href: "/appointments", icon: CalendarIcon },
+    { title: "Agenda", href: "/agenda", icon: CalendarIcon },
     { title: "Registro", href: "/registration", icon: UserPlusIcon },
     { title: "Pacientes", href: "/patients", icon: UserIcon },
     { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
     { title: "Métricas", href: "/metrics", icon: TrendingUpIcon },
     { title: "Administradores", href: "/admins", icon: UserPlusIcon },
   ],
-  caregiver: [
+  CAREGIVER: [
+    { title: "ONLY CAREGIVER", href: "", icon: LayoutDashboardIcon },
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
+    { title: "Agenda", href: "/agenda", icon: CalendarIcon },
     { title: "Registro", href: "/registration", icon: UserPlusIcon },
     { title: "Pacientes", href: "/patients", icon: UserIcon },
     { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
     { title: "Métricas", href: "/metrics", icon: TrendingUpIcon },
   ],
-  patient: [
+  PATIENT: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
     { title: "Registro", href: "/registration", icon: UserPlusIcon },
     { title: "Pacientes", href: "/patients", icon: UserIcon },
@@ -43,7 +45,7 @@ const navLinks: Record<
 
 export function Sidebar() {
   const { pathname } = useLocation();
-  const { role } = useRole();
+  const role = useRole();
 
   return (
     <aside className="sticky top-0 min-h-screen bg-white shadow-lg w-18 md:w-55 transition-all duration-300">

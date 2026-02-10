@@ -1,23 +1,13 @@
 import { useState } from 'react';
-
-interface Caregiver {
-    id?: string;
-    name: string;
-    role: string;
-    email: string;
-    phone?: string;
-    shiftRange: string;
-    profileImage?: string;
-}
-
-interface Document {
+import type { Caregiver } from "../../types/index";
+export interface Document {
     id: string;
     name: string;
     uploadDate: string;
     type: string;
 }
 
-interface Shift {
+export interface Shift {
     id: string;
     date: string;
     startTime: string;
@@ -30,14 +20,8 @@ export const CaregiverView: React.FC<{caregiver: Caregiver}> = ({caregiver}) => 
     const [activeTab, setActiveTab] = useState<'info' | 'documents' | 'shifts'>('info');
     const [documents, setDocuments] = useState<Document[]>([]);
     const [shifts, ] = useState<Shift[]>([]);
-    // const [caregiver] = useState<Caregiver>({
-    //     id: '1',
-    //     name: caregiver ? caregiver.name : "Desconocido",
-    //     email: caregiver ? caregiver.email : 'juan@example.com',
-    //     phone: '+34 123 456 789',
-    //     shiftRange: caregiver.shiftRange,
-    //     profileImage: 'https://via.placeholder.com/150'
-    // });
+
+    console.log('Caregiver data:', caregiver);
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
@@ -93,7 +77,7 @@ export const CaregiverView: React.FC<{caregiver: Caregiver}> = ({caregiver}) => 
                             </div>
                             <div className="grid gap-4 sm:grid-cols-2">
                                 {[
-                                    { label: 'Nombre', value: caregiver.name },
+                                    { label: 'Nombre', value: caregiver.full_name },
                                     { label: 'Email', value: caregiver.email },
                                     { label: 'Teléfono', value: caregiver.phone },
                                     { label: 'Turno', value: caregiver.shiftRange },

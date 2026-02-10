@@ -1,3 +1,5 @@
+import type { Caregiver } from "../../types/index";
+import type { User } from "../../types/index";
 
 type PatientDialogProps = {
   open: boolean;
@@ -10,14 +12,15 @@ type PatientDialogProps = {
     notes: string;
     phone: string;
     };
-  caregiver: {
-    name: string;
-    shiftRange: string;
-  };
-  };
+  caregiver: Caregiver;
+  user: User;
+};
 
-export const Patient = ({ open, onClose, patient, caregiver }: PatientDialogProps) => {
+export const Patient = ({ open, onClose, patient, caregiver, user }: PatientDialogProps) => {
 
+
+  console.log('Patient dialog user:', user);
+  console.log('Patient dialog caregiver:', caregiver);
   if (!open) return null;
 
   return (
@@ -47,9 +50,9 @@ export const Patient = ({ open, onClose, patient, caregiver }: PatientDialogProp
             <p className="text-xs uppercase tracking-[0.3em] text-text-secondary">
               Cuidador asignado
             </p>
-            <p className="mt-2 font-medium">{caregiver.name}</p>
+            <p className="mt-2 font-medium">{user.full_name}</p>
             <p className="text-text-secondary">
-              Turno: {caregiver.shiftRange}
+              Turno: {caregiver?.shiftRange}
             </p>
           </div>
 
@@ -64,15 +67,15 @@ export const Patient = ({ open, onClose, patient, caregiver }: PatientDialogProp
             </ul> */}
           </div>
 
-          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4">
-            <p className="text-xs uppercase tracking-[0.3em] text-[var(--color-text-secondary)]">
+          <div className="rounded-2xl border border-border bg-background p-4">
+            <p className="text-xs uppercase tracking-[0.3em] text-text-secondary">
               Notas clínicas
             </p>
             <p className="mt-2">{patient.notes}</p>
           </div>
 
-          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4">
-            <p className="text-xs uppercase tracking-[0.3em] text-[var(--color-text-secondary)]">
+          <div className="rounded-2xl border border-border bg-background p-4">
+            <p className="text-xs uppercase tracking-[0.3em] text-text-secondary">
               Contacto de emergencia
             </p>
             <p className="mt-2 font-medium">{patient.name}</p>
@@ -81,7 +84,7 @@ export const Patient = ({ open, onClose, patient, caregiver }: PatientDialogProp
             </p> */}
             <p>
               Teléfono:{" "}
-              <span className="font-medium text-[var(--color-primary)]">
+              <span className="font-medium text-primary">
                 {patient.phone}
               </span>
             </p>
@@ -91,7 +94,7 @@ export const Patient = ({ open, onClose, patient, caregiver }: PatientDialogProp
         <div className="mt-6 flex justify-end">
           <button
             onClick={onClose}
-            className="rounded-2xl border border-[var(--color-border)] px-4 py-2 text-sm font-medium text-[var(--color-text-primary)] hover:bg-white/5"
+            className="rounded-2xl border border-border px-4 py-2 text-sm font-medium text-text-primary hover:bg-white/5"
           >
             Cerrar
           </button>
