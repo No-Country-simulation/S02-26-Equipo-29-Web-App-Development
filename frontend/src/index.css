@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+
+@theme {
+  /* Base - Tonos más orgánicos y menos "digitales" */
+  --color-background: #f9f7f2; /* Un "crema" más ligero y aireado */
+  --color-surface: #ffffff;
+  --color-border: #e8e6e1;    /* Borde más suave que combina con el fondo */
+  --color-shadow: rgba(28, 25, 23, 0.05); /* Sombra con un toque de café, no negro puro */
+  --color-accent: #c5a059;     /* Un dorado champaña, más elegante y menos amarillo */
+
+  /* Texto - Mayor legibilidad y contraste suave */
+  --color-text-primary: #1e293b;   /* Slate profundo para autoridad */
+  --color-text-secondary: #64748b; /* Gris azulado para jerarquía */
+
+  /* Marca - El cambio clave: Un azul marino sofisticado */
+  --color-primary: #1e3a8a;        /* Navy elegante que baila mejor con el dorado */
+  --color-primary-hover: #172554;
+
+  /* Estados - Saturación reducida para mantener la estética "premium" */
+  --color-success: #15803d; /* Verde bosque */
+  --color-warning: #b45309; /* Ámbar quemado */
+  --color-danger: #9f1239;  /* Carmesí profundo */
+}

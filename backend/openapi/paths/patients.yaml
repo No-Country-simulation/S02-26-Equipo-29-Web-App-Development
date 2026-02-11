@@ -1,0 +1,98 @@
+patients:
+  get:
+    tags: [Patients]
+    operationId: listPatients
+    summary: Listado de PATIENTS
+    parameters:
+      - $ref: "../components/parameters.yaml#/Limit"
+      - $ref: "../components/parameters.yaml#/Offset"
+
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Búsqueda por full_name o dni
+
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+        description: Filtra pacientes activos/inactivos
+
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/patients.yaml#/PagedPatients"
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+
+  post:
+    tags: [Patients]
+    operationId: createPatient
+    summary: Crear PATIENT
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/patients.yaml#/PatientCreateRequest"
+    responses:
+      "201":
+        description: Creado
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/patients.yaml#/Patient"
+      "409":
+        $ref: "../components/responses.yaml#/Conflict"
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+
+patientById:
+  get:
+    tags: [Patients]
+    operationId: getPatient
+    summary: Obtener PATIENT
+    parameters:
+      - $ref: "../components/parameters.yaml#/PatientId"
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/patients.yaml#/Patient"
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+
+
+  patch:
+    tags: [Patients]
+    operationId: updatePatient
+    summary: Actualizar PATIENT
+    parameters:
+      - $ref: "../components/parameters.yaml#/PatientId"
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/patients.yaml#/PatientUpdateRequest"
+    responses:
+      "200":
+        description: Actualizado
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/patients.yaml#/Patient"
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+      "409":
+        $ref: "../components/responses.yaml#/Conflict"
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"

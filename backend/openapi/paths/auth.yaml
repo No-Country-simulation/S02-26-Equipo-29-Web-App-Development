@@ -1,0 +1,54 @@
+authRegister:
+  post:
+    tags: [Auth]
+    security: []
+    summary: Registro (crea AUTH_USERS + PROFILES, y opcional CAREGIVERS)
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: "../schemas/auth.yaml#/AuthRegisterRequest" }
+    responses:
+      "201":
+        description: Registrado
+        content:
+          application/json:
+            schema: { $ref: "../schemas/auth.yaml#/AuthRegisterResponse" }
+      "409":
+        $ref: "../components/responses.yaml#/Conflict"
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+authLogin:
+  post:
+    tags: [Auth]
+    security: []
+    summary: Login (JWT)
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: "../schemas/auth.yaml#/AuthLoginRequest" }
+    responses:
+      "200":
+        description: Token emitido
+        content:
+          application/json:
+            schema: { $ref: "../schemas/auth.yaml#/AuthLoginResponse" }
+      "401":
+        $ref: "../components/responses.yaml#/Unauthorized"
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+authMe:
+  get:
+    tags: [Auth]
+    summary: Mi sesión (perfil + rol + caregiver_id si aplica)
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: "../schemas/auth.yaml#/MeResponse" }
+      "401":
+        $ref: "../components/responses.yaml#/Unauthorized"

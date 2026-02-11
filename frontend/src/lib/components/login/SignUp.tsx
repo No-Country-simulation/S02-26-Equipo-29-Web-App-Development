@@ -1,0 +1,181 @@
+import axios from "axios";
+import { useForm } from "react-hook-form";
+import { InputSignUp } from "../UI/input";
+import { useState } from "react";
+import { Login } from "./LogIn";
+import { useNavigate } from "react-router-dom";
+
+type SignUpFormValues = {
+  email: string;
+  password: string;
+  name: string;
+  lastname: string;
+};
+
+export const SignUp = () => {
+  const navigate = useNavigate();
+  const [Mode, setMode] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignUpFormValues>({
+    defaultValues: {
+      email: "",
+      password: "",
+      name: "",
+      lastname: "",
+    },
+    mode: "onBlur",
+  });
+
+  const onSubmit = handleSubmit(async (values) => {
+    console.log("SignUp payload", values);
+    if (values) {
+
+      const newUser = {
+        email: values.email,
+        password: values.password,
+        full_name: `${values.name} ${values.lastname}`,
+        role: "FAMILY"
+      }
+      // Aquí iría la lógica para enviar los datos al backend
+      const response = await axios.post("http://localhost:3002/auth/register", newUser);
+      console.log("SignUp response", response);
+      if (response.status === 201) {
+        console.log("SignUp exitoso:", response.data);
+        setMode(true); // Cambia al modo de login después de un registro exitoso
+        navigate("/login"); // Redirige al login después de registrarse
+      }
+    } else {
+      console.error("Error en el SignUp: No se proporcionaron datos válidos");
+    }
+  });
+
+  return (
+    <>
+    {Mode ? <Login /> : (
+    <section className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md rounded-3xl border border-border bg-surface shadow-xl p-8">
+        <div className="space-y-2 text-center mb-8">
+          <p className="text-sm uppercase tracking-[0.25em] text-text-secondary">
+            Bienvenido
+          </p>
+          <h1 className="text-3xl font-semibold text-text-primary">
+            Crea una cuenta
+          </h1>
+          <p className="text-sm text-text-secondary">
+            Ingresa tu correo y contraseña para continuar
+          </p>
+        </div>
+
+        <form onSubmit={onSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-text-primary" htmlFor="email">
+              Correo electrónico
+            </label>
+
+            <InputSignUp
+              id="email"
+              type="email"
+              placeholder="nombre@empresa.com"
+                {...register("email", {
+                    required: "El correo es obligatorio",
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: "Ingresa un correo válido",
+                    },
+                  })}
+            />
+
+            {errors.email && (
+              <p className="text-sm text-danger">{errors.email.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-text-primary" htmlFor="password">
+              Contraseña
+            </label>
+            <InputSignUp 
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              {...register("password", {
+                required: "La contraseña es obligatoria",
+                minLength: {
+                  value: 6,
+                  message: "Debe tener al menos 6 caracteres",
+                },
+              })}
+            />
+            {errors.password && (
+              <p className="text-sm text-danger">{errors.password.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-text-primary" htmlFor="name">
+              Nombre
+            </label>
+            <InputSignUp 
+              id="name"
+              type="text"
+              placeholder="Nombre completo"
+              {...register("name", {
+                required: "El nombre es obligatorio",
+                minLength: {
+                  value: 6,
+                  message: "Debe tener al menos 6 caracteres",
+                },
+              })}
+            />
+            {errors.name && (
+              <p className="text-sm text-danger">{errors.name.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-text-primary" htmlFor="lastname">
+              Apellido
+            </label>
+            <InputSignUp 
+              id="lastname"
+              type="text"
+              placeholder="Apellido completo"
+              {...register("lastname", {
+                required: "El apellido es obligatorio",
+                minLength: {
+                  value: 6,
+                  message: "Debe tener al menos 6 caracteres",
+                },
+              })}
+            />
+            {errors.lastname && (
+              <p className="text-sm text-danger">{errors.lastname.message}</p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            className="w-full rounded-2xl bg-primary px-4 py-3 text-white font-medium transition hover:bg-primary-hover disabled:opacity-70"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Ingresando..." : "Crear Cuenta"}
+          </button>
+
+          <button
+            onClick={() => setMode(!Mode)}
+            className="w-full rounded-2xl bg-primary px-4 py-3 text-white font-medium transition hover:bg-primary-hover disabled:opacity-70"
+
+          >
+            {isSubmitting ? "Ingresando..." : "Tengo una Cuenta"}
+          </button>
+
+        </form>
+      </div>
+    </section>
+        )}
+    </>
+  );
+};

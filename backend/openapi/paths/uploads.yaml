@@ -1,0 +1,17 @@
+uploadsPresign:
+  post:
+    tags: [Uploads]
+    summary: URL prefirmada (opcional)
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: "../schemas/uploads.yaml#/UploadPresignRequest" }
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: "../schemas/uploads.yaml#/UploadPresignResponse" }
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"

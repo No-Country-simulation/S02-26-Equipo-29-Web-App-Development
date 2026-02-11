@@ -1,0 +1,69 @@
+profiles:
+  get:
+    tags: [Profiles]
+    operationId: listProfiles
+    summary: Listado de PROFILES
+    parameters:
+      - $ref: "../components/parameters.yaml#/Limit"
+      - $ref: "../components/parameters.yaml#/Offset"
+      - in: query
+        name: q
+        schema: { type: string }
+        description: Búsqueda por full_name / phone / email
+      - in: query
+        name: role
+        schema: { $ref: "../schemas/common.yaml#/ProfileRole" }
+      - in: query
+        name: is_active
+        schema: { type: boolean }
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: "../schemas/profiles.yaml#/PagedProfiles" }
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+profileById:
+  get:
+    tags: [Profiles]
+    operationId: getProfile
+    summary: Obtener PROFILE
+    parameters:
+      - $ref: "../components/parameters.yaml#/ProfileId"
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: "../schemas/profiles.yaml#/Profile" }
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+
+  patch:
+    tags: [Profiles]
+    operationId: updateProfile
+    summary: Actualizar PROFILE
+    description: >
+      Actualiza datos editables del perfil (full_name, phone, is_active).
+      En MVP sin auth, se permite la operación; con auth, debería ser admin o dueño.
+    parameters:
+      - $ref: "../components/parameters.yaml#/ProfileId"
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: "../schemas/profiles.yaml#/ProfileUpdateRequest" }
+    responses:
+      "200":
+        description: Actualizado
+        content:
+          application/json:
+            schema: { $ref: "../schemas/profiles.yaml#/Profile" }
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+      "409":
+        $ref: "../components/responses.yaml#/Conflict"
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"

@@ -1,0 +1,209 @@
+openapi: 3.0.3
+info:
+  title: Caregiving PYME API (Lean + Docs)
+  version: 0.2.0
+  description: >
+    MVP liviano alineado al Mermaid "Lean + Documents".
+    Tablas: AUTH_USERS, PROFILES, PATIENTS, FAMILY_PATIENTS, CAREGIVERS,
+    CAREGIVER_DOCUMENTS, SHIFTS (incluye report + aprobación), PAYROLLS, PAYMENTS (registro manual).
+servers:
+  - url: https://api.example.com
+
+tags:
+  - name: Auth
+    description: Registro, login, sesión
+  - name: Profiles
+    description: Perfiles de usuario (admin/family/caregiver)
+  - name: Patients
+    description: Gestión de pacientes
+  - name: FamilyPatients
+    description: Vínculo familia–paciente
+  - name: Caregivers
+    description: Datos del cuidador
+  - name: CaregiverDocuments
+    description: Documentos del cuidador
+  - name: Shifts
+    description: Turnos (report + submit + approve)
+  - name: Payrolls
+    description: Liquidaciones por período
+  - name: Payments
+    description: Pagos (registro manual MVP)
+  - name: Uploads
+    description: Presign para subir archivos (opcional)
+
+
+paths:
+  /health:
+    $ref: "./paths/health.yaml#/health"
+
+  /auth/register:
+    $ref: "./paths/auth.yaml#/authRegister"
+  /auth/login:
+    $ref: "./paths/auth.yaml#/authLogin"
+  /auth/me:
+    $ref: "./paths/auth.yaml#/authMe"
+
+  /profiles:
+    $ref: "./paths/profiles.yaml#/profiles"
+  /profiles/{profileId}:
+    $ref: "./paths/profiles.yaml#/profileById"
+
+  /patients:
+    $ref: "./paths/patients.yaml#/patients"
+  /patients/{patientId}:
+    $ref: "./paths/patients.yaml#/patientById"
+  /patients/{patientId}/family-patients:
+    $ref: "./paths/family-patients.yaml#/familyPatientsByPatient"
+  /family-patients/{familyPatientId}:
+    $ref: "./paths/family-patients.yaml#/familyPatientById"
+  /patients/{patientId}/shifts:
+    $ref: "./paths/shifts.yaml#/shiftsByPatient"
+
+  /caregivers:
+    $ref: "./paths/caregivers.yaml#/caregivers"
+  /caregivers/{caregiverId}:
+    $ref: "./paths/caregivers.yaml#/caregiverById"
+  /caregivers/{caregiverId}/documents:
+    $ref: "./paths/caregiver-documents.yaml#/documentsByCaregiver"
+  /caregiver-documents/{documentId}:
+    $ref: "./paths/caregiver-documents.yaml#/documentById"
+
+  /shifts:
+    $ref: "./paths/shifts.yaml#/shifts"
+  /shifts/mine:
+    $ref: "./paths/shifts.yaml#/shiftsMine"
+  /shifts/{shiftId}:
+    $ref: "./paths/shifts.yaml#/shiftById"
+  /shifts/{shiftId}/submit:
+    $ref: "./paths/shifts.yaml#/shiftSubmit"
+  /shifts/{shiftId}/approve:
+    $ref: "./paths/shifts.yaml#/shiftApprove"
+
+  /payrolls:
+    $ref: "./paths/payrolls.yaml#/payrolls"
+  /payrolls/mine:
+    $ref: "./paths/payrolls.yaml#/payrollsMine"
+  /payrolls/{payrollId}:
+    $ref: "./paths/payrolls.yaml#/payrollById"
+  /payrolls/{payrollId}/approve:
+    $ref: "./paths/payrolls.yaml#/payrollApprove"
+  /payrolls/{payrollId}/export:
+    $ref: "./paths/payrolls.yaml#/payrollExport"
+  /payrolls/{payrollId}/payments:
+    $ref: "./paths/payments.yaml#/paymentsByPayroll"
+  /payments/{paymentId}:
+    $ref: "./paths/payments.yaml#/paymentById"
+
+  /uploads/presign:
+    $ref: "./paths/uploads.yaml#/uploadsPresign"
+
+components:
+  parameters:
+    $ref: "./components/parameters.yaml"
+  responses:
+    $ref: "./components/responses.yaml"
+  schemas:
+    # common (enums)
+    ProfileRole:
+      $ref: "./schemas/common.yaml#/ProfileRole"
+    CaregiverDocumentStatus:
+      $ref: "./schemas/common.yaml#/CaregiverDocumentStatus"
+    ShiftStatus:
+      $ref: "./schemas/common.yaml#/ShiftStatus"
+    PayrollStatus:
+      $ref: "./schemas/common.yaml#/PayrollStatus"
+    PaymentStatus:
+      $ref: "./schemas/common.yaml#/PaymentStatus"
+    PaymentMethod:
+      $ref: "./schemas/common.yaml#/PaymentMethod"
+
+    # auth
+    AuthRegisterRequest:
+      $ref: "./schemas/auth.yaml#/AuthRegisterRequest"
+    AuthRegisterResponse:
+      $ref: "./schemas/auth.yaml#/AuthRegisterResponse"
+    AuthLoginRequest:
+      $ref: "./schemas/auth.yaml#/AuthLoginRequest"
+    AuthLoginResponse:
+      $ref: "./schemas/auth.yaml#/AuthLoginResponse"
+    MeResponse:
+      $ref: "./schemas/auth.yaml#/MeResponse"
+
+    # profiles
+    Profile:
+      $ref: "./schemas/profiles.yaml#/Profile"
+    ProfileUpdateRequest:
+      $ref: "./schemas/profiles.yaml#/ProfileUpdateRequest"
+    PagedProfiles:
+      $ref: "./schemas/profiles.yaml#/PagedProfiles"
+
+    # patients
+    Patient:
+      $ref: "./schemas/patients.yaml#/Patient"
+    PatientCreateRequest:
+      $ref: "./schemas/patients.yaml#/PatientCreateRequest"
+    PatientUpdateRequest:
+      $ref: "./schemas/patients.yaml#/PatientUpdateRequest"
+    PagedPatients:
+      $ref: "./schemas/patients.yaml#/PagedPatients"
+
+    # family-patients
+    FamilyPatient:
+      $ref: "./schemas/family-patients.yaml#/FamilyPatient"
+    FamilyPatientCreateRequest:
+      $ref: "./schemas/family-patients.yaml#/FamilyPatientCreateRequest"
+    FamilyPatientUpdateRequest:
+      $ref: "./schemas/family-patients.yaml#/FamilyPatientUpdateRequest"
+
+    # caregivers
+    Caregiver:
+      $ref: "./schemas/caregivers.yaml#/Caregiver"
+    CaregiverUpdateRequest:
+      $ref: "./schemas/caregivers.yaml#/CaregiverUpdateRequest"
+    PagedCaregivers:
+      $ref: "./schemas/caregivers.yaml#/PagedCaregivers"
+
+    # caregiver-documents
+    CaregiverDocument:
+      $ref: "./schemas/caregiver-documents.yaml#/CaregiverDocument"
+    CaregiverDocumentCreateRequest:
+      $ref: "./schemas/caregiver-documents.yaml#/CaregiverDocumentCreateRequest"
+    CaregiverDocumentUpdateRequest:
+      $ref: "./schemas/caregiver-documents.yaml#/CaregiverDocumentUpdateRequest"
+
+    # shifts
+    Shift:
+      $ref: "./schemas/shifts.yaml#/Shift"
+    ShiftCreateRequest:
+      $ref: "./schemas/shifts.yaml#/ShiftCreateRequest"
+    ShiftUpdateRequest:
+      $ref: "./schemas/shifts.yaml#/ShiftUpdateRequest"
+    ShiftApproveRequest:
+      $ref: "./schemas/shifts.yaml#/ShiftApproveRequest"
+    PagedShifts:
+      $ref: "./schemas/shifts.yaml#/PagedShifts"
+
+    # payrolls
+    Payroll:
+      $ref: "./schemas/payrolls.yaml#/Payroll"
+    PayrollCalculateRequest:
+      $ref: "./schemas/payrolls.yaml#/PayrollCalculateRequest"
+    PayrollCalculateResponse:
+      $ref: "./schemas/payrolls.yaml#/PayrollCalculateResponse"
+    PagedPayrolls:
+      $ref: "./schemas/payrolls.yaml#/PagedPayrolls"
+
+    # payments
+    Payment:
+      $ref: "./schemas/payments.yaml#/Payment"
+    PaymentCreateRequest:
+      $ref: "./schemas/payments.yaml#/PaymentCreateRequest"
+    PaymentUpdateRequest:
+      $ref: "./schemas/payments.yaml#/PaymentUpdateRequest"
+
+    # uploads
+    UploadPresignRequest:
+      $ref: "./schemas/uploads.yaml#/UploadPresignRequest"
+    UploadPresignResponse:
+      $ref: "./schemas/uploads.yaml#/UploadPresignResponse"
+

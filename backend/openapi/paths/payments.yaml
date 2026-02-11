@@ -1,0 +1,73 @@
+paymentsByPayroll:
+  get:
+    tags: [Payments]
+    operationId: listPayrollPayments
+    summary: Listar PAYMENTS de un PAYROLL
+    parameters:
+      - $ref: "../components/parameters.yaml#/PayrollId"
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: "../schemas/payments.yaml#/Payment" }
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+
+  post:
+    tags: [Payments]
+    operationId: createPayrollPayment
+    summary: Registrar PAYMENT manual (MVP)
+    description: >
+      Registro manual del pago para una liquidación.
+      Regla MVP típica: requiere que el payroll esté en status=approved.
+      Si status=success, el payroll puede pasar a paid (según lógica backend).
+    parameters:
+      - $ref: "../components/parameters.yaml#/PayrollId"
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: "../schemas/payments.yaml#/PaymentCreateRequest" }
+    responses:
+      "201":
+        description: Registrado
+        content:
+          application/json:
+            schema: { $ref: "../schemas/payments.yaml#/Payment" }
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+      "409":
+        $ref: "../components/responses.yaml#/Conflict"
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+paymentById:
+  patch:
+    tags: [Payments]
+    operationId: updatePayment
+    summary: Actualizar PAYMENT (admin)
+    description: >
+      Permite corregir status, paid_at o external_reference del pago.
+      Regla recomendada: no permitir cambios si el pago está success y conciliado (opcional).
+    parameters:
+      - $ref: "../components/parameters.yaml#/PaymentId"
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: "../schemas/payments.yaml#/PaymentUpdateRequest" }
+    responses:
+      "200":
+        description: Actualizado
+        content:
+          application/json:
+            schema: { $ref: "../schemas/payments.yaml#/Payment" }
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+      "409":
+        $ref: "../components/responses.yaml#/Conflict"
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"

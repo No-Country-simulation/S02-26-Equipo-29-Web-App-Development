@@ -1,0 +1,38 @@
+ProfileRole:
+  type: string
+  enum: [admin, caregiver, family]
+
+CaregiverDocumentStatus:
+  type: string
+  enum: [pending, approved, rejected]
+
+ShiftStatus:
+  type: string
+  enum: [draft, submitted, cancelled]
+
+PayrollStatus:
+  type: string
+  enum: [draft, calculated, approved, paid, cancelled]
+
+PaymentStatus:
+  type: string
+  enum: [pending, success, failed]
+
+PaymentMethod:
+  type: string
+  enum: [bank_transfer, mercado_pago, cash, other]
+
+Error:
+  type: object
+  additionalProperties: false
+  properties:
+    code:
+      type: string
+      example: CONFLICT
+    message:
+      type: string
+      example: Business rule violation
+    details:
+      type: object
+      additionalProperties: true
+  required: [code, message]

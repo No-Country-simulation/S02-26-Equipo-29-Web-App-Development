@@ -1,0 +1,157 @@
+payrolls:
+  get:
+    tags: [Payrolls]
+    operationId: listPayrolls
+    summary: Listar PAYROLLS (admin o cuidador)
+    description: >
+      Lista liquidaciones por cuidador y período.
+      En MVP sin auth, se comporta como listado general.
+    parameters:
+      - $ref: "../components/parameters.yaml#/Limit"
+      - $ref: "../components/parameters.yaml#/Offset"
+      - in: query
+        name: caregiver_id
+        schema: { type: string, format: uuid }
+        description: Filtrar por cuidador
+      - in: query
+        name: period_start
+        schema: { type: string, format: date }
+      - in: query
+        name: period_end
+        schema: { type: string, format: date }
+      - in: query
+        name: status
+        schema: { $ref: "../schemas/common.yaml#/PayrollStatus" }
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: "../schemas/payrolls.yaml#/PagedPayrolls" }
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+  post:
+    tags: [Payrolls]
+    operationId: calculatePayrolls
+    summary: Calcular / generar PAYROLLS para un período
+    description: >
+      Genera liquidaciones usando SHIFTS aprobados (approved_at != null).
+      Si strict=true, bloquea si hay SHIFTS submitted sin aprobar en el período.
+    parameters:
+      - in: query
+        name: force
+        schema: { type: boolean, default: false }
+        description: Recalcula aunque ya existan payrolls
+      - in: query
+        name: strict
+        schema: { type: boolean, default: true }
+        description: >
+          Si true, falla si hay shifts sin aprobar en el período.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: "../schemas/payrolls.yaml#/PayrollCalculateRequest" }
+    responses:
+      "201":
+        description: Calculado
+        content:
+          application/json:
+            schema: { $ref: "../schemas/payrolls.yaml#/PayrollCalculateResponse" }
+      "409":
+        $ref: "../components/responses.yaml#/Conflict"
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+payrollsMine:
+  get:
+    tags: [Payrolls]
+    operationId: listMyPayrolls
+    summary: Mis PAYROLLS (cuidador)
+    description: >
+      En MVP sin auth devuelve el listado general.
+      Con auth, filtra por caregiver_id del usuario autenticado.
+    parameters:
+      - $ref: "../components/parameters.yaml#/Limit"
+      - $ref: "../components/parameters.yaml#/Offset"
+      - in: query
+        name: period_start
+        schema: { type: string, format: date }
+      - in: query
+        name: period_end
+        schema: { type: string, format: date }
+      - in: query
+        name: status
+        schema: { $ref: "../schemas/common.yaml#/PayrollStatus" }
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: "../schemas/payrolls.yaml#/PagedPayrolls" }
+      "422":
+        $ref: "../components/responses.yaml#/UnprocessableEntity"
+
+payrollById:
+  get:
+    tags: [Payrolls]
+    operationId: getPayroll
+    summary: Obtener PAYROLL
+    parameters:
+      - $ref: "../components/parameters.yaml#/PayrollId"
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: "../schemas/payrolls.yaml#/Payroll" }
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+
+payrollApprove:
+  patch:
+    tags: [Payrolls]
+    operationId: approvePayroll
+    summary: Aprobar PAYROLL
+    description: >
+      Cambia status de calculated → approved.
+      No permite aprobar si el payroll no está calculado.
+    parameters:
+      - $ref: "../components/parameters.yaml#/PayrollId"
+    responses:
+      "200":
+        description: Aprobado
+        content:
+          application/json:
+            schema: { $ref: "../schemas/payrolls.yaml#/Payroll" }
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"
+      "409":
+        $ref: "../components/responses.yaml#/Conflict"
+
+payrollExport:
+  get:
+    tags: [Payrolls]
+    operationId: exportPayroll
+    summary: Exportar PAYROLL (CSV)
+    description: >
+      Devuelve un CSV con desglose por patient_id,
+      total de horas y monto por cuidador (MVP).
+    parameters:
+      - $ref: "../components/parameters.yaml#/PayrollId"
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum: [csv]
+          default: csv
+    responses:
+      "200":
+        description: CSV generado
+        content:
+          text/csv:
+            schema:
+              type: string
+      "404":
+        $ref: "../components/responses.yaml#/NotFound"

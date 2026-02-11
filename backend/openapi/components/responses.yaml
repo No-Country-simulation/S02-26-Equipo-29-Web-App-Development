@@ -1,0 +1,37 @@
+Unauthorized:
+  description: Unauthorized
+  content:
+    application/json:
+      schema:
+        $ref: "../schemas/common.yaml#/Error"
+
+Forbidden:
+  description: Forbidden
+  content:
+    application/json:
+      schema:
+        $ref: "../schemas/common.yaml#/Error"
+
+NotFound:
+  description: Not Found
+  content:
+    application/json:
+      schema:
+        $ref: "../schemas/common.yaml#/Error"
+
+Conflict:
+  description: Conflict
+  content:
+    application/json:
+      schema:
+        $ref: "../schemas/common.yaml#/Error"
+
+UnprocessableEntity:
+  description: Unprocessable Entity
+  content:
+    application/json:
+      schema:
+        $ref: "../schemas/common.yaml#/Error"
+
+NoContent:
+  description: No Content

@@ -1,0 +1,27 @@
+
+PatientUpdateRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    full_name:
+      type: string
+
+    dni:
+      type: string
+      nullable: true
+
+    birth_date:
+      type: string
+      format: date
+      nullable: true
+
+    address:
+      type: string
+      nullable: true
+
+    notes:
+      type: string
+      nullable: true
+
+    is_active:
+      type: boolean
