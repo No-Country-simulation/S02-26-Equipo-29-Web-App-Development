@@ -4,12 +4,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
 import { AuthUser } from './auth-user.entity';
-import { Profile } from '../profiles/profile.entity';
+import { Profile, ProfileRole } from '../profiles/profile.entity';
+import { Caregiver } from '../caregivers/caregiver.entity';
 
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -23,7 +24,11 @@ export class AuthService {
     @InjectRepository(Profile)
     private readonly profileRepo: Repository<Profile>,
 
+    @InjectRepository(Caregiver)
+    private readonly caregiverRepo: Repository<Caregiver>,
+
     private readonly jwtService: JwtService,
+    private readonly dataSource: DataSource,
   ) {}
 
   // =====================
@@ -38,24 +43,37 @@ export class AuthService {
       throw new ConflictException('Email already registered');
     }
 
-    const passwordHash = await bcrypt.hash(dto.password, 10);
+    return this.dataSource.transaction(async (manager) => {
+      const passwordHash = await bcrypt.hash(dto.password, 10);
 
-    const user = this.authUserRepo.create({
-      email: dto.email,
-      password_hash: passwordHash,
+      // 1️⃣ Crear usuario
+      const user = manager.create(AuthUser, {
+        email: dto.email,
+        password_hash: passwordHash,
+      });
+
+      await manager.save(user);
+
+      // 2️⃣ Crear profile
+      const profile = manager.create(Profile, {
+        user,
+        full_name: dto.full_name,
+        role: dto.role,
+      });
+
+      await manager.save(profile);
+
+      // 3️⃣ Si es caregiver, crear registro caregiver
+      if (profile.role === ProfileRole.CAREGIVER) {
+        const caregiver = manager.create(Caregiver, {
+          profile_id: profile.id,
+        });
+
+        await manager.save(caregiver);
+      }
+
+      return this.buildToken(user, profile);
     });
-
-    await this.authUserRepo.save(user);
-
-    const profile = this.profileRepo.create({
-      user,
-      full_name: dto.full_name,
-      role: dto.role,
-    });
-
-    await this.profileRepo.save(profile);
-
-    return this.buildToken(user, profile);
   }
 
   // =====================

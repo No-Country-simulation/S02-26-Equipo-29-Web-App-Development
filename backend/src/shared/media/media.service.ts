@@ -60,6 +60,7 @@ export class CloudinaryService {
     try {
       await cloudinary.uploader.destroy(publicId);
     } catch (err) {
+      this.logger.error(err);
       throw new InternalServerErrorException('Cloudinary delete failed');
     }
   }

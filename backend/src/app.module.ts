@@ -14,12 +14,14 @@ import { PaymentsModule } from './modules/payments/payment.module';
 import { PayrollsModule } from './modules/payrolls/payroll.module';
 import { MediaModule } from './shared/media/media.module';
 import { AdminModule } from './modules/admin/admin.module';
+import cloudinaryConfig from './config/cloudinary.config';
 @Module({
   imports: [
     // 🌍 Variables de entorno
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      load: [cloudinaryConfig],
     }),
 
     // 🗄️ Base de datos
