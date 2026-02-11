@@ -1,20 +1,32 @@
 import { createContext, useContext } from "react";
 
-export type Role = "ADMIN" | "CAREGIVER" | "FAMILY" | "PATIENT";
+export type Role = "ADMIN" | "CAREGIVER" | "PATIENT";
 
-export interface RoleContextType {
+export interface UserData {
+  id: number;
+  full_name: string;
   role: Role;
-  setRole: (role: Role) => void;
+  email: string;
 }
 
-export const RoleContext = createContext<RoleContextType | undefined>(
+export interface UserContextType {
+  user: UserData | null;
+  setUser: (user: UserData | null) => void;
+}
+
+export const UserContext = createContext<UserContextType | undefined>(
   undefined,
 );
 
-export function useRole() {
-  const context = useContext(RoleContext);
+export function useUser() {
+  const context = useContext(UserContext);
   if (!context) {
-    throw new Error("useRole must be used within a RoleProvider");
+    throw new Error("useUser must be used within a RoleProvider");
   }
   return context;
+}
+
+export function useRole() {
+  const { user } = useUser();
+  return user?.role ?? "PATIENT";
 }

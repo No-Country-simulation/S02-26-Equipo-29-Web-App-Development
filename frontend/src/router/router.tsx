@@ -1,15 +1,10 @@
 import { createBrowserRouter } from "react-router-dom";
 import { Home } from "../components/home/Home";
 import { Login } from "../components/login/LogIn";
-import { MainDashboard } from "../components/dashboard/Dashboard";
-import {
-  Appointments,
-  Caregivers,
-  PanelAdmin,
-  Patients,
-  Registration,
-} from "../views";
+import { Appointments, Caregivers, Patients, Registration } from "../views";
 import { ProtectedRoute } from "../components/ProtectedRoute";
+import { Agenda } from "../views/caregiver/Agenda";
+import { MainDashboard } from "../components/dashboard/MainDashboard";
 
 export const router = createBrowserRouter([
   {
@@ -36,7 +31,7 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "/dashboard",
-        element: <PanelAdmin />,
+        element: null,
       },
       {
         path: "/registration",
@@ -53,6 +48,10 @@ export const router = createBrowserRouter([
       {
         path: "/caregivers",
         element: <Caregivers />,
+      },
+      {
+        path: "/agenda",
+        element: <Agenda />,
       },
     ],
   },

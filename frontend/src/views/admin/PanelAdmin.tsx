@@ -103,7 +103,7 @@ export function PanelAdmin() {
         {cards.map((card, index) => (
           <div
             key={index}
-            className="relative rounded-3xl border border-border bg-surface p-6 shadow-lg w-[250px]"
+            className="relative rounded-3xl border border-border bg-surface p-6 shadow-lg w-62.5"
           >
             <div className={`p-2 rounded-2xl w-fit ${card.className}`}>
               {card.icon}

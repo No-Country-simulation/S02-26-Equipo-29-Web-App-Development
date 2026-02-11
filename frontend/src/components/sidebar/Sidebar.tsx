@@ -17,8 +17,9 @@ const navLinks: Record<
   { title: string; href: string; icon: LucideIcon }[]
 > = {
   ADMIN: [
+  ADMIN: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
-    { title: "Agenda", href: "/appointments", icon: CalendarIcon },
+    { title: "Agenda", href: "/agenda", icon: CalendarIcon },
     { title: "Registro", href: "/registration", icon: UserPlusIcon },
     { title: "Pacientes", href: "/patients", icon: UserIcon },
     { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
@@ -34,11 +35,13 @@ const navLinks: Record<
   ],
   FAMILY: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
+    { title: "Agenda", href: "/agenda", icon: CalendarIcon },
     { title: "Registro", href: "/registration", icon: UserPlusIcon },
     { title: "Pacientes", href: "/patients", icon: UserIcon },
     { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
     { title: "Métricas", href: "/metrics", icon: TrendingUpIcon },
   ],
+  PATIENT: [
   PATIENT: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
     { title: "Registro", href: "/registration", icon: UserPlusIcon },
