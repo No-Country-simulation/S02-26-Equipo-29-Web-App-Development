@@ -1,9 +1,7 @@
-import { useState } from "react";
 import { Sidebar } from "../sidebar/Sidebar";
-import { Patient } from "../patient/patient";
-import { CaregiverView } from "../../views/caregiver/caregiver";
 import { useUser } from "../../context/UserContext";
 import { AdminDashboard } from "./AdminDashboard";
+import { CaregiverDashboard } from "./CaregiverDashboard";
 
 export const MainDashboard = () => {
   const { user } = useUser();

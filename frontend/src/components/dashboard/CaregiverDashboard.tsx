@@ -1,5 +1,6 @@
 import CaregiverView from "../../views/caregiver/caregiver";
 import { Patient } from "../patient/patient";
+import { useState } from "react";
 
 export const CaregiverDashboard = ({ user }: { user: any }) => {
   const [selectedPatient, setSelectedPatient] = useState<
