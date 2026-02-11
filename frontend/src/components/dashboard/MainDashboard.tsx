@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from "react-router-dom";
-import { useUser, useRole } from "../../context/RoleContext";
+import { useUser, useRole } from "../../context/UserContext";
 import { Sidebar } from "../sidebar/Sidebar";
 import { PanelCaregiver } from "../../views/caregiver/PanelCaregiver";
 import { PanelAdmin } from "../../views/admin/PanelAdmin";
@@ -10,7 +10,11 @@ export function MainDashboard() {
   const location = useLocation();
 
   const defaultView =
-    role === "ADMIN" ? <PanelAdmin /> : user ? <PanelCaregiver user={user} /> : null;
+    role === "ADMIN" ? (
+      <PanelAdmin />
+    ) : user ? (
+      <PanelCaregiver user={user} />
+    ) : null;
 
   const locationMatchesChildRoute = location.pathname !== "/dashboard";
 
@@ -18,7 +22,7 @@ export function MainDashboard() {
     <div className="flex">
       <Sidebar />
       <main className="flex-1">
-        <Outlet context={{ role, user }} />  {/* rutas hijas */}
+        <Outlet context={{ role, user }} /> {/* rutas hijas */}
         {!locationMatchesChildRoute && defaultView}
       </main>
     </div>

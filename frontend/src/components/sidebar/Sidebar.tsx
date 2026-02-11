@@ -10,13 +10,12 @@ import {
   CalendarIcon,
 } from "lucide-react";
 import { DashboardLink } from "../UI/DashboardLink";
-import { useRole } from "../../context/RoleContext";
+import { useUser } from "../../context/UserContext";
 
 const navLinks: Record<
   "ADMIN" | "CAREGIVER" | "FAMILY" | "PATIENT",
   { title: string; href: string; icon: LucideIcon }[]
 > = {
-  ADMIN: [
   ADMIN: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
     { title: "Agenda", href: "/agenda", icon: CalendarIcon },
@@ -28,10 +27,7 @@ const navLinks: Record<
   ],
   CAREGIVER: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
-    { title: "Registro", href: "/registration", icon: UserPlusIcon },
-    { title: "Pacientes", href: "/patients", icon: UserIcon },
-    { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
-    { title: "Métricas", href: "/metrics", icon: TrendingUpIcon },
+    { title: "Agenda", href: "/agenda", icon: CalendarIcon },
   ],
   FAMILY: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
@@ -41,7 +37,6 @@ const navLinks: Record<
     { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
     { title: "Métricas", href: "/metrics", icon: TrendingUpIcon },
   ],
-  PATIENT: [
   PATIENT: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
     { title: "Registro", href: "/registration", icon: UserPlusIcon },
@@ -53,7 +48,7 @@ const navLinks: Record<
 
 export function Sidebar() {
   const { pathname } = useLocation();
-  const { role } = useRole();
+  const { user } = useUser();
   const navigate = useNavigate();
 
   return (
@@ -80,7 +75,7 @@ export function Sidebar() {
       {/* Navigation */}
       <nav>
         <ul className="flex flex-col gap-2 px-2 mt-10 md:mt-5 ">
-          {navLinks[role].map((link) => {
+          {navLinks[user?.role || "PATIENT"].map((link) => {
             const isActive = pathname === link.href;
             return (
               <li key={link.title}>

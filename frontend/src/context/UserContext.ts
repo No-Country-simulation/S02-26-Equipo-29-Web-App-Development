@@ -12,6 +12,8 @@ export interface UserData {
 export interface UserContextType {
   user: UserData | null;
   setUser: (user: UserData | null) => void;
+  isAuthenticated: boolean;
+  loading: boolean;
 }
 
 export const UserContext = createContext<UserContextType | undefined>(
@@ -21,7 +23,7 @@ export const UserContext = createContext<UserContextType | undefined>(
 export function useUser() {
   const context = useContext(UserContext);
   if (!context) {
-    throw new Error("useUser must be used within a RoleProvider");
+    throw new Error("useUser must be used within a UserProvider");
   }
   return context;
 }
