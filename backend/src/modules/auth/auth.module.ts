@@ -11,10 +11,11 @@ import { JwtStrategy } from './jwt.strategy';
 import { AuthUser } from './auth-user.entity';
 import { Profile } from '../profiles/profile.entity';
 import { ProfilesModule } from '../profiles/profile.module';
+import { Caregiver } from '../caregivers/caregiver.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([AuthUser, Profile]),
+    TypeOrmModule.forFeature([AuthUser, Profile, Caregiver]),
 
     JwtModule.registerAsync({
       imports: [ConfigModule],

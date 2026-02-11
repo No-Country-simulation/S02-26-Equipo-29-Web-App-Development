@@ -7,9 +7,10 @@ import {
   UploadedFile,
   UseInterceptors,
   Req,
+  UseGuards,
 } from '@nestjs/common';
-import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from '@nestjs/passport';
 
 import { CaregiverService } from './caregiver.service';
 import { UploadDocumentDto } from './dto/upload-document.dto';
@@ -24,6 +25,7 @@ export class CaregiverController {
     return this.caregiverService.findAll();
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Post('documents')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -48,6 +50,6 @@ export class CaregiverController {
       throw new BadRequestException('Archivo requerido');
     }
 
-    return this.caregiverService.uploadDocument(req.user.profile_id, dto, file);
+    return this.caregiverService.uploadDocument(req.user.profileId, dto, file);
   }
 }
