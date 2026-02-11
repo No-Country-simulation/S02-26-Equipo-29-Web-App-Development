@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 
-export type Role = "admin" | "caregiver" | "patient";
+export type Role = "ADMIN" | "CAREGIVER" | "FAMILY" | "PATIENT";
 
 export interface RoleContextType {
   role: Role;

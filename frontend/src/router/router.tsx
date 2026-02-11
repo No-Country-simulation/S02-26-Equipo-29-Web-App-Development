@@ -9,6 +9,7 @@ import {
   Patients,
   Registration,
 } from "../views";
+import { ProtectedRoute } from "../components/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
@@ -23,8 +24,15 @@ export const router = createBrowserRouter([
     path: "/login",
     element: <Login />,
   },
+
   {
-    element: <MainDashboard />,
+    element: (
+      <>
+        <ProtectedRoute>
+          <MainDashboard />
+        </ProtectedRoute>
+      </>
+    ),
     children: [
       {
         path: "/dashboard",

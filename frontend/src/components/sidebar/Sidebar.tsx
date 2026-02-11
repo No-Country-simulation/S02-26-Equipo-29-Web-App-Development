@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboardIcon,
   UserIcon,
@@ -13,10 +13,10 @@ import { DashboardLink } from "../UI/DashboardLink";
 import { useRole } from "../../context/RoleContext";
 
 const navLinks: Record<
-  "admin" | "caregiver" | "patient",
+  "ADMIN" | "CAREGIVER" | "FAMILY" | "PATIENT",
   { title: string; href: string; icon: LucideIcon }[]
 > = {
-  admin: [
+  ADMIN: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
     { title: "Agenda", href: "/appointments", icon: CalendarIcon },
     { title: "Registro", href: "/registration", icon: UserPlusIcon },
@@ -25,14 +25,21 @@ const navLinks: Record<
     { title: "Métricas", href: "/metrics", icon: TrendingUpIcon },
     { title: "Administradores", href: "/admins", icon: UserPlusIcon },
   ],
-  caregiver: [
+  CAREGIVER: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
     { title: "Registro", href: "/registration", icon: UserPlusIcon },
     { title: "Pacientes", href: "/patients", icon: UserIcon },
     { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
     { title: "Métricas", href: "/metrics", icon: TrendingUpIcon },
   ],
-  patient: [
+  FAMILY: [
+    { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
+    { title: "Registro", href: "/registration", icon: UserPlusIcon },
+    { title: "Pacientes", href: "/patients", icon: UserIcon },
+    { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
+    { title: "Métricas", href: "/metrics", icon: TrendingUpIcon },
+  ],
+  PATIENT: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
     { title: "Registro", href: "/registration", icon: UserPlusIcon },
     { title: "Pacientes", href: "/patients", icon: UserIcon },
@@ -44,6 +51,7 @@ const navLinks: Record<
 export function Sidebar() {
   const { pathname } = useLocation();
   const { role } = useRole();
+  const navigate = useNavigate();
 
   return (
     <aside className="sticky top-0 min-h-screen bg-white shadow-lg w-18 md:w-55 transition-all duration-300">
@@ -83,6 +91,11 @@ export function Sidebar() {
       {/* Logout */}
       <div className="absolute bottom-6 left-2 right-2 md:left-4 md:right-4 ">
         <button
+          onClick={() => {
+            localStorage.removeItem("userToken");
+            localStorage.removeItem("user");
+            navigate("/login");
+          }}
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2 cursor-pointer
                      text-danger hover:bg-danger hover:text-white transition-colors"
         >

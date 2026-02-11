@@ -36,7 +36,7 @@ export function Appointments() {
   return (
     <>
       <header className="rounded-3xl border border-border bg-surface p-6 shadow-lg">
-        <h1 className="text-2xl font-bold ">Calendario de citas</h1>
+        <h1 className="text-2xl font-bold ">Calendario de cuidados</h1>
         <p className="text-gray-400">Gestionar los cuidados de los pacientes</p>
       </header>
 
@@ -93,7 +93,7 @@ export function Appointments() {
           </div>
           <div className="flex items-center justify-end  w-full">
             <button className="whitespace-nowrap cursor-pointer rounded-2xl flex items-center justify-end gap-2 bg-primary px-4 py-2  font-medium text-white transition hover:bg-primary-hover">
-              <Plus /> Agendar cita
+              <Plus /> Agendar cuidado
             </button>
           </div>
         </div>
