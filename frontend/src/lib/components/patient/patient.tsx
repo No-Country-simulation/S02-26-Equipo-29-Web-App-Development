@@ -1,5 +1,5 @@
-import type { Caregiver } from "../../types/index";
-import type { User } from "../../types/index";
+import type { Caregiver } from "../../../types/index";
+import type { User } from "../../../types/index";
 
 type PatientDialogProps = {
   open: boolean;
@@ -18,8 +18,9 @@ type PatientDialogProps = {
 
 export const Patient = ({ open, onClose, patient, caregiver, user }: PatientDialogProps) => {
 
-  // console.log('Patient dialog user:', user);
-  // console.log('Patient dialog caregiver:', caregiver);
+
+  console.log('Patient dialog user:', user);
+  console.log('Patient dialog caregiver:', caregiver);
   if (!open) return null;
 
   return (

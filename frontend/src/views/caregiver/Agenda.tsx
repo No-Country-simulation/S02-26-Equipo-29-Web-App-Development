@@ -300,7 +300,6 @@ export const Agenda = () => {
             open={patientDialogOpen}
             onClose={() => setPatientDialogOpen(false)}
             patient={selectedPatient}
-            caregiver={caregiver}
             user={user}
           />
         )}

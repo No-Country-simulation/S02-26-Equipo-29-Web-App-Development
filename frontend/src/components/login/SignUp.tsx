@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { InputSignUp } from "../UI/input";
+import { InputSignUp, InputOptions } from "../UI/input";
 import { useState } from "react";
 import { Login } from "./LogIn";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,7 @@ type SignUpFormValues = {
   password: string;
   name: string;
   lastname: string;
+  role: string;
 };
 
 export const SignUp = () => {
@@ -25,6 +26,7 @@ export const SignUp = () => {
       password: "",
       name: "",
       lastname: "",
+      role: "",
     },
     mode: "onBlur",
   });
@@ -36,7 +38,7 @@ export const SignUp = () => {
         email: values.email,
         password: values.password,
         full_name: `${values.name} ${values.lastname}`,
-        role: "FAMILY",
+        role: values.role || "FAMILY",
       };
       // Aquí iría la lógica para enviar los datos al backend
       const response = await api.post("/auth/register", newUser);
@@ -137,8 +139,8 @@ export const SignUp = () => {
                   {...register("name", {
                     required: "El nombre es obligatorio",
                     minLength: {
-                      value: 6,
-                      message: "Debe tener al menos 6 caracteres",
+                      value: 3,
+                      message: "Debe tener al menos 3 caracteres",
                     },
                   })}
                 />
@@ -161,14 +163,38 @@ export const SignUp = () => {
                   {...register("lastname", {
                     required: "El apellido es obligatorio",
                     minLength: {
-                      value: 6,
-                      message: "Debe tener al menos 6 caracteres",
+                      value: 3,
+                      message: "Debe tener al menos 3 caracteres",
                     },
                   })}
                 />
                 {errors.lastname && (
                   <p className="text-sm text-danger">
                     {errors.lastname.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  className="text-sm font-medium text-text-primary"
+                  htmlFor="role"
+                >
+                  Role
+                </label>
+                <InputOptions
+                  id="role"
+                  options={[
+                    { value: "FAMILY", label: "Cuidador" },
+                    { value: "CAREGIVER", label: "Enfermero" },
+                  ]}
+                  {...register("role", {
+                    required: "El role es obligatorio",
+                  })}
+                />
+                {errors.role && (
+                  <p className="text-sm text-danger">
+                    {errors.role.message}
                   </p>
                 )}
               </div>
