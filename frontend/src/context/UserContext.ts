@@ -12,8 +12,9 @@ export interface UserData {
 export interface UserContextType {
   user: UserData | null;
   setUser: (user: UserData | null) => void;
-  isAuthenticated: boolean;
   loading: boolean;
+  handleLogout: () => void;
+  checkSession: () => Promise<void>;
 }
 
 export const UserContext = createContext<UserContextType | undefined>(

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { SignUp } from "./SignUp";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../lib/axios/api";
+import { useUser } from "../../context/UserContext";
 
 type LoginFormValues = {
   email?: string;
@@ -15,6 +16,7 @@ export const Login = () => {
   const navigate = useNavigate();
   const [Mode, setMode] = useState(false);
   const [, setUserToken] = useState<LoginFormValues | null>(null);
+  const { checkSession } = useUser();
 
   const {
     register,
@@ -35,6 +37,7 @@ export const Login = () => {
         console.log("Login exitoso:", response.data);
         setUserToken(response.data);
         localStorage.setItem("userToken", JSON.stringify(response.data));
+        await checkSession();
         navigate("/dashboard");
       } else {
         console.error("Error en el login:", response.statusText);

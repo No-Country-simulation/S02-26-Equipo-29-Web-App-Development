@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import {
   LayoutDashboardIcon,
   UserIcon,
@@ -49,7 +49,7 @@ const navLinks: Record<
 export function Sidebar() {
   const { pathname } = useLocation();
   const { user } = useUser();
-  const navigate = useNavigate();
+  const { handleLogout } = useUser();
 
   return (
     <aside className="sticky top-0 min-h-screen bg-white shadow-lg w-18 md:w-55 transition-all duration-300">
@@ -89,11 +89,7 @@ export function Sidebar() {
       {/* Logout */}
       <div className="absolute bottom-6 left-2 right-2 md:left-4 md:right-4 ">
         <button
-          onClick={() => {
-            localStorage.removeItem("userToken");
-            localStorage.removeItem("user");
-            navigate("/login");
-          }}
+          onClick={() => handleLogout()}
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2 cursor-pointer
                      text-danger hover:bg-danger hover:text-white transition-colors"
         >
