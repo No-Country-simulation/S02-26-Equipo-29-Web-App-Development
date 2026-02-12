@@ -1,4 +1,4 @@
-import CaregiverView from "../../views/caregiver/caregiver";
+import CaregiverView from "../../views/caregiver/CaregiverInfo";
 import { Patient } from "../patient/patient";
 import { useState } from "react";
 

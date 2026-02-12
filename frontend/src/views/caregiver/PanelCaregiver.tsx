@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { User } from "../../types";
 import axios from "axios";
 import { Agenda } from "./Agenda";
-import { CaregiverView } from "./caregiver";
+import { CaregiverInfo } from "./CaregiverInfo";
 
 export const PanelCaregiver = ({user}: {user: User}) => {
   const [, setUserAuth] = useState<User | null>(null);
@@ -68,10 +68,10 @@ export const PanelCaregiver = ({user}: {user: User}) => {
           </p>
         </header>
 
-        <Agenda caregiver={caregiver}/>
+        <Agenda />
         
         <section className="mx-auto max-w-5xl space-y-8 mt-8">
-            <CaregiverView caregiver={caregiver} />
+            <CaregiverInfo />
         </section>
 
         

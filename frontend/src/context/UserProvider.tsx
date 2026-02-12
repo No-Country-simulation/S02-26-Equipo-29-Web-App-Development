@@ -21,13 +21,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           Authorization: `Bearer ${userToken.access_token}`,
         },
       });
+      console.log("User role fetched successfully:", response.data);
       const userData: UserData = {
         id: response.data.id,
         full_name: response.data.full_name,
         role: response.data.role,
         email: response.data.email,
+        phone: response.data.phone
       };
-      console.log("auntenticando");
       setUser(userData);
     } catch (error) {
       console.error("Error fetching user role:", error);

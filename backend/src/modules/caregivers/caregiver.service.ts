@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   BadRequestException,
   Injectable,
@@ -29,6 +30,27 @@ export class CaregiverService {
   }
 
   async create(caregiver: Caregiver) {
+    return this.caregiverRepo.save(caregiver);
+  }
+
+  async caregiverById(profileId: string) {
+    const caregiver = await this.caregiverRepo.findOne({
+      where: { profile_id: profileId },
+    });
+    if (!caregiver) {
+      throw new NotFoundException('Caregiver no encontrado');
+    }
+    return caregiver;
+  }
+
+  async upDateCaregiver(profileId: string, data: Partial<Caregiver>) {
+    const caregiver = await this.caregiverRepo.findOne({
+      where: { profile_id: profileId },
+    });
+    if (!caregiver) {
+      throw new NotFoundException('Caregiver no encontrado');
+    }
+    Object.assign(caregiver, data);
     return this.caregiverRepo.save(caregiver);
   }
 

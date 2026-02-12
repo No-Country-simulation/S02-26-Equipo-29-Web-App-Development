@@ -4,6 +4,7 @@ import { Login } from "../components/login/LogIn";
 import { Appointments, Caregivers, Patients, Registration } from "../views";
 import { ProtectedRoute } from "../components/ProtectedRoute";
 import { Agenda } from "../views/caregiver/Agenda";
+import { CaregiverInfo } from "../views/caregiver/CaregiverInfo";
 import { MainDashboard } from "../components/dashboard/MainDashboard";
 
 export const router = createBrowserRouter([
@@ -45,13 +46,17 @@ export const router = createBrowserRouter([
         path: "/patients",
         element: <Patients />,
       },
-      {
-        path: "/caregivers",
-        element: <Caregivers />,
-      },
+      // {
+      //   path: "/caregivers",
+      //   element: <Caregivers />,
+      // },
       {
         path: "/agenda",
         element: <Agenda />,
+      },
+      {
+        path: "/myinfo",
+        element: <CaregiverInfo />,
       },
     ],
   },

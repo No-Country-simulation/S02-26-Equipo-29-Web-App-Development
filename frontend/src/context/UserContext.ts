@@ -7,6 +7,7 @@ export interface UserData {
   full_name: string;
   role: Role;
   email: string;
+  phone?: string;
 }
 
 export interface UserContextType {

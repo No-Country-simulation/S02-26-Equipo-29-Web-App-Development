@@ -180,16 +180,16 @@ export const SignUp = () => {
                   className="text-sm font-medium text-text-primary"
                   htmlFor="role"
                 >
-                  Role
+                  Rol
                 </label>
                 <InputOptions
                   id="role"
                   options={[
-                    { value: "FAMILY", label: "Cuidador" },
-                    { value: "CAREGIVER", label: "Enfermero" },
+                    { value: "FAMILY", label: "Familiar / Paciente" },
+                    { value: "CAREGIVER", label: "Cuidador" },
                   ]}
                   {...register("role", {
-                    required: "El role es obligatorio",
+                    required: "El rol es obligatorio",
                   })}
                 />
                 {errors.role && (

@@ -1,13 +1,16 @@
+/* eslint-disable prettier/prettier */
 import {
   BadRequestException,
   Body,
   Controller,
   Get,
+  Param,
   Post,
   UploadedFile,
   UseInterceptors,
   Req,
   UseGuards,
+  Patch,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
@@ -23,6 +26,17 @@ export class CaregiverController {
   @Get()
   findAll() {
     return this.caregiverService.findAll();
+  }
+
+  @Get(':caregiverId')
+  caregiverByIdParam(@Param('caregiverId') caregiverId: string) {
+    return this.caregiverService.caregiverById(caregiverId);
+  }
+
+  @Patch(':caregiverId')
+  @UseGuards(AuthGuard('jwt'))
+  updateCaregiver(@Req() req: AuthRequest, @Param('caregiverId') caregiverId: string, @Body() data: Partial<unknown>) {
+    return this.caregiverService.upDateCaregiver(caregiverId, data);
   }
 
   @UseGuards(AuthGuard('jwt'))

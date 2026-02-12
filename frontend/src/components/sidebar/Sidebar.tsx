@@ -28,6 +28,7 @@ const navLinks: Record<
   CAREGIVER: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
     { title: "Agenda", href: "/agenda", icon: CalendarIcon },
+    { title: "Mi Información", href: "/myinfo", icon: UserPlusIcon },
   ],
   FAMILY: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
