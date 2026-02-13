@@ -26,7 +26,9 @@ export class CaregiverService {
   ) {}
 
   async findAll() {
-    return this.caregiverRepo.find();
+    return this.caregiverRepo.find({    
+      relations: ['profile'],
+    });
   }
 
   async create(caregiver: Caregiver) {

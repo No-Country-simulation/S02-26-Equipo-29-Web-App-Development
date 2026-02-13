@@ -9,4 +9,8 @@ export class PatientService {
     @InjectRepository(Patient)
     private readonly patientRepo: Repository<Patient>,
   ) {}
+
+  async findAll() {
+    return this.patientRepo.find();
+  }
 }

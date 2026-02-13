@@ -14,6 +14,7 @@ import { Caregiver } from '../caregivers/caregiver.entity';
 
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { Patient } from '../patients/patient.entity';
 
 @Injectable()
 export class AuthService {
@@ -70,6 +71,15 @@ export class AuthService {
         });
 
         await manager.save(caregiver);
+      }
+
+      console.log(profile.role);
+      if (profile.role === ProfileRole.PATIENT) {
+        const patient = manager.create(Patient, {
+          profile_id: profile.id,
+        });
+
+        await manager.save(patient);
       }
 
       return this.buildToken(user, profile);

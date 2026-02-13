@@ -1,11 +1,13 @@
 // src/modules/patients/entities/patient.entity.ts
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   CreateDateColumn,
   OneToMany,
+  OneToOne,
+  JoinColumn,
+  PrimaryColumn,
 } from 'typeorm';
 import { Profile } from '../profiles/profile.entity';
 import { FamilyPatient } from '../family/family-patient.entity';
@@ -13,14 +15,11 @@ import { Shift } from '../shifts/shift.entity';
 
 @Entity('patients')
 export class Patient {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryColumn('uuid')
+  profile_id!: string;
 
   @ManyToOne(() => Profile, (profile) => profile.managed_patients)
   primary_contact: Profile;
-
-  @Column()
-  full_name: string;
 
   @Column({ nullable: true })
   dni: string;
@@ -39,6 +38,10 @@ export class Patient {
 
   @CreateDateColumn()
   created_at: Date;
+
+  @OneToOne(() => Profile, (profile: Profile) => profile.patient)
+  @JoinColumn({ name: 'profile_id' })
+  profile!: Profile;
 
   @OneToMany(() => FamilyPatient, (fp) => fp.patient)
   family_members: FamilyPatient[];

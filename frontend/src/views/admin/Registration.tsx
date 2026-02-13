@@ -1,10 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { User, UserCogIcon } from "lucide-react";
+import { api } from "../../lib/axios/api";
 
 export function Registration() {
   const [selectedUser, setSelectedUser] = useState<"caregiver" | "patient">(
     "caregiver",
   );
+
+  useEffect(() => {
+    const getCaregivers = async () => {
+      const { data } = await api.get("/caregivers");
+      console.log("Caregivers response", data);
+    };
+    getCaregivers();
+
+    const getPatients = async () => {
+      const { data } = await api.get("/patients");
+      console.log("Patients response", data);
+    };
+    getPatients();
+  }, []);
 
   const caregivers = [
     {

@@ -1,7 +1,15 @@
-import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryColumn,
+  Column,
+  OneToMany,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
 import { CaregiverDocument } from './caregiver-document.entity';
 import { Shift } from '../shifts/shift.entity';
 import { Payroll } from '../payrolls/payroll.entity';
+import { Profile } from '../profiles/profile.entity';
 
 @Entity('caregivers')
 export class Caregiver {
@@ -22,6 +30,10 @@ export class Caregiver {
 
   @OneToMany(() => CaregiverDocument, (doc: any) => doc.caregiver)
   documents!: CaregiverDocument[];
+
+  @OneToOne(() => Profile, (profile: Profile) => profile.caregiver)
+  @JoinColumn({ name: 'profile_id' })
+  profile!: Profile;
 
   @OneToMany(() => Shift, (shift: Shift) => shift.caregiver)
   shifts!: Shift[];

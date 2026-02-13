@@ -33,23 +33,24 @@ export const SignUp = () => {
 
   const onSubmit = handleSubmit(async (values) => {
     console.log("SignUp payload", values);
-    if (values) {
-      const newUser = {
-        email: values.email,
-        password: values.password,
-        full_name: `${values.name} ${values.lastname}`,
-        role: values.role || "FAMILY",
-      };
-      // Aquí iría la lógica para enviar los datos al backend
+
+    const newUser = {
+      email: values.email,
+      password: values.password,
+      full_name: `${values.name} ${values.lastname}`,
+      role: values.role || "PATIENT",
+    };
+
+    try {
       const response = await api.post("/auth/register", newUser);
       console.log("SignUp response", response);
       if (response.status === 201) {
         console.log("SignUp exitoso:", response.data);
-        setMode(true); // Cambia al modo de login después de un registro exitoso
-        navigate("/login"); // Redirige al login después de registrarse
+        setMode(true);
+        navigate("/login");
       }
-    } else {
-      console.error("Error en el SignUp: No se proporcionaron datos válidos");
+    } catch (error) {
+      console.error("Error en el SignUp:", error);
     }
   });
 
@@ -185,7 +186,7 @@ export const SignUp = () => {
                 <InputOptions
                   id="role"
                   options={[
-                    { value: "FAMILY", label: "Familiar / Paciente" },
+                    { value: "PATIENT", label: "Paciente" },
                     { value: "CAREGIVER", label: "Cuidador" },
                   ]}
                   {...register("role", {
@@ -193,9 +194,7 @@ export const SignUp = () => {
                   })}
                 />
                 {errors.role && (
-                  <p className="text-sm text-danger">
-                    {errors.role.message}
-                  </p>
+                  <p className="text-sm text-danger">{errors.role.message}</p>
                 )}
               </div>
 

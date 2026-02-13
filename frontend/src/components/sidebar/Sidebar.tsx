@@ -18,6 +18,7 @@ const navLinks: Record<
 > = {
   ADMIN: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
+    { title: "Cuidados", href: "/appointments", icon: CalendarIcon },
     { title: "Agenda", href: "/agenda", icon: CalendarIcon },
     { title: "Registro", href: "/registration", icon: UserPlusIcon },
     { title: "Pacientes", href: "/patients", icon: UserIcon },
