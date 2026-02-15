@@ -1,6 +1,9 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import type { Caregiver } from "../../types";
+import { toast } from "sonner";
+import { api } from "../../lib/axios/api";
+import { isAxiosError } from "axios";
 
 interface EditProfileFormData {
     full_name: string;
@@ -13,19 +16,16 @@ interface EditProfileFormData {
 
 interface EditProfileFormProps {
     user: Caregiver;
-    onSubmit: (data: EditProfileFormData) => Promise<void>;
 }
 
 export const EditProfileForm: React.FC<EditProfileFormProps> = ({
     user,
-    onSubmit,
 }) => {
-    const [isLoading, setIsLoading] = useState(false);
+ const [isPending,setIsPending] = useState(false);
     const {
         register,
         handleSubmit,
         formState: { errors },
-        reset,
     } = useForm<EditProfileFormData>({
         defaultValues: {
             full_name: user.full_name,
@@ -37,18 +37,25 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({
         },
     });
 
-    const handleFormSubmit = async (data: EditProfileFormData) => {
-        setIsLoading(true);
-        try {
-            await onSubmit(data);
-            reset(data);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+   const onSubmit = async (formData: EditProfileFormData) => {
+
+    try {
+        setIsPending(true);
+        const response = await api.put(`/caregivers/${user?.id}`, formData);
+        toast.success(response.data.message);
+    } catch (error) {
+       if(isAxiosError(error)){
+        toast.error(error.response?.data.message);
+       }
+        toast.error("Error al editar el perfil");
+        
+    }finally{
+        setIsPending(false);
+    }
+   }
 
     return (
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 mt-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4">
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     Nombre Completo
@@ -186,10 +193,10 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({
 
             <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isPending}
                 className="w-full bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary-hover disabled:bg-gray-400 transition-colors"
             >
-                {isLoading ? "Guardando..." : "Guardar cambios"}
+                {isPending ? "Guardando..." : "Guardar cambios"}
             </button>
         </form>
     );

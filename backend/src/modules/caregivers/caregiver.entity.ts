@@ -17,6 +17,9 @@ export class Caregiver {
   profile_id!: string;
 
   @Column({ nullable: true })
+  phone?: string;
+
+  @Column({ nullable: true })
   cbu?: string;
 
   @Column({ nullable: true })

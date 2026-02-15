@@ -4,7 +4,7 @@ import { useState } from "react";
 import { SignUp } from "./SignUp";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../lib/axios/api";
-import { useUser } from "../../context/UserContext";
+import { toast } from "sonner";
 
 type LoginFormValues = {
   email?: string;
@@ -16,8 +16,6 @@ export const Login = () => {
   const navigate = useNavigate();
   const [Mode, setMode] = useState(false);
   const [, setUserToken] = useState<LoginFormValues | null>(null);
-  const { checkSession } = useUser();
-
   const {
     register,
     handleSubmit,
@@ -31,19 +29,25 @@ export const Login = () => {
   });
 
   const onSubmit = handleSubmit(async (values: LoginFormValues) => {
-    if (values) {
-      const response = await api.post<LoginFormValues>("/auth/login", values);
+
+      try {
+         const response = await api.post<LoginFormValues>("/auth/login", values);
+      if(response.status===401){
+        toast.error("Correo o contraseña incorrectos")
+      }
       if (response.status === 201) {
-        console.log("Login exitoso:", response.data);
+        toast.success("Inicio de sesión exitoso")
         setUserToken(response.data);
         localStorage.setItem("userToken", JSON.stringify(response.data));
-        await checkSession();
         navigate("/dashboard");
-      } else {
-        console.error("Error en el login:", response.statusText);
-        console.error("Response data:", response.data);
+      } 
+      } catch (error:any) { 
+        if(error.isAxiosError && error.response?.status === 401){
+          toast.error("Credenciales inválidas")
+        }
       }
-    }
+         
+    
   });
 
   return (

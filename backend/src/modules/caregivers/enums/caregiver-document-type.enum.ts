@@ -1,6 +1,7 @@
 export enum CaregiverDocumentType {
-  DNI = 'dni',
-  BACKGROUND_CHECK = 'background_check',
+  DNI_FRONT = 'dni_front',
+  DNI_BACK = 'dni_back',
+  CRIMINAL_RECORD = 'criminal_record',
   CERTIFICATE = 'certificate',
   CONTRACT = 'contract',
 }

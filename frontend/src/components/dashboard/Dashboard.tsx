@@ -1,10 +1,10 @@
+import { useUser } from "../../hooks";
 import { Sidebar } from "../sidebar/Sidebar";
-import { useUser } from "../../context/UserContext";
 import { AdminDashboard } from "./AdminDashboard";
 import { CaregiverDashboard } from "./CaregiverDashboard";
 
 export const MainDashboard = () => {
-  const { user } = useUser();
+  const { data: user } = useUser();
 
   return (
     <div className="flex">

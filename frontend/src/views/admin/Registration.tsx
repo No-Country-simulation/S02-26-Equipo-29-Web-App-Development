@@ -10,13 +10,11 @@ export function Registration() {
   useEffect(() => {
     const getCaregivers = async () => {
       const { data } = await api.get("/caregivers");
-      console.log("Caregivers response", data);
     };
     getCaregivers();
 
     const getPatients = async () => {
       const { data } = await api.get("/patients");
-      console.log("Patients response", data);
     };
     getPatients();
   }, []);

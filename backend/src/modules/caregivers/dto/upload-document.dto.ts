@@ -14,6 +14,7 @@ export class UploadDocumentDto {
   })
   document_type!: CaregiverDocumentType;
 
+  @IsOptional()
   @IsUrl({}, { message: 'file_url debe ser una URL válida' })
   file_url!: string;
 

@@ -39,7 +39,6 @@ export class AuthController {
     if (!profile) {
       return null;
     }
-
     return {
       id: profile.id,
       full_name: profile.full_name,

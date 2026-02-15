@@ -6,6 +6,7 @@ import { ProtectedRoute } from "../components/ProtectedRoute";
 import { Agenda } from "../views/caregiver/Agenda";
 import { CaregiverInfo } from "../views/caregiver/CaregiverInfo";
 import { MainDashboard } from "../components/dashboard/MainDashboard";
+import { QueryClientProvider } from "../providers/QueryClientProvider";
 
 export const router = createBrowserRouter([
   {
@@ -22,12 +23,14 @@ export const router = createBrowserRouter([
   },
 
   {
-    element: (
-      <>
-        <ProtectedRoute>
-          <MainDashboard />
-        </ProtectedRoute>
-      </>
+    element: (  
+
+        <QueryClientProvider>
+          <ProtectedRoute>
+            <MainDashboard />
+          </ProtectedRoute>
+        </QueryClientProvider>
+
     ),
     children: [
       {

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Login } from "./LogIn";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../lib/axios/api";
+import { toast } from "sonner";
 
 type SignUpFormValues = {
   email: string;
@@ -32,8 +33,6 @@ export const SignUp = () => {
   });
 
   const onSubmit = handleSubmit(async (values) => {
-    console.log("SignUp payload", values);
-
     const newUser = {
       email: values.email,
       password: values.password,
@@ -43,14 +42,15 @@ export const SignUp = () => {
 
     try {
       const response = await api.post("/auth/register", newUser);
-      console.log("SignUp response", response);
       if (response.status === 201) {
-        console.log("SignUp exitoso:", response.data);
         setMode(true);
+        toast.success("Usuario creado exitosamente")
         navigate("/login");
       }
-    } catch (error) {
-      console.error("Error en el SignUp:", error);
+    } catch (error:any) {
+      if(error.isAxiosError && error.response?.status === 400){
+        toast.error("No se pudo crear la cuenta, intenta de nuevo")
+      }
     }
   });
 

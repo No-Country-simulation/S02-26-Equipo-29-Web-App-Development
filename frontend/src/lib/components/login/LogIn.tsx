@@ -38,13 +38,11 @@ const [, setUserToken] = useState<LoginFormValues | null>(null);
 
       const response = await axios.post<LoginFormValues>("http://localhost:3002/auth/login", values);
       if (response.status === 201) {
-        console.log("Login exitoso:", response.data);
         setUserToken(response.data);
         localStorage.setItem("userToken", JSON.stringify(response.data));
         navigate("/dashboard");
 
       } else {
-        console.error("Error en el login:", response.statusText);
         console.error("Response data:", response.data);
       }
       

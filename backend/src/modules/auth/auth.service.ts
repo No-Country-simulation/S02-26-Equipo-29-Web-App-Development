@@ -73,7 +73,6 @@ export class AuthService {
         await manager.save(caregiver);
       }
 
-      console.log(profile.role);
       if (profile.role === ProfileRole.PATIENT) {
         const patient = manager.create(Patient, {
           profile_id: profile.id,
@@ -94,7 +93,6 @@ export class AuthService {
       where: { email: dto.email },
       relations: ['profile'],
     });
-
     if (!user || !user.profile) {
       throw new UnauthorizedException('Invalid credentials');
     }

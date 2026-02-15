@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboardIcon,
   UserIcon,
@@ -10,7 +10,8 @@ import {
   CalendarIcon,
 } from "lucide-react";
 import { DashboardLink } from "../UI/DashboardLink";
-import { useUser } from "../../context/UserContext";
+import { useUser } from "../../hooks";
+import { useQueryClient } from "@tanstack/react-query";
 
 const navLinks: Record<
   "ADMIN" | "CAREGIVER" | "FAMILY" | "PATIENT",
@@ -50,8 +51,10 @@ const navLinks: Record<
 
 export function Sidebar() {
   const { pathname } = useLocation();
-  const { user } = useUser();
-  const { handleLogout } = useUser();
+  const { data: user } = useUser();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
 
   return (
     <aside className="sticky top-0 min-h-screen bg-white shadow-lg w-18 md:w-55 transition-all duration-300">
@@ -91,7 +94,12 @@ export function Sidebar() {
       {/* Logout */}
       <div className="absolute bottom-6 left-2 right-2 md:left-4 md:right-4 ">
         <button
-          onClick={() => handleLogout()}
+          onClick={() => {
+             localStorage.removeItem("userToken")
+             queryClient.invalidateQueries({queryKey:["user"]})
+             navigate("/login")
+             
+          }}
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2 cursor-pointer
                      text-danger hover:bg-danger hover:text-white transition-colors"
         >

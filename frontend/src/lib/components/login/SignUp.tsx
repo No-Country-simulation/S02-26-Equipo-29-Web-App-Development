@@ -30,7 +30,6 @@ export const SignUp = () => {
   });
 
   const onSubmit = handleSubmit(async (values) => {
-    console.log("SignUp payload", values);
     if (values) {
 
       const newUser = {
@@ -41,9 +40,7 @@ export const SignUp = () => {
       }
       // Aquí iría la lógica para enviar los datos al backend
       const response = await axios.post("http://localhost:3002/auth/register", newUser);
-      console.log("SignUp response", response);
       if (response.status === 201) {
-        console.log("SignUp exitoso:", response.data);
         setMode(true); // Cambia al modo de login después de un registro exitoso
         navigate("/login"); // Redirige al login después de registrarse
       }

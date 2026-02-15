@@ -19,8 +19,6 @@ type PatientDialogProps = {
 export const Patient = ({ open, onClose, patient, caregiver, user }: PatientDialogProps) => {
 
 
-  console.log('Patient dialog user:', user);
-  console.log('Patient dialog caregiver:', caregiver);
   if (!open) return null;
 
   return (

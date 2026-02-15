@@ -1,7 +1,7 @@
 import { MessagesSquare, SquareX } from "lucide-react";
 import { useState, useRef, useEffect, type ChangeEvent } from "react";
 import { Patient } from "../../components/patient/patient";
-import { useUser } from "../../context/UserContext";
+import { useUser } from "../../hooks";
 import "cally";
 
 declare global {
@@ -25,7 +25,7 @@ declare global {
 }
 
 export const Agenda = () => {
-  const { user } = useUser();
+  const { data: user } = useUser();
   const [selectedPatient, setSelectedPatient] = useState<
     (typeof assignedPatients)[number] | null
   >(null);

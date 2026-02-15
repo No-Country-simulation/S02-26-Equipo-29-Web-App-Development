@@ -25,6 +25,13 @@ export class CaregiverService {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
+  async getDocuments(profileId: string){
+    const documents = await this.documentRepo.find({
+      where: { caregiver: { profile_id: profileId } },
+    });
+    return documents;
+  }
+
   async findAll() {
     return this.caregiverRepo.find({    
       relations: ['profile'],
@@ -59,7 +66,7 @@ export class CaregiverService {
   async uploadDocument(
     caregiverProfileId: string,
     dto: UploadDocumentDto,
-    file: unknown,
+    file: Express.Multer.File,
   ): Promise<CaregiverDocument> {
     // 1️⃣ Validar caregiver
     const caregiver = await this.caregiverRepo.findOne({
@@ -82,13 +89,11 @@ export class CaregiverService {
       throw new BadRequestException('El documento ya fue cargado');
     }
 
-    // 3️⃣ Subir archivo a Cloudinary
     const upload = await this.cloudinaryService.uploadImage(file, {
       folder: `caregivers/${caregiverProfileId}`,
       resource_type: 'auto',
     });
 
-    // 4️⃣ Crear documento
     const document = this.documentRepo.create({
       caregiver,
       document_type: dto.document_type,
@@ -96,7 +101,35 @@ export class CaregiverService {
       status: CaregiverDocumentStatus.PENDING,
     });
 
-    // 5️⃣ Guardar
     return this.documentRepo.save(document);
+  }
+
+  async uploadMultipleDocuments(
+    caregiverProfileId: string,
+    files: { [key: string]: Express.Multer.File[] },
+  ) {
+    const results: CaregiverDocument[] = [];
+    for (const [type, fileArray] of Object.entries(files)) {
+      if (fileArray && fileArray.length > 0) {
+        const file = fileArray[0];
+        const dto = new UploadDocumentDto();
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        dto.document_type = type;
+        results.push(await this.uploadDocument(caregiverProfileId, dto, file));
+      }
+    }
+    return results;
+  }
+
+  async deleteDocument(id: string, caregiverProfileId: string) {
+    const document = await this.documentRepo.findOne({
+      where: { id, caregiver: { profile_id: caregiverProfileId } },
+    });
+    if (!document) {
+      throw new NotFoundException('Documento no encontrado');
+    }
+    await this.cloudinaryService.delete(document.file_url);
+    return this.documentRepo.remove(document);
   }
 }

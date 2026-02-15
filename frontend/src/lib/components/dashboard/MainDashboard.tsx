@@ -1,12 +1,12 @@
 import { Outlet, useLocation } from "react-router-dom";
-import { useUser, useRole } from "../../../context/RoleContext";
 import { Sidebar } from "../sidebar/Sidebar";
 import { PanelCaregiver } from "../../../views/caregiver/PanelCaregiver";
 import { PanelAdmin } from "../../../views/admin/PanelAdmin";
+import { useUser } from "../../../hooks";
 
 export function MainDashboard() {
-  const { user } = useUser(); // "ADMIN", "CAREGIVER", etc.
-  const role = useRole();
+  const { data:user } = useUser();
+  const role = user?.role;
   const location = useLocation();
 
   const defaultView =

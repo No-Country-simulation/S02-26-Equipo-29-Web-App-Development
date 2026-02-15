@@ -17,7 +17,6 @@ export const PanelCaregiver = ({user}: {user: User}) => {
   // const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") as string) : null;
   const userToken = localStorage.getItem("userToken") ? JSON.parse(localStorage.getItem("userToken") as string) : null;
 
-  console.log("User token en MainDashboard:", userToken.access_token);
 
   const getUserData = async () => {
     if (userToken) {
@@ -27,7 +26,6 @@ export const PanelCaregiver = ({user}: {user: User}) => {
             Authorization: `Bearer ${userToken.access_token}`,
           },
         });
-        console.log("User data fetched successfully:", response.data);
         return response.data;
       } catch (error) {
         console.error("Error fetching user data:", error);
