@@ -212,7 +212,7 @@ export const Agenda = () => {
               </calendar-range>
               <button
                 onClick={() => setCalendarOpen(false)}
-                className="absolute top-50 right-110 font-bold text-red-500 transition hover:text-red-600 "
+                className="absolute top-2 right-2 font-bold text-red-500 transition hover:text-red-600 "
               >
                 <SquareX size={48} strokeWidth={1.5} />
               </button>

@@ -12,6 +12,7 @@ import { CaregiverDocument } from './caregiver-document.entity';
 import { UploadDocumentDto } from './dto/upload-document.dto';
 import { CaregiverDocumentStatus } from './enums/caregiver-document-status.enum';
 import { CloudinaryService } from '../../shared/media/media.service';
+import { CaregiverDocumentType } from './enums/caregiver-document-type.enum';
 
 @Injectable()
 export class CaregiverService {
@@ -33,9 +34,30 @@ export class CaregiverService {
   }
 
   async findAll() {
-    return this.caregiverRepo.find({    
-      relations: ['profile'],
+    const caregivers=await this.caregiverRepo.find({    
+      relations: ['profile',"documents","shifts","payrolls"],
     });
+    const data=caregivers.map((caregiver)=>{
+ 
+      return {
+        full_name:caregiver.profile.full_name,
+        profile_id:caregiver.profile_id,
+        phone:caregiver.phone,
+        cbu:caregiver.cbu,
+        mercado_pago_alias:caregiver.mercado_pago_alias,
+        hourly_rate:caregiver.hourly_rate,
+        is_verified:caregiver.is_verified,
+        created_at:caregiver.profile.created_at,
+        status:caregiver.status,
+        front_dni:caregiver.documents.find((doc:CaregiverDocument) => doc.document_type === CaregiverDocumentType.DNI_FRONT)?.file_url,
+        back_dni:caregiver.documents.find((doc:CaregiverDocument) => doc.document_type === CaregiverDocumentType.DNI_BACK)?.file_url,
+        criminal_record:caregiver.documents.find((doc:CaregiverDocument) => doc.document_type === CaregiverDocumentType.CRIMINAL_RECORD)?.file_url,
+        certificate:caregiver.documents.find((doc:CaregiverDocument) => doc.document_type === CaregiverDocumentType.CERTIFICATE)?.file_url,
+        contract:caregiver.documents.find((doc:CaregiverDocument) => doc.document_type === CaregiverDocumentType.CONTRACT)?.file_url,
+      }
+    })
+
+    return data;
   }
 
   async create(caregiver: Caregiver) {

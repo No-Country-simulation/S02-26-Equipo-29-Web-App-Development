@@ -10,6 +10,7 @@ import { CaregiverDocument } from './caregiver-document.entity';
 import { Shift } from '../shifts/shift.entity';
 import { Payroll } from '../payrolls/payroll.entity';
 import { Profile } from '../profiles/profile.entity';
+import { Status } from './enums/caregiver-status.enum';
 
 @Entity('caregivers')
 export class Caregiver {
@@ -30,6 +31,9 @@ export class Caregiver {
 
   @Column({ default: false })
   is_verified!: boolean;
+
+  @Column({ type: 'enum', enum: Status, default: Status.PENDING })
+  status!: Status;
 
   @OneToMany(() => CaregiverDocument, (doc: any) => doc.caregiver)
   documents!: CaregiverDocument[];

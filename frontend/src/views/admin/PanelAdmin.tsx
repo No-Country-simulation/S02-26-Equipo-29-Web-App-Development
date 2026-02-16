@@ -92,14 +92,14 @@ export function PanelAdmin() {
   ];
 
   return (
-    <>
+    <div className="bg-background pt-5 px-5">
       <header className="rounded-3xl border border-border bg-surface p-6 shadow-lg">
         <h1 className="text-2xl font-bold ">Panel Administrativo</h1>
         <p className="text-gray-400">Información general del sistema</p>
       </header>
 
       {/* Seccion de cards */}
-      <section className="flex gap-4">
+      <section className="flex gap-4 my-5">
         {cards.map((card, index) => (
           <div
             key={index}
@@ -177,6 +177,6 @@ export function PanelAdmin() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
