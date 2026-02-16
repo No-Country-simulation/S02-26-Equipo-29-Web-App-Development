@@ -20,7 +20,6 @@ const navLinks: Record<
   ADMIN: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
     { title: "Cuidados", href: "/appointments", icon: CalendarIcon },
-    { title: "Agenda", href: "/agenda", icon: CalendarIcon },
     { title: "Registro", href: "/registration", icon: UserPlusIcon },
     { title: "Pacientes", href: "/patients", icon: UserIcon },
     { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
@@ -30,7 +29,7 @@ const navLinks: Record<
   CAREGIVER: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
     { title: "Agenda", href: "/agenda", icon: CalendarIcon },
-    { title: "Mi Información", href: "/myinfo", icon: UserPlusIcon },
+    { title: "Mi Información", href: "/caregiver_info", icon: UserPlusIcon },
   ],
   FAMILY: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
@@ -42,10 +41,8 @@ const navLinks: Record<
   ],
   PATIENT: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
-    { title: "Registro", href: "/registration", icon: UserPlusIcon },
-    { title: "Pacientes", href: "/patients", icon: UserIcon },
-    { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
-    { title: "Métricas", href: "/metrics", icon: TrendingUpIcon },
+    { title: "Agenda", href: "/agenda", icon: CalendarIcon },
+    { title: "Mi Información", href: "/patient_info", icon: UserPlusIcon },
   ],
 };
 
@@ -54,7 +51,6 @@ export function Sidebar() {
   const { data: user } = useUser();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
 
   return (
     <aside className="sticky top-0 min-h-screen bg-white shadow-lg w-18 md:w-55 transition-all duration-300">
@@ -95,10 +91,9 @@ export function Sidebar() {
       <div className="absolute bottom-6 left-2 right-2 md:left-4 md:right-4 ">
         <button
           onClick={() => {
-             localStorage.removeItem("userToken")
-             queryClient.invalidateQueries({queryKey:["user"]})
-             navigate("/login")
-             
+            localStorage.removeItem("userToken");
+            queryClient.invalidateQueries({ queryKey: ["user"] });
+            navigate("/login");
           }}
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2 cursor-pointer
                      text-danger hover:bg-danger hover:text-white transition-colors"

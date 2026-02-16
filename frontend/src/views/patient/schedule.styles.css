@@ -1,0 +1,38 @@
+.my-calendar {
+  --cally-primary: var(--color-primary);
+  --cally-primary-foreground: var(--color-primary-foreground);
+}
+
+/* ===== BOTONES PREV / NEXT ===== */
+calendar-month::part(button) {
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+calendar-month::part(button):hover {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+/* ===== DIAS ===== */
+calendar-month::part(day) {
+  border-radius: 10px;
+  transition: 0.15s ease;
+}
+
+calendar-month::part(day):hover {
+  background: #eef6f7;
+}
+
+/* ===== DIA SELECCIONADO ===== */
+calendar-month::part(day)[aria-pressed="true"] {
+  background: #5299a1 !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 6px 16px rgba(82, 153, 161, 0.35);
+}
