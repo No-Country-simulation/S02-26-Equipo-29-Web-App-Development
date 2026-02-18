@@ -5,7 +5,8 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
-import type { ProfileRole } from '../../profiles/profile.entity';
+import { Transform } from 'class-transformer';
+import { ProfileRole } from '../../profiles/enums/profile-role.enum';
 
 export class RegisterDto {
   @IsEmail({}, { message: 'Debe ser un correo electrónico válido' })
@@ -22,9 +23,13 @@ export class RegisterDto {
   full_name!: string;
 
   @IsNotEmpty({ message: 'El rol es requerido' })
-  @IsEnum(['admin', 'caregiver', 'patient', 'family'], {
+  @Transform(({ value }: { value: unknown }) => {
+    if (typeof value !== 'string') return value;
+    return value.toUpperCase();
+  })
+  @IsEnum(ProfileRole, {
     message:
-      'El rol debe ser uno de los siguientes: admin, caregiver, patient, family',
+      'El rol debe ser uno de los siguientes: admin, caregiver, patient, family, staff',
   })
   role!: ProfileRole;
 }

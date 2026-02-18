@@ -9,7 +9,8 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
 import { AuthUser } from './auth-user.entity';
-import { Profile, ProfileRole } from '../profiles/profile.entity';
+import { Profile } from '../profiles/profile.entity';
+import { ProfileRole } from '../profiles/enums/profile-role.enum';
 import { Caregiver } from '../caregivers/caregiver.entity';
 
 import { RegisterDto } from './dto/register.dto';

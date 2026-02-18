@@ -13,14 +13,7 @@ import { Patient } from '../patients/patient.entity';
 import { FamilyPatient } from '../family/family-patient.entity';
 import { Shift } from '../shifts/shift.entity';
 import { Caregiver } from '../caregivers/caregiver.entity';
-
-export enum ProfileRole {
-  ADMIN = 'ADMIN',
-  STAFF = 'STAFF',
-  FAMILY = 'FAMILY',
-  CAREGIVER = 'CAREGIVER',
-  PATIENT = 'PATIENT',
-}
+import { ProfileRole } from './enums/profile-role.enum';
 
 @Entity('profiles')
 export class Profile {
