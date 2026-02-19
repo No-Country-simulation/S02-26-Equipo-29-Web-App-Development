@@ -31,6 +31,6 @@ import { Caregiver } from '../caregivers/caregiver.entity';
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
-  exports: [AuthService],
+  exports: [AuthService, JwtStrategy],
 })
 export class AuthModule {}

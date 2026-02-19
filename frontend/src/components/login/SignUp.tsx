@@ -42,7 +42,7 @@ export const SignUp = () => {
 
     try {
       const response = await api.post("/auth/register", newUser);
-      if (response.status === 201) {
+      if (response.status === 201 || response.status === 200) {
         setMode(true);
         toast.success("Usuario creado exitosamente")
         navigate("/login");

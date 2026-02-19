@@ -1,10 +1,12 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import type { Caregiver } from "../../types";
+import type { Caregiver, Patient } from "../../types";
 import { toast } from "sonner";
 import { api } from "../../lib/axios/api";
 import { isAxiosError } from "axios";
-
+import { useUser } from "../../hooks/user/useUser";
+import { useCaregiver } from "../../hooks";
+import { usePatient } from "../../hooks/patient/usePatient";
 interface EditProfileFormData {
     full_name: string;
     email: string;
@@ -12,37 +14,85 @@ interface EditProfileFormData {
     cbu?: string;
     mercado_pago_alias?: string;
     hourly_rate?: number;
+    address?: string;
+    notes?: string;
+    dni?: string;
 }
 
-interface EditProfileFormProps {
-    user: Caregiver;
+interface EditProfileFormPropsCaregiver {
+    user: Caregiver
 }
 
-export const EditProfileForm: React.FC<EditProfileFormProps> = ({
-    user,
+interface EditProfileFormPropsPatient {
+    user: Patient
+}
+
+type EditProfileFormProps = EditProfileFormPropsCaregiver | EditProfileFormPropsPatient;
+
+export const EditProfileForm: React.FC<EditProfileFormProps & { handleUpdateSuccess: () => void }> = ({
+    user, handleUpdateSuccess
 }) => {
  const [isPending,setIsPending] = useState(false);
+ const { data: currentUser } = useUser();
+ const { data: caregiverData } = useCaregiver();
+ const { data: patientData } = usePatient();
+ 
+ console.log("Current user in EditProfileForm:", currentUser);
+    
+    const defaultValues: EditProfileFormData = {
+        full_name: user.full_name,
+        email: user.email,
+        ...(currentUser?.role === "CAREGIVER" && {
+            phone: caregiverData.phone || "",
+            cbu: caregiverData.cbu || "",
+            mercado_pago_alias: caregiverData.mercado_pago_alias || "",
+            hourly_rate: caregiverData.hourly_rate || 0,
+        }),
+        ...(currentUser?.role === "PATIENT" && {
+            address: patientData.address || "",
+            notes: patientData.notes || "",
+            dni: patientData.dni || "",
+        }),
+    };
+
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm<EditProfileFormData>({
-        defaultValues: {
-            full_name: user.full_name,
-            email: user.email,
-            phone: user.phone,
-            cbu: user.cbu || "",
-            mercado_pago_alias: user.mercado_pago_alias || "",
-            hourly_rate: user.hourly_rate || 0,
-        },
+        defaultValues,
     });
 
    const onSubmit = async (formData: EditProfileFormData) => {
+    console.log('📤 Datos del formulario:', formData);
 
     try {
         setIsPending(true);
-        const response = await api.put(`/caregivers/${user?.id}`, formData);
-        toast.success(response.data.message);
+        if (currentUser?.role === "CAREGIVER") {
+            // Solo enviar campos de cuidador
+            const caregiverData = {
+                phone: formData.phone,
+                cbu: formData.cbu,
+                mercado_pago_alias: formData.mercado_pago_alias,
+                hourly_rate: formData.hourly_rate,
+            };
+            
+            const response = await api.patch(`/caregivers/${user?.id}`, caregiverData);
+            toast.success(response.data.message || "Perfil actualizado exitosamente");
+            
+
+        } else if (currentUser?.role === "PATIENT") {
+            // Solo enviar campos de paciente
+            const patientData = {
+                dni: formData.dni,
+                address: formData.address,
+                notes: formData.notes,
+            };
+            
+            const response = await api.patch(`/patients/${user?.id}`, patientData);
+            toast.success(response.data.message || "Perfil actualizado exitosamente");
+        }
+        handleUpdateSuccess();
     } catch (error) {
        if(isAxiosError(error)){
         toast.error(error.response?.data.message);
@@ -122,6 +172,8 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({
                 )}
             </div>
 
+            {currentUser?.role === "CAREGIVER" && (
+            <>
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     CBU
@@ -190,6 +242,64 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({
                     </span>
                 )}
             </div>
+            </>
+            )}
+
+            {currentUser?.role === "PATIENT" && (
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Dirección
+                    </label>
+                    <input
+                        type="text"
+                        {...register("address", {
+                            
+                            minLength: { value: 5, message: "Mínimo 5 caracteres" },
+                        })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Tu dirección"
+                    />
+                    {errors.address && (
+                        <span className="text-red-500 text-sm mt-1">
+                            {errors.address.message}
+                        </span>
+                    )}
+
+                    <label className="block text-sm font-medium text-gray-700 mb-1 mt-4">
+                        Notas
+                    </label>
+                    <textarea
+                        {...register("notes", { 
+                            
+                        })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Tus notas"
+                    />
+                    {errors.notes && (
+                        <span className="text-red-500 text-sm mt-1">
+                            {errors.notes.message}
+                        </span>
+                    )}
+
+                    <label className="block text-sm font-medium text-gray-700 mb-1 mt-4">
+                        DNI
+                    </label>
+                    <input
+                        type="text"
+                        {...register("dni", {
+                            
+                            minLength: { value: 5, message: "Mínimo 5 caracteres" },
+                        })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Tu DNI"
+                    />
+                    {errors.dni && (
+                        <span className="text-red-500 text-sm mt-1">
+                            {errors.dni.message}
+                        </span>
+                    )}
+                </div>
+            )}
 
             <button
                 type="submit"

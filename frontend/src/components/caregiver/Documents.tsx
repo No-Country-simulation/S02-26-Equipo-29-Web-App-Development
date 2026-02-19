@@ -5,8 +5,9 @@ import { toast } from 'sonner';
 import { AxiosError } from 'axios';
 import { useCaregiverDocuments } from '../../hooks';
 import { useQueryClient } from '@tanstack/react-query';
-
-
+import { useUser } from '../../hooks/user/useUser';
+import { usePatient } from '../../hooks/patient/usePatient';
+import { usePatientDocuments } from '../../hooks/patient/usePatientDocuments';
 
     interface UploadedDocument {
         file?:File
@@ -18,17 +19,27 @@ import { useQueryClient } from '@tanstack/react-query';
     }
     
     export function Documents() {
-        const queryClient = useQueryClient();
+       const {data:user}=useUser();
+       const {data:patient}=usePatient();
+       const queryClient = useQueryClient();
        const {data:documentsData,isLoading}=useCaregiverDocuments()
+       const {data:patientDataDoc}=usePatientDocuments();
         
        const [documents, setDocuments] = useState<UploadedDocument[]>(documentsData || []);
+       const [patientDocuments, setPatientDocuments] = useState<UploadedDocument[]>(patientDataDoc || []);
        const [isUploading, setIsUploading] = useState(false);
 
        useEffect(() => {
         if (documentsData) {
             setDocuments(documentsData)
         }
-    }, [documentsData])
+        }, [documentsData])
+
+        useEffect(() => {
+            if (patientDataDoc) {
+                setPatientDocuments(patientDataDoc)
+            }
+        }, [patientDataDoc])
         
 
         const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,13 +85,23 @@ import { useQueryClient } from '@tanstack/react-query';
                     toast.error("No hay archivos para subir");
                     return;
                 }
-
-                await api.post("/caregivers/documents", formData, {
-                    headers: { "Content-Type": "multipart/form-data" },
-                    timeout: 60000,
-                });
+                if (user?.role === "CAREGIVER") {
+                    await api.post("/caregivers/documents", formData, {
+                        headers: { "Content-Type": "multipart/form-data" },
+                        timeout: 60000,
+                    });
+                } else if (user?.role === "PATIENT") {
+                    await api.post("/patients/documents", formData, {
+                        headers: { "Content-Type": "multipart/form-data" },
+                        timeout: 60000,
+                    });
+                }
                 toast.success("Documentos subidos correctamente");
-                queryClient.invalidateQueries({ queryKey: ["caregiver-documents"] });
+                if (user?.role === "CAREGIVER") {
+                    queryClient.invalidateQueries({ queryKey: ["caregiver-documents"] });
+                } else if (user?.role === "PATIENT") {
+                    queryClient.invalidateQueries({ queryKey: ["patient-documents"] });
+                }
             } catch (error) {
                 if (error instanceof AxiosError) {
                     toast.error(error.response?.data?.message || "Error al subir documentos");
@@ -94,7 +115,11 @@ import { useQueryClient } from '@tanstack/react-query';
   
         const handleDeleteDocFromServer=async(id:string) => {
             try {
-                await api.delete(`/caregivers/documents/${id}`);
+                if (user?.role === "CAREGIVER") {
+                    await api.delete(`/caregivers/documents/${id}`);
+                } else if (user?.role === "PATIENT") {
+                    await api.delete(`/patients/documents/${id}`);
+                }
                 toast.success("Documento eliminado correctamente");
                 setDocuments(prev => prev.filter(doc => doc.id !== id));
             } catch (error) {

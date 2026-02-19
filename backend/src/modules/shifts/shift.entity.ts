@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 // src/modules/shifts/entities/shift.entity.ts
 import {
   Entity,
