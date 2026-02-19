@@ -28,13 +28,26 @@ export class ShiftsService {
 
     @InjectRepository(Patient)
     private readonly patientRepository: Repository<Patient>,
+
+    @InjectRepository(Profile)
+    private readonly profileRepository: Repository<Profile>,
   ) {}
 
   // 🔥 CREATE (solo ADMIN)
-  async create(dto: CreateShiftDto, admin: Profile): Promise<Shift> {
+  async create(dto: CreateShiftDto, adminPayload: Profile): Promise<Shift> {
+    // 🔥 Buscar el Profile real en DB
+    const admin = await this.profileRepository.findOneBy({
+      id: adminPayload.id,
+    });
+
+    if (!admin) {
+      throw new NotFoundException('Admin profile not found');
+    }
+
     const caregiver = await this.caregiverRepository.findOneBy({
       profile_id: dto.caregiverId,
     });
+
     if (!caregiver) {
       throw new NotFoundException('Caregiver not found');
     }
@@ -54,13 +67,12 @@ export class ShiftsService {
       throw new BadRequestException('end_time must be greater than start_time');
     }
 
-    // 🧮 Calcular horas automáticamente
     const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
 
     const shift = this.shiftRepository.create({
       caregiver,
       patient,
-      created_by: admin,
+      created_by: admin, // 🔥 ahora sí es entidad real
       start_time: start,
       end_time: end,
       hours,
@@ -119,11 +131,6 @@ export class ShiftsService {
     // 📝 Actualizar reporte si viene
     if (dto.report !== undefined) {
       shift.report = dto.report;
-    }
-
-    // 🔐 Solo si decidiste mantener status en UpdateDto
-    if (dto.status !== undefined) {
-      shift.status = dto.status;
     }
 
     return this.shiftRepository.save(shift);

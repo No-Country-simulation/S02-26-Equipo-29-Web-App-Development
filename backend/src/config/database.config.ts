@@ -3,12 +3,12 @@ import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 export const databaseConfig = (): TypeOrmModuleOptions => {
   // 🌩 Neon / producción
-  if (process.env.DATABASE_URL) {
+  if (process.env.NODE_ENV === 'production') {
     return {
       type: 'postgres',
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
-      synchronize: false, // ❌ nunca en prod
+      synchronize: false,
       ssl: { rejectUnauthorized: false },
     };
   }
