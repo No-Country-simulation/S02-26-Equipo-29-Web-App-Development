@@ -66,6 +66,10 @@ export const router = createBrowserRouter([
         element: <CaregiverInfo />,
       },
       {
+        path: "/patient",
+        element: <PatientInfo />,
+      },
+      {
         path: "/patient_info",
         element: <PatientInfo />,
       },
