@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 export const databaseConfig = (): TypeOrmModuleOptions => {

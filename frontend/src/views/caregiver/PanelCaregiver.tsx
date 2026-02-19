@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { User } from "../../types";
-import axios from "axios";
+import { api } from "../../lib/axios/api";
 import { Agenda } from "./Agenda";
 import { CaregiverInfo } from "./CaregiverInfo";
 
@@ -21,7 +21,7 @@ export const PanelCaregiver = ({user}: {user: User}) => {
   const getUserData = async () => {
     if (userToken) {
       try {
-        const response = await axios.get("http://localhost:3002/auth/me", {
+        const response = await api.get("/auth/me", {
           headers: {
             Authorization: `Bearer ${userToken.access_token}`,
           },

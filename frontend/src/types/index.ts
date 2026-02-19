@@ -20,8 +20,8 @@ export interface Caregiver extends User {
 
 export interface Patient extends User {
   id?: string;
-  credentials?: string;
-  status: string;
+  dni?: string;
+  address?: string;
   notes?: string;
   created_at?: string;
   front_dni?: string;
