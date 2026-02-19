@@ -1,3 +1,4 @@
+import React from "react";
 import { MessagesSquare, SquareX } from "lucide-react";
 import { useState, useRef, useEffect, type ChangeEvent } from "react";
 import { Patient } from "../../components/patient/patient";
@@ -30,44 +31,44 @@ export const Agenda = () => {
     (typeof assignedPatients)[number] | null
   >(null);
   const [patientDialogOpen, setPatientDialogOpen] = useState(false);
-  const [range, setRange] = useState<{ start: string; end: string } | null>(
-    null,
-  );
+  // const [range, setRange] = useState<{ start: string; end: string } | null>(
+  //   null,
+  // );
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
-  const currentDate = new Date();
-  const getMonth = () => {
-    switch (currentDate.toString().split(" ")[1]) {
-      case "Jan":
-        return 1;
-      case "Feb":
-        return 2;
-      case "Mar":
-        return 3;
-      case "Apr":
-        return 4;
-      case "May":
-        return 5;
-      case "Jun":
-        return 6;
-      case "Jul":
-        return 7;
-      case "Aug":
-        return 8;
-      case "Sep":
-        return 9;
-      case "Oct":
-        return 10;
-      case "Nov":
-        return 11;
-      case "Dec":
-        return 12;
-    }
-  };
-  const month = getMonth();
-  const day = Number(currentDate.toString().split(" ")[2]);
+  // const currentDate = new Date();
+  // const getMonth = () => {
+  //   switch (currentDate.toString().split(" ")[1]) {
+  //     case "Jan":
+  //       return 1;
+  //     case "Feb":
+  //       return 2;
+  //     case "Mar":
+  //       return 3;
+  //     case "Apr":
+  //       return 4;
+  //     case "May":
+  //       return 5;
+  //     case "Jun":
+  //       return 6;
+  //     case "Jul":
+  //       return 7;
+  //     case "Aug":
+  //       return 8;
+  //     case "Sep":
+  //       return 9;
+  //     case "Oct":
+  //       return 10;
+  //     case "Nov":
+  //       return 11;
+  //     case "Dec":
+  //       return 12;
+  //   }
+  // };
+  // const month = getMonth();
+  // const day = Number(currentDate.toString().split(" ")[2]);
 
   const assignedPatients = [
     {
@@ -154,7 +155,7 @@ export const Agenda = () => {
   const handleNextPage = () =>
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
 
-  const rangeValue = range ? `${range.start}/${range.end}` : "";
+  // const rangeValue = range ? `${range.start}/${range.end}` : "";
 
   return (
     <>
@@ -192,7 +193,7 @@ export const Agenda = () => {
           </div>
           {calendarOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-              <calendar-range
+              {/* <calendar-range
                 value={rangeValue}
                 months={month}
                 className="bg-white p-6 rounded-2xl shadow-lg"
@@ -209,7 +210,7 @@ export const Agenda = () => {
                     ? `Rango seleccionado: ${range.start} a ${range.end}`
                     : "Selecciona un rango de fechas"}
                 </div>
-              </calendar-range>
+              </calendar-range> */}
               <button
                 onClick={() => setCalendarOpen(false)}
                 className="absolute top-2 right-2 font-bold text-red-500 transition hover:text-red-600 "

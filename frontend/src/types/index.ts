@@ -16,6 +16,9 @@ export interface Caregiver extends User {
   cbu?: string;
   mercado_pago_alias?: string;
   hourly_rate?: number;
+  credentials?: string;
+  status?: string;
+  created_at?: string;
 }
 
 export interface Patient extends User {

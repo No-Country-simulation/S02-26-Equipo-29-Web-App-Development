@@ -1,4 +1,4 @@
-import {  useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { User, UserCogIcon } from "lucide-react";
 import { useCaregivers } from "../../hooks";
 import { formatDate } from "../../utils/formatDate";
@@ -55,29 +55,22 @@ const patients: Patient[] = [
   },
 ];
 
-enum CaregiverDocumentType {
-  DNI_FRONT = 'dni_front',
-  DNI_BACK = 'dni_back',
-  CRIMINAL_RECORD = 'criminal_record',
-  CERTIFICATE = 'certificate',
-  CONTRACT = 'contract',
-}
-
 export function Registration() {
-  const [selectedUserType, setSelectedUserType] = useState<"caregiver" | "patient">(
-    "caregiver",
+  const [selectedUserType, setSelectedUserType] = useState<
+    "caregiver" | "patient"
+  >("caregiver");
+  const [selectedItem, setSelectedItem] = useState<Caregiver | Patient | null>(
+    null,
   );
-  const [selectedItem,setSelectedItem]=useState<Caregiver | Patient | null>(null)
-  const {data:caregivers,isLoading}=useCaregivers()
+  const { data: caregivers, isLoading } = useCaregivers();
 
-
-  useEffect(() => {    
+  useEffect(() => {
     if (selectedUserType === "caregiver" && caregivers) {
-      setSelectedItem(caregivers?.[0] || null)
+      setSelectedItem(caregivers?.[0] || null);
     } else if (selectedUserType === "patient") {
-        setSelectedItem(patients[0])
+      setSelectedItem(patients[0]);
     }
-  }, [caregivers, selectedUserType])
+  }, [caregivers, selectedUserType]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -103,12 +96,11 @@ export function Registration() {
         return "Aprobado";
       case "rejected":
         return "Rechazado";
-
     }
   };
 
-  if(isLoading){
-    return <div>Loading...</div>
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
   return (
     <div className="bg-background p-5">
@@ -149,7 +141,7 @@ export function Registration() {
         </div>
 
         <div>
-           {/* Seccion de  tabla y documentos */}
+          {/* Seccion de  tabla y documentos */}
           <div className="rounded-2xl p-2 justify-between mt-5 grid grid-cols-3 gap-5">
             {/* Tabla */}
 
@@ -169,41 +161,46 @@ export function Registration() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border bg-surface whitespace-nowrap">
-                      {caregivers?.map((caregiver) => (
+                      {caregivers?.map((caregiver: Caregiver) => (
                         <tr
-                            onClick={() => setSelectedItem(caregiver)}
+                          onClick={() => setSelectedItem(caregiver)}
                           key={caregiver.profile_id}
                           className={`hover:bg-background hover:cursor-pointer ${
-                            (selectedItem as Caregiver)?.profile_id === caregiver.profile_id
+                            (selectedItem as Caregiver)?.profile_id ===
+                            caregiver.profile_id
                               ? "bg-primary/5"
                               : ""
                           }`}
-
                         >
-                          <td
-                 
-                           className="px-4 py-4 flex items-center gap-2">
+                          <td className="px-4 py-4 flex items-center gap-2">
                             <img
-                              src={caregiver.front_dni || "https://placehold.co/100x100"}
+                              src={
+                                caregiver.front_dni ||
+                                "https://placehold.co/100x100"
+                              }
                               alt=""
                               className="w-10 h-10 rounded-full"
                             />
                             <div className="flex flex-col">
-                              <p className="font-medium">{caregiver.full_name}</p>
+                              <p className="font-medium">
+                                {caregiver.full_name}
+                              </p>
                               <p className="text-xs text-text-secondary">
                                 {caregiver?.profile_id}
                               </p>
                             </div>
                           </td>
                           <td className="px-4 py-4">{caregiver.credentials}</td>
-                          <td className="px-4 py-4">{formatDate(caregiver.created_at)}</td>
+                          <td className="px-4 py-4">
+                            {formatDate(caregiver.created_at ?? "")}
+                          </td>
                           <td className="px-4 py-4">
                             <span
                               className={`px-2 py-1 rounded-full ${getStatusColor(
-                                caregiver.status,
+                                caregiver.status ?? "",
                               )}`}
                             >
-                              {translateStatus(caregiver.status)}
+                              {translateStatus(caregiver.status ?? "")}
                             </span>
                           </td>
                           <td className="px-4 py-4">
@@ -235,9 +232,13 @@ export function Registration() {
                     <tbody className="divide-y divide-border bg-surface whitespace-nowrap">
                       {patients.map((patient, index) => (
                         <tr
-                           onClick={() => setSelectedItem(patient)}
+                          onClick={() => setSelectedItem(patient)}
                           key={index}
-                          className={`hover:bg-background hover:cursor-pointer ${selectedItem?.id === patient.id ? "bg-primary/5" : ""}`}
+                          className={`hover:bg-background hover:cursor-pointer ${
+                            selectedItem?.id === patient.id
+                              ? "bg-primary/5"
+                              : ""
+                          }`}
                         >
                           <td className="px-4 py-4 flex items-center gap-2">
                             <img
@@ -278,73 +279,75 @@ export function Registration() {
 
             {/* Documentos */}
             <div className="h-[80vh] col-span-3 lg:col-span-1 border border-border rounded-2xl p-2 sticky top-0 overflow-y-scroll">
-                {selectedItem ? (
+              {selectedItem ? (
                 <>
-                {console.log(selectedItem)}
-                <img
-                    src={selectedItem?.front_dni || "https://placehold.co/100x100"}
+                  {console.log(selectedItem)}
+                  <img
+                    src={
+                      selectedItem?.front_dni || "https://placehold.co/100x100"
+                    }
                     alt=""
                     className="w-10 h-10 rounded-full"
-                />
-                <p className="font-bold">{selectedItem.full_name}</p>
-                {/* <p className="text-text-secondary/50 text-xs">id: {selectedItem?}</p> */}
+                  />
+                  <p className="font-bold">{selectedItem.full_name}</p>
+                  {/* <p className="text-text-secondary/50 text-xs">id: {selectedItem?}</p> */}
 
-                <p className="mt-5  text-text-secondary">
+                  <p className="mt-5  text-text-secondary">
                     Verificación de documentos
-                </p>
-                <div className="flex flex-col gap-2 mt-2">
-                    <p className="text-sm text-text-secondary">Parte delantera</p>
+                  </p>
+                  <div className="flex flex-col gap-2 mt-2">
+                    <p className="text-sm text-text-secondary">
+                      Parte delantera
+                    </p>
                     <div className="w-[200px] h-[100px] overflow-hidden rounded">
-                        {selectedItem?.front_dni ? (
-                           <img
-                            src={selectedItem?.front_dni}
-                            alt={selectedItem.full_name}
-                            className="w-full h-full object-cover"
-                            /> 
-                        ) : (
-                            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs text-center p-2">
-                                No document uploaded
-                            </div>
-                        )}
-                    
+                      {selectedItem?.front_dni ? (
+                        <img
+                          src={selectedItem?.front_dni}
+                          alt={selectedItem.full_name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs text-center p-2">
+                          No document uploaded
+                        </div>
+                      )}
                     </div>
-                </div>
-                <div className="flex flex-col gap-2 mt-2">
+                  </div>
+                  <div className="flex flex-col gap-2 mt-2">
                     <p className="text-sm text-text-secondary">Parte trasera</p>
                     <div className="w-[200px] h-[100px] overflow-hidden rounded">
-                         {selectedItem?.back_dni ? (
-                           <img
-                            src={selectedItem?.back_dni}
-                            alt={selectedItem.full_name}
-                            className="w-full h-full object-cover"
-                            /> 
-                        ) : (
-                            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs text-center p-2">
-                                No document uploaded
-                            </div>
-                        )}
+                      {selectedItem?.back_dni ? (
+                        <img
+                          src={selectedItem?.back_dni}
+                          alt={selectedItem.full_name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs text-center p-2">
+                          No document uploaded
+                        </div>
+                      )}
                     </div>
-                </div>
-             
-                <div className="flex flex-col gap-2 mt-2">
+                  </div>
+
+                  <div className="flex flex-col gap-2 mt-2">
                     <p className="text-sm text-text-secondary">Notas</p>
                     <textarea className="w-full h-20 border border-border rounded-2xl p-2"></textarea>
-                </div>
-                <div className="flex justify-evenly gap-2 mt-5">
+                  </div>
+                  <div className="flex justify-evenly gap-2 mt-5">
                     <button className="cursor-pointer hover:bg-primary/80 hover:text-white rounded-2xl border border-border bg-background px-4 py-2 text-sm flex items-center gap-2">
-                    Aceptar
+                      Aceptar
                     </button>
                     <button className="cursor-pointer hover:bg-danger hover:text-white rounded-2xl border border-border bg-background px-4 py-2 text-sm flex items-center gap-2">
-                    Rechazar
+                      Rechazar
                     </button>
-                </div>
+                  </div>
                 </>
-                ) : (
-                    <div className="flex h-full items-center justify-center text-text-secondary">
-                        Selecciona un usuario para ver detalles
-                    </div>
-                )}
-              
+              ) : (
+                <div className="flex h-full items-center justify-center text-text-secondary">
+                  Selecciona un usuario para ver detalles
+                </div>
+              )}
             </div>
           </div>
         </div>
