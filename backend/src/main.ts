@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
@@ -54,6 +53,5 @@ async function bootstrap() {
 
   console.log(`🚀 Server running on port ${port}`);
 }
-
 
 void bootstrap();

@@ -11,13 +11,18 @@ type PatientDialogProps = {
     schedule: string;
     notes: string;
     phone: string;
-    };
-  caregiver: Caregiver;
-  user: User;
+  };
+  caregiver?: Caregiver;
+  user?: User;
 };
 
-export const Patient = ({ open, onClose, patient, caregiver, user }: PatientDialogProps) => {
-
+export const Patient = ({
+  open,
+  onClose,
+  patient,
+  caregiver,
+  user,
+}: PatientDialogProps) => {
   if (!open) return null;
 
   return (
@@ -29,9 +34,7 @@ export const Patient = ({ open, onClose, patient, caregiver, user }: PatientDial
               Ficha del paciente
             </p>
             <h2 className="mt-2 text-2xl font-semibold">{patient.name}</h2>
-            <p className="text-sm text-text-secondary">
-              ID {patient.id}
-            </p>
+            <p className="text-sm text-text-secondary">ID {patient.id}</p>
           </div>
           <button
             onClick={onClose}
@@ -47,7 +50,7 @@ export const Patient = ({ open, onClose, patient, caregiver, user }: PatientDial
             <p className="text-xs uppercase tracking-[0.3em] text-text-secondary">
               Cuidador asignado
             </p>
-            <p className="mt-2 font-medium">{user.full_name}</p>
+            <p className="mt-2 font-medium">{user?.full_name}</p>
             <p className="text-text-secondary">
               Turno: {caregiver?.shiftRange}
             </p>
@@ -81,9 +84,7 @@ export const Patient = ({ open, onClose, patient, caregiver, user }: PatientDial
             </p> */}
             <p>
               Teléfono:{" "}
-              <span className="font-medium text-primary">
-                {patient.phone}
-              </span>
+              <span className="font-medium text-primary">{patient.phone}</span>
             </p>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { Login } from "./LogIn";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../lib/axios/api";
 import { toast } from "sonner";
+import { AxiosError } from "axios";
 
 type SignUpFormValues = {
   email: string;
@@ -47,8 +48,8 @@ export const SignUp = () => {
         toast.success("Usuario creado exitosamente")
         navigate("/login");
       }
-    } catch (error:any) {
-      if(error.isAxiosError && error.response?.status === 400){
+    } catch (error) {
+      if(error instanceof AxiosError && error.response?.status === 400){
         toast.error("No se pudo crear la cuenta, intenta de nuevo")
       }
     }
@@ -182,7 +183,7 @@ export const SignUp = () => {
                   htmlFor="role"
                 >
                   Rol
-                </label>
+                </label>        
                 <InputOptions
                   id="role"
                   options={[

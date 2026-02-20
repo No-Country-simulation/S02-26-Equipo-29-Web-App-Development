@@ -5,6 +5,7 @@ import {
   OneToMany,
   OneToOne,
   JoinColumn,
+  CreateDateColumn,
 } from 'typeorm';
 import { CaregiverDocument } from './caregiver-document.entity';
 import { Shift } from '../shifts/shift.entity';
@@ -47,4 +48,7 @@ export class Caregiver {
 
   @OneToMany(() => Payroll, (payroll: Payroll) => payroll.caregiver)
   payrolls!: Payroll[];
+
+  @CreateDateColumn()
+  created_at: Date;
 }

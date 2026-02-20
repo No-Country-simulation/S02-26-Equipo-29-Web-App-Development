@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 export const databaseConfig = (): TypeOrmModuleOptions => {
@@ -23,6 +22,6 @@ export const databaseConfig = (): TypeOrmModuleOptions => {
     database: process.env.DB_NAME ?? 'pos_db',
     autoLoadEntities: true,
     synchronize: true,
-    logging: true,
+    logging: false,
   };
 };

@@ -76,14 +76,16 @@ export function Sidebar() {
       {/* Navigation */}
       <nav>
         <ul className="flex flex-col gap-2 px-2 mt-10 md:mt-5 ">
-          {navLinks[user?.role || "PATIENT"].map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <li key={link.title}>
-                <DashboardLink link={link} isActive={isActive} />
-              </li>
-            );
-          })}
+          {navLinks[(user?.role as keyof typeof navLinks) || "PATIENT"].map(
+            (link) => {
+              const isActive = pathname === link.href;
+              return (
+                <li key={link.title}>
+                  <DashboardLink link={link} isActive={isActive} />
+                </li>
+              );
+            },
+          )}
         </ul>
       </nav>
 

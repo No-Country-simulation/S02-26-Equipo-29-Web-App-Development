@@ -116,14 +116,14 @@ export const CaregiverDashboard = ({ user }: { user: any }) => {
           </div>
         </section>
       </section>
-      {selectedPatient && (
+      {/* {selectedPatient && (
         <Patient
           open={patientDialogOpen}
           onClose={() => setPatientDialogOpen(false)}
           patient={selectedPatient}
           caregiver={caregiver}
         />
-      )}
+      )} */}
       <section className="mx-auto max-w-5xl space-y-8 mt-8">
         <CaregiverView caregiver={caregiver} />
       </section>

@@ -37,8 +37,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps & { handleUpdateSucc
  const { data: caregiverData } = useCaregiver();
  const { data: patientData } = usePatient();
  
- console.log("Current user in EditProfileForm:", currentUser);
-    
+
     const defaultValues: EditProfileFormData = {
         full_name: user.full_name,
         email: user.email,
@@ -64,7 +63,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps & { handleUpdateSucc
     });
 
    const onSubmit = async (formData: EditProfileFormData) => {
-    console.log('📤 Datos del formulario:', formData);
+
 
     try {
         setIsPending(true);
