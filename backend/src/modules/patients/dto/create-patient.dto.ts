@@ -13,7 +13,9 @@ export class CreatePatientDto {
   profile_id!: string;
 
   @IsOptional()
-  @IsUUID('4', { message: 'El ID del contacto primario debe ser un UUID válido' })
+  @IsUUID('4', {
+    message: 'El ID del contacto primario debe ser un UUID válido',
+  })
   primary_contact_id?: string;
 
   @IsOptional()

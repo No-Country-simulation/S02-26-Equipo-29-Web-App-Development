@@ -22,6 +22,7 @@ export interface Caregiver extends User {
 }
 
 export interface Patient extends User {
+  profile_id?: string;
   id?: string;
   dni?: string;
   address?: string;
@@ -29,4 +30,5 @@ export interface Patient extends User {
   created_at?: string;
   front_dni?: string;
   back_dni?: string;
+  status?: string;
 }

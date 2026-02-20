@@ -1,54 +1,24 @@
 import { ArrowRight, Clock, PersonStanding, Star, Users2 } from "lucide-react";
+import { useDashboard } from "../../hooks";
 
 export function PanelAdmin() {
-  const caregivers = [
-    {
-      id: "C-01",
-      name: "María López",
-      shiftRange: "06:00 - 14:00",
-      patients: [
-        {
-          id: "P-102",
-          name: "Don José Pérez",
-          day: "Lunes",
-          schedule: "06:00 - 10:00",
-        },
-        {
-          id: "P-143",
-          name: "Sra. Emilia Torres",
-          day: "Martes",
-          schedule: "10:00 - 14:00",
-        },
-      ],
-    },
-    {
-      id: "C-02",
-      name: "Juan Fernández",
-      shiftRange: "14:00 - 22:00",
-      patients: [
-        {
-          id: "P-210",
-          name: "Srta. Lucía Gómez",
-          day: "Miércoles",
-          schedule: "14:00 - 20:00",
-        },
-      ],
-    },
-  ];
 
-  const cards = [
+
+  const {data: dashboard, isLoading, error} = useDashboard()
+
+    const cards = [
     {
       title: "Total de pacientes",
-      value: caregivers.reduce((acc, c) => acc + c.patients.length, 0),
+      value: dashboard?.patients.total || 0,
       icon: <Users2 />,
-      percentage: 8,
+      percentage: dashboard?.patients.growth || 0,
       className: "text-blue-500 bg-blue-500/10",
     },
     {
       title: "Total de cuidadores",
-      value: caregivers.length,
+      value: dashboard?.caregivers.total || 0,
       icon: <PersonStanding />,
-      percentage: 8,
+      percentage: dashboard?.caregivers.growth || 0,
       className: "text-purple-500 bg-purple-500/10",
     },
     {
@@ -90,6 +60,57 @@ export function PanelAdmin() {
       caregiver: "Juan Fernández",
     },
   ];
+  if (isLoading) {
+    return (
+      <div className="bg-background pt-5 px-5 animate-pulse">
+        <header className="rounded-3xl border border-border bg-surface p-6 shadow-lg">
+          <div className="h-7 w-56 rounded-xl bg-border mb-2" />
+          <div className="h-4 w-40 rounded-xl bg-border" />
+        </header>
+
+        {/* Skeleton cards */}
+        <section className="flex gap-4 my-5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-3xl border border-border bg-surface p-6 shadow-lg w-62.5 flex-1">
+              <div className="h-10 w-10 rounded-2xl bg-border mb-4" />
+              <div className="h-4 w-32 rounded-xl bg-border mb-2" />
+              <div className="h-7 w-16 rounded-xl bg-border" />
+            </div>
+          ))}
+        </section>
+
+        {/* Skeleton table */}
+        <div className="rounded-3xl border border-border bg-surface p-6 shadow-lg w-full">
+          <div className="h-6 w-64 rounded-xl bg-border mb-6" />
+          <div className="rounded-2xl border border-border overflow-hidden">
+            <div className="bg-background px-4 py-3 flex gap-8">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="h-4 w-20 rounded-xl bg-border" />
+              ))}
+            </div>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex gap-8 px-4 py-4 border-t border-border">
+                <div className="flex flex-col gap-1 flex-1">
+                  <div className="h-4 w-32 rounded-xl bg-border" />
+                  <div className="h-3 w-16 rounded-xl bg-border" />
+                </div>
+                <div className="h-4 w-24 rounded-xl bg-border flex-1" />
+                <div className="h-4 w-24 rounded-xl bg-border flex-1" />
+                <div className="h-4 w-24 rounded-xl bg-border flex-1" />
+                <div className="flex gap-2 flex-1">
+                  <div className="h-8 w-20 rounded-2xl bg-border" />
+                  <div className="h-8 w-20 rounded-2xl bg-border" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (error) {
+    return <div>Error</div>;
+  }
 
   return (
     <div className="bg-background pt-5 px-5">

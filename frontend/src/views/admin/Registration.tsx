@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import { User, UserCogIcon } from "lucide-react";
-import { useCaregivers } from "../../hooks";
 import { formatDate } from "../../utils/formatDate";
 import type { Caregiver, Patient } from "../../types";
+import { useRegistrations } from "../../hooks";
+import { api } from "../../lib/axios/api";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { getStatusColor, translateStatus } from "../../utils/status";
 
 const patients: Patient[] = [
   {
@@ -10,7 +14,6 @@ const patients: Patient[] = [
     full_name: "María López",
     role: "patient",
     email: "maria@example.com",
-    credentials: "12345678-9",
     status: "pending",
     notes: "",
     created_at: "2022-01-01",
@@ -22,7 +25,6 @@ const patients: Patient[] = [
     full_name: "Juan Fernández",
     role: "patient",
     email: "juan@example.com",
-    credentials: "12345678-9",
     status: "under_review",
     notes: "",
     created_at: "2022-01-01",
@@ -34,7 +36,6 @@ const patients: Patient[] = [
     full_name: "María López",
     role: "patient",
     email: "maria2@example.com",
-    credentials: "12345678-9",
     status: "approved",
     notes: "",
     created_at: "2022-01-01",
@@ -46,7 +47,6 @@ const patients: Patient[] = [
     full_name: "Juan Fernández",
     role: "patient",
     email: "juan2@example.com",
-    credentials: "12345678-9",
     status: "rejected",
     notes: "",
     created_at: "2022-01-01",
@@ -56,48 +56,36 @@ const patients: Patient[] = [
 ];
 
 export function Registration() {
+  const queryClient = useQueryClient();
   const [selectedUserType, setSelectedUserType] = useState<
     "caregiver" | "patient"
   >("caregiver");
   const [selectedItem, setSelectedItem] = useState<Caregiver | Patient | null>(
     null,
   );
-  const { data: caregivers, isLoading } = useCaregivers();
+  const { data: registration, isLoading} = useRegistrations();
 
   useEffect(() => {
-    if (selectedUserType === "caregiver" && caregivers) {
-      setSelectedItem(caregivers?.[0] || null);
-    } else if (selectedUserType === "patient") {
-      setSelectedItem(patients[0]);
+    if (selectedUserType === "caregiver" && registration?.caregivers) {
+      setSelectedItem(registration.caregivers[0] || null);
+    } else if (selectedUserType === "patient" && registration?.patients) {
+      setSelectedItem(registration.patients[0] || null);
     }
-  }, [caregivers, selectedUserType]);
+  }, [registration, selectedUserType]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "bg-yellow-500/10 text-yellow-500";
-      case "under_review":
-        return "bg-blue-500/10 text-blue-500";
-      case "approved":
-        return "bg-green-500/10 text-green-500";
-      case "rejected":
-        return "bg-red-500/10 text-red-500";
-      default:
-        return "bg-gray-500/10 text-gray-500";
+
+  const handleChangeStatus = async (status: string, profile_id: string | undefined) => {
+    try {
+      if (selectedUserType === "caregiver") {
+        await api.put(`/caregivers/${profile_id}`, { status });
+        queryClient.invalidateQueries({ queryKey: ["registrations"] });
+        queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+        toast.success("Estado cambiado correctamente");
+      }
+    } catch {
+      toast.error("Error al cambiar el estado");
     }
-  };
-  const translateStatus = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "Pendiente";
-      case "under_review":
-        return "En Revisión";
-      case "approved":
-        return "Aprobado";
-      case "rejected":
-        return "Rechazado";
-    }
-  };
+  }
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -112,6 +100,8 @@ export function Registration() {
       </header>
 
       <section className="mt-5 rounded-3xl border border-border bg-surface p-6 shadow-lg">
+       
+       {/* Sección de usuarios Cuidadores y Pacientes */}
         <div className="flex gap-8 border-b border-border">
           <div
             className={`flex items-center gap-2 cursor-pointer pb-2 border-b-2 -mb-px transition-colors ${
@@ -123,7 +113,9 @@ export function Registration() {
           >
             <UserCogIcon className="h-6 w-6" />
             <p>Cuidadores</p>
-            <p className="bg-primary/10 text-primary rounded-full px-2">15</p>
+            <p className="bg-primary/10 text-primary rounded-full px-2">
+              {registration?.caregivers?.length}
+            </p>
           </div>
 
           <div
@@ -136,7 +128,9 @@ export function Registration() {
           >
             <User className="h-6 w-6" />
             <p>Pacientes</p>
-            <p className="bg-primary/10 text-primary rounded-full px-2">15</p>
+            <p className="bg-primary/10 text-primary rounded-full px-2">
+              {registration?.patients?.length}
+            </p>
           </div>
         </div>
 
@@ -161,7 +155,7 @@ export function Registration() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border bg-surface whitespace-nowrap">
-                      {caregivers?.map((caregiver: Caregiver) => (
+                      {registration?.caregivers?.map((caregiver: Caregiver) => (
                         <tr
                           onClick={() => setSelectedItem(caregiver)}
                           key={caregiver.profile_id}
@@ -281,7 +275,6 @@ export function Registration() {
             <div className="h-[80vh] col-span-3 lg:col-span-1 border border-border rounded-2xl p-2 sticky top-0 overflow-y-scroll">
               {selectedItem ? (
                 <>
-                  {console.log(selectedItem)}
                   <img
                     src={
                       selectedItem?.front_dni || "https://placehold.co/100x100"
@@ -334,13 +327,15 @@ export function Registration() {
                     <p className="text-sm text-text-secondary">Notas</p>
                     <textarea className="w-full h-20 border border-border rounded-2xl p-2"></textarea>
                   </div>
-                  <div className="flex justify-evenly gap-2 mt-5">
-                    <button className="cursor-pointer hover:bg-primary/80 hover:text-white rounded-2xl border border-border bg-background px-4 py-2 text-sm flex items-center gap-2">
-                      Aceptar
-                    </button>
-                    <button className="cursor-pointer hover:bg-danger hover:text-white rounded-2xl border border-border bg-background px-4 py-2 text-sm flex items-center gap-2">
-                      Rechazar
-                    </button>
+                  <div className="flex  items-center gap-2 mt-5">
+                    <label htmlFor="status">Estado</label>
+                    <select onChange={(e) => handleChangeStatus(e.target.value, selectedItem?.profile_id)} value={selectedItem?.status} className="cursor-pointer border border-border rounded-2xl p-2 ">
+                      {["pending", "approved", "rejected","under_review"].map((status) => (
+                        <option key={status} value={status} >
+                          {translateStatus(status)} 
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </>
               ) : (

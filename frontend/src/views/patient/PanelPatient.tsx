@@ -43,7 +43,7 @@ export function PanelPatient() {
 
       <div>
         <Patient
-          open={true}
+          open={false}
           onClose={() => {}}
           patient={{
             id: patient.id,
