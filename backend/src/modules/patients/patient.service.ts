@@ -1,16 +1,30 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Patient } from './patient.entity';
 import { Repository } from 'typeorm';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 import { CreatePatientDto } from './dto/create-patient.dto';
+import { PatientDocument } from './patient-document.entity';
+import { CloudinaryService } from '../../shared/media/media.service';
+import { UploadDocumentDto } from './dto/upload-document.dto';
+import { PatientDocumentStatus } from './enums/patient-document-status.enum';
+import { PatientDocumentType } from './enums/patient-document-type.enum';
 
 @Injectable()
 export class PatientService {
   constructor(
     @InjectRepository(Patient)
     private readonly patientRepo: Repository<Patient>,
+
+    @InjectRepository(PatientDocument)
+    private readonly documentRepo: Repository<PatientDocument>,
+
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async findAll() {
@@ -57,5 +71,79 @@ export class PatientService {
     console.log('🔍 Paciente después de actualizar:', updatedPatient);
 
     return updatedPatient;
+  }
+
+  async getDocuments(profileId: string) {
+    return this.documentRepo.find({
+      where: { patient: { profile_id: profileId } },
+    });
+  }
+
+  async uploadDocument(
+    patientProfileId: string,
+    dto: UploadDocumentDto,
+    file: Express.Multer.File,
+  ): Promise<PatientDocument> {
+    const patient = await this.patientRepo.findOne({
+      where: { profile_id: patientProfileId },
+    });
+
+    if (!patient) {
+      throw new NotFoundException('Paciente no encontrado');
+    }
+
+    const exists = await this.documentRepo.findOne({
+      where: {
+        patient: { profile_id: patientProfileId },
+        document_type: dto.document_type,
+      },
+    });
+
+    if (exists) {
+      throw new BadRequestException('El documento ya fue cargado');
+    }
+
+    const upload = await this.cloudinaryService.uploadImage(file, {
+      folder: `patients/${patientProfileId}`,
+      resource_type: 'auto',
+    });
+
+    const document = this.documentRepo.create({
+      patient,
+      document_type: dto.document_type,
+      file_url: upload.secure_url,
+      status: PatientDocumentStatus.PENDING,
+    });
+
+    return this.documentRepo.save(document);
+  }
+
+  async uploadMultipleDocuments(
+    patientProfileId: string,
+    files: { [key: string]: Express.Multer.File[] },
+  ) {
+    const results: PatientDocument[] = [];
+    for (const [type, fileArray] of Object.entries(files)) {
+      if (fileArray && fileArray.length > 0) {
+        const file = fileArray[0];
+        const dto = new UploadDocumentDto();
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        dto.document_type = type as PatientDocumentType;
+        results.push(await this.uploadDocument(patientProfileId, dto, file));
+      }
+    }
+    return results;
+  }
+
+  async deleteDocument(id: string, patientProfileId: string) {
+    const document = await this.documentRepo.findOne({
+      where: { id, patient: { profile_id: patientProfileId } },
+    });
+    if (!document) {
+      throw new NotFoundException('Documento no encontrado');
+    }
+    await this.cloudinaryService.delete(document.file_url);
+    return this.documentRepo.remove(document);
   }
 }

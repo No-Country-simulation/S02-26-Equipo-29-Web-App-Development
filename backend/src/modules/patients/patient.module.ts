@@ -1,12 +1,18 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Patient } from './patient.entity';
+import { PatientDocument } from './patient-document.entity';
 import { PatientController } from './patient.controller';
 import { PatientService } from './patient.service';
 import { AuthModule } from '../auth/auth.module';
+import { MediaModule } from '../../shared/media/media.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Patient]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([Patient, PatientDocument]),
+    AuthModule,
+    MediaModule,
+  ],
   controllers: [PatientController],
   providers: [PatientService],
   exports: [TypeOrmModule, PatientService],

@@ -1,16 +1,14 @@
-import { useUser } from "../user/useUser";
 import { usePatient } from "../patient/usePatient";
 import { useQuery } from "@tanstack/react-query";
-import { getCaregiverDocuments } from "../../api";
+import { getPatientDocuments } from "../../api/patient/getPatientDocuments";
 
 
 export const usePatientDocuments=()=>{
-  const {data:user}=useUser();
   const {data:patient}=usePatient();
 
   return useQuery({
     queryKey:["patient-documents",patient?.profile_id],
-    queryFn:getCaregiverDocuments,
+    queryFn:getPatientDocuments,
     enabled:!!patient?.profile_id,
     staleTime:1000*60*5,
     gcTime:1000*60*10,
