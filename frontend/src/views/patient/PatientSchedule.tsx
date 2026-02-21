@@ -1,6 +1,6 @@
 import { useState } from "react";
 export function PatientSchedule() {
-  const [dates, setDates] = useState<Date[] | undefined>([]);
+  const [dates] = useState<Date[] | undefined>([]);
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("es-ES", {

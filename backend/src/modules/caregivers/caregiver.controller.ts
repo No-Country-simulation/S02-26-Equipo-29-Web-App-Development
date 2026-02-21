@@ -23,7 +23,6 @@ import { Caregiver } from './caregiver.entity';
 @Controller('caregivers')
 export class CaregiverController {
   constructor(private readonly caregiverService: CaregiverService) {}
-  
 
   @Delete('documents/:id')
   @UseGuards(JwtAuthGuard)
@@ -46,11 +45,12 @@ export class CaregiverController {
     return this.caregiverService.caregiverById(caregiverId);
   }
 
- 
-
-  @Put(":caregiverId")
+  @Put(':caregiverId')
   @UseGuards(JwtAuthGuard)
-  updateCaregiver(@Param('caregiverId') caregiverId: string, @Body() data: Partial<Caregiver>) {
+  updateCaregiver(
+    @Param('caregiverId') caregiverId: string,
+    @Body() data: Partial<Caregiver>,
+  ) {
     return this.caregiverService.upDateCaregiver(caregiverId, data);
   }
 
@@ -85,6 +85,9 @@ export class CaregiverController {
       throw new BadRequestException('No se han enviado archivos');
     }
 
-    return this.caregiverService.uploadMultipleDocuments(req.user.profileId, files);
+    return this.caregiverService.uploadMultipleDocuments(
+      req.user.profileId,
+      files,
+    );
   }
 }

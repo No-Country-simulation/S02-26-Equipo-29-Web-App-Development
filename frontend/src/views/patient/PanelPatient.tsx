@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { Patient } from "../../components/patient/patient";
 
-
 export function PanelPatient() {
   const patient = {
     id: "P-210",
@@ -36,52 +35,64 @@ export function PanelPatient() {
       <div className="flex justify-end">
         <Link
           to="/patient/schedule"
-         className="rounded-2xl border bg-primary text-white border-border px-4 py-2 text-sm font-medium hover:bg-primary/80 mt-5 cursor-pointer" >
+          className="rounded-2xl border bg-primary text-white border-border px-4 py-2 text-sm font-medium hover:bg-primary/80 mt-5 cursor-pointer"
+        >
           Agendar visita
         </Link>
       </div>
 
-       <div>
-        <Patient patient={patient} />
-      </div> 
+      <div>
+        <Patient
+          open={false}
+          onClose={() => {}}
+          patient={{
+            id: patient.id,
+            name: patient.name,
+            day: patient.nextVisits[0]?.day ?? "",
+            schedule: patient.nextVisits[0]?.schedule ?? "",
+            notes: "",
+            phone: patient.caregiver.phone,
+          }}
+        />
+      </div>
 
       <section className="grid gap-6 lg:grid-cols-2 mt-5">
-          <article className="rounded-3xl border border-border bg-surface p-6 shadow-lg">
-            <p className="text-xs uppercase tracking-[0.4em] text-text-secondary">
-              Cuidador asignado
-            </p>
-            <h2 className="mt-3 text-xl font-semibold">
-              {patient.caregiver.name}
-            </h2>
-            <p className="text-sm text-text-secondary">
-              Turno: {patient.caregiver.shiftRange}
-            </p>
-            <p className="mt-4 text-sm">
-              Teléfono de contacto:{" "}
-              <span className="font-medium text-primary">
-                {patient.caregiver.phone}
-              </span>
-            </p>
-          </article>
+        <article className="rounded-3xl border border-border bg-surface p-6 shadow-lg">
+          <p className="text-xs uppercase tracking-[0.4em] text-text-secondary">
+            Cuidador asignado
+          </p>
+          <h2 className="mt-3 text-xl font-semibold">
+            {patient.caregiver.name}
+          </h2>
+          <p className="text-sm text-text-secondary">
+            Turno: {patient.caregiver.shiftRange}
+          </p>
+          <p className="mt-4 text-sm">
+            Teléfono de contacto:{" "}
+            <span className="font-medium text-primary">
+              {patient.caregiver.phone}
+            </span>
+          </p>
+        </article>
 
-          <article className="rounded-3xl border border-border bg-surface p-6 shadow-lg w-auto flex-1">
-            <p className="text-xs uppercase tracking-[0.4em] text-text-secondary">
-              Próximas visitas
-            </p>
-            <ul className="mt-4 space-y-4 text-sm">
-              {patient.nextVisits.map((visit) => (
-                <li
-                  key={`${visit.day}-${visit.schedule}`}
-                  className="rounded-2xl border border-border bg-background px-4 py-3"
-                >
-                  <p className="text-base font-semibold">{visit.day}</p>
-                  <p className="text-text-secondary">{visit.schedule}</p>
-                  <p className="mt-1">{visit.focus}</p>
-                </li>
-              ))}
-            </ul>
-          </article>
-        </section>
+        <article className="rounded-3xl border border-border bg-surface p-6 shadow-lg w-auto flex-1">
+          <p className="text-xs uppercase tracking-[0.4em] text-text-secondary">
+            Próximas visitas
+          </p>
+          <ul className="mt-4 space-y-4 text-sm">
+            {patient.nextVisits.map((visit) => (
+              <li
+                key={`${visit.day}-${visit.schedule}`}
+                className="rounded-2xl border border-border bg-background px-4 py-3"
+              >
+                <p className="text-base font-semibold">{visit.day}</p>
+                <p className="text-text-secondary">{visit.schedule}</p>
+                <p className="mt-1">{visit.focus}</p>
+              </li>
+            ))}
+          </ul>
+        </article>
+      </section>
     </div>
-  )
+  );
 }

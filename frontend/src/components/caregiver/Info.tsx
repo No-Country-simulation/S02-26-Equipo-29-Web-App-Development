@@ -25,9 +25,6 @@ export  function Info() {
         setActiveTab(false);
     };
 
-    console.log("User Data:", user);
-    console.log("Caregiver Data:", caregiverData);
-    console.log("Patient Data:", patientData);
 
   return (
      <div className="space-y-6">

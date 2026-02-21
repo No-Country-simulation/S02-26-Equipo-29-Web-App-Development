@@ -5,6 +5,7 @@ import { SignUp } from "./SignUp";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../lib/axios/api";
 import { toast } from "sonner";
+import { AxiosError } from "axios";
 
 type LoginFormValues = {
   email?: string;
@@ -41,8 +42,8 @@ export const Login = () => {
         localStorage.setItem("userToken", JSON.stringify(response.data));
         navigate("/dashboard");
       } 
-      } catch (error:any) { 
-        if(error.isAxiosError && error.response?.status === 401){
+      } catch (error) { 
+        if(error instanceof AxiosError && error.response?.status === 401){
           toast.error("Credenciales inválidas")
         }
       }

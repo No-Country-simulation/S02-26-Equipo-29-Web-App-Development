@@ -1,8 +1,12 @@
-import {  useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { User, UserCogIcon } from "lucide-react";
-import { useCaregivers } from "../../hooks";
 import { formatDate } from "../../utils/formatDate";
 import type { Caregiver, Patient } from "../../types";
+import { useRegistrations } from "../../hooks";
+import { api } from "../../lib/axios/api";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { getStatusColor, translateStatus } from "../../utils/status";
 
 const patients: Patient[] = [
   {
@@ -10,7 +14,6 @@ const patients: Patient[] = [
     full_name: "María López",
     role: "patient",
     email: "maria@example.com",
-    credentials: "12345678-9",
     status: "pending",
     notes: "",
     created_at: "2022-01-01",
@@ -22,7 +25,6 @@ const patients: Patient[] = [
     full_name: "Juan Fernández",
     role: "patient",
     email: "juan@example.com",
-    credentials: "12345678-9",
     status: "under_review",
     notes: "",
     created_at: "2022-01-01",
@@ -34,7 +36,6 @@ const patients: Patient[] = [
     full_name: "María López",
     role: "patient",
     email: "maria2@example.com",
-    credentials: "12345678-9",
     status: "approved",
     notes: "",
     created_at: "2022-01-01",
@@ -46,7 +47,6 @@ const patients: Patient[] = [
     full_name: "Juan Fernández",
     role: "patient",
     email: "juan2@example.com",
-    credentials: "12345678-9",
     status: "rejected",
     notes: "",
     created_at: "2022-01-01",
@@ -55,60 +55,40 @@ const patients: Patient[] = [
   },
 ];
 
-enum CaregiverDocumentType {
-  DNI_FRONT = 'dni_front',
-  DNI_BACK = 'dni_back',
-  CRIMINAL_RECORD = 'criminal_record',
-  CERTIFICATE = 'certificate',
-  CONTRACT = 'contract',
-}
-
 export function Registration() {
-  const [selectedUserType, setSelectedUserType] = useState<"caregiver" | "patient">(
-    "caregiver",
+  const queryClient = useQueryClient();
+  const [selectedUserType, setSelectedUserType] = useState<
+    "caregiver" | "patient"
+  >("caregiver");
+  const [selectedItem, setSelectedItem] = useState<Caregiver | Patient | null>(
+    null,
   );
-  const [selectedItem,setSelectedItem]=useState<Caregiver | Patient | null>(null)
-  const {data:caregivers,isLoading}=useCaregivers()
+  const { data: registration, isLoading} = useRegistrations();
 
-
-  useEffect(() => {    
-    if (selectedUserType === "caregiver" && caregivers) {
-      setSelectedItem(caregivers?.[0] || null)
-    } else if (selectedUserType === "patient") {
-        setSelectedItem(patients[0])
+  useEffect(() => {
+    if (selectedUserType === "caregiver" && registration?.caregivers) {
+      setSelectedItem(registration.caregivers[0] || null);
+    } else if (selectedUserType === "patient" && registration?.patients) {
+      setSelectedItem(registration.patients[0] || null);
     }
-  }, [caregivers, selectedUserType])
+  }, [registration, selectedUserType]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "bg-yellow-500/10 text-yellow-500";
-      case "under_review":
-        return "bg-blue-500/10 text-blue-500";
-      case "approved":
-        return "bg-green-500/10 text-green-500";
-      case "rejected":
-        return "bg-red-500/10 text-red-500";
-      default:
-        return "bg-gray-500/10 text-gray-500";
+
+  const handleChangeStatus = async (status: string, profile_id: string | undefined) => {
+    try {
+      if (selectedUserType === "caregiver") {
+        await api.put(`/caregivers/${profile_id}`, { status });
+        queryClient.invalidateQueries({ queryKey: ["registrations"] });
+        queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+        toast.success("Estado cambiado correctamente");
+      }
+    } catch {
+      toast.error("Error al cambiar el estado");
     }
-  };
-  const translateStatus = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "Pendiente";
-      case "under_review":
-        return "En Revisión";
-      case "approved":
-        return "Aprobado";
-      case "rejected":
-        return "Rechazado";
+  }
 
-    }
-  };
-
-  if(isLoading){
-    return <div>Loading...</div>
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
   return (
     <div className="bg-background p-5">
@@ -120,6 +100,8 @@ export function Registration() {
       </header>
 
       <section className="mt-5 rounded-3xl border border-border bg-surface p-6 shadow-lg">
+       
+       {/* Sección de usuarios Cuidadores y Pacientes */}
         <div className="flex gap-8 border-b border-border">
           <div
             className={`flex items-center gap-2 cursor-pointer pb-2 border-b-2 -mb-px transition-colors ${
@@ -131,7 +113,9 @@ export function Registration() {
           >
             <UserCogIcon className="h-6 w-6" />
             <p>Cuidadores</p>
-            <p className="bg-primary/10 text-primary rounded-full px-2">15</p>
+            <p className="bg-primary/10 text-primary rounded-full px-2">
+              {registration?.caregivers?.length}
+            </p>
           </div>
 
           <div
@@ -144,12 +128,14 @@ export function Registration() {
           >
             <User className="h-6 w-6" />
             <p>Pacientes</p>
-            <p className="bg-primary/10 text-primary rounded-full px-2">15</p>
+            <p className="bg-primary/10 text-primary rounded-full px-2">
+              {registration?.patients?.length}
+            </p>
           </div>
         </div>
 
         <div>
-           {/* Seccion de  tabla y documentos */}
+          {/* Seccion de  tabla y documentos */}
           <div className="rounded-2xl p-2 justify-between mt-5 grid grid-cols-3 gap-5">
             {/* Tabla */}
 
@@ -169,41 +155,46 @@ export function Registration() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border bg-surface whitespace-nowrap">
-                      {caregivers?.map((caregiver) => (
+                      {registration?.caregivers?.map((caregiver: Caregiver) => (
                         <tr
-                            onClick={() => setSelectedItem(caregiver)}
+                          onClick={() => setSelectedItem(caregiver)}
                           key={caregiver.profile_id}
                           className={`hover:bg-background hover:cursor-pointer ${
-                            (selectedItem as Caregiver)?.profile_id === caregiver.profile_id
+                            (selectedItem as Caregiver)?.profile_id ===
+                            caregiver.profile_id
                               ? "bg-primary/5"
                               : ""
                           }`}
-
                         >
-                          <td
-                 
-                           className="px-4 py-4 flex items-center gap-2">
+                          <td className="px-4 py-4 flex items-center gap-2">
                             <img
-                              src={caregiver.front_dni || "https://placehold.co/100x100"}
+                              src={
+                                caregiver.front_dni ||
+                                "https://placehold.co/100x100"
+                              }
                               alt=""
                               className="w-10 h-10 rounded-full"
                             />
                             <div className="flex flex-col">
-                              <p className="font-medium">{caregiver.full_name}</p>
+                              <p className="font-medium">
+                                {caregiver.full_name}
+                              </p>
                               <p className="text-xs text-text-secondary">
                                 {caregiver?.profile_id}
                               </p>
                             </div>
                           </td>
                           <td className="px-4 py-4">{caregiver.credentials}</td>
-                          <td className="px-4 py-4">{formatDate(caregiver.created_at)}</td>
+                          <td className="px-4 py-4">
+                            {formatDate(caregiver.created_at ?? "")}
+                          </td>
                           <td className="px-4 py-4">
                             <span
                               className={`px-2 py-1 rounded-full ${getStatusColor(
-                                caregiver.status,
+                                caregiver.status ?? "",
                               )}`}
                             >
-                              {translateStatus(caregiver.status)}
+                              {translateStatus(caregiver.status ?? "")}
                             </span>
                           </td>
                           <td className="px-4 py-4">
@@ -235,9 +226,13 @@ export function Registration() {
                     <tbody className="divide-y divide-border bg-surface whitespace-nowrap">
                       {patients.map((patient, index) => (
                         <tr
-                           onClick={() => setSelectedItem(patient)}
+                          onClick={() => setSelectedItem(patient)}
                           key={index}
-                          className={`hover:bg-background hover:cursor-pointer ${selectedItem?.id === patient.id ? "bg-primary/5" : ""}`}
+                          className={`hover:bg-background hover:cursor-pointer ${
+                            selectedItem?.id === patient.id
+                              ? "bg-primary/5"
+                              : ""
+                          }`}
                         >
                           <td className="px-4 py-4 flex items-center gap-2">
                             <img
@@ -278,73 +273,76 @@ export function Registration() {
 
             {/* Documentos */}
             <div className="h-[80vh] col-span-3 lg:col-span-1 border border-border rounded-2xl p-2 sticky top-0 overflow-y-scroll">
-                {selectedItem ? (
+              {selectedItem ? (
                 <>
-                {console.log(selectedItem)}
-                <img
-                    src={selectedItem?.front_dni || "https://placehold.co/100x100"}
+                  <img
+                    src={
+                      selectedItem?.front_dni || "https://placehold.co/100x100"
+                    }
                     alt=""
                     className="w-10 h-10 rounded-full"
-                />
-                <p className="font-bold">{selectedItem.full_name}</p>
-                {/* <p className="text-text-secondary/50 text-xs">id: {selectedItem?}</p> */}
+                  />
+                  <p className="font-bold">{selectedItem.full_name}</p>
+                  {/* <p className="text-text-secondary/50 text-xs">id: {selectedItem?}</p> */}
 
-                <p className="mt-5  text-text-secondary">
+                  <p className="mt-5  text-text-secondary">
                     Verificación de documentos
-                </p>
-                <div className="flex flex-col gap-2 mt-2">
-                    <p className="text-sm text-text-secondary">Parte delantera</p>
+                  </p>
+                  <div className="flex flex-col gap-2 mt-2">
+                    <p className="text-sm text-text-secondary">
+                      Parte delantera
+                    </p>
                     <div className="w-[200px] h-[100px] overflow-hidden rounded">
-                        {selectedItem?.front_dni ? (
-                           <img
-                            src={selectedItem?.front_dni}
-                            alt={selectedItem.full_name}
-                            className="w-full h-full object-cover"
-                            /> 
-                        ) : (
-                            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs text-center p-2">
-                                No document uploaded
-                            </div>
-                        )}
-                    
+                      {selectedItem?.front_dni ? (
+                        <img
+                          src={selectedItem?.front_dni}
+                          alt={selectedItem.full_name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs text-center p-2">
+                          No document uploaded
+                        </div>
+                      )}
                     </div>
-                </div>
-                <div className="flex flex-col gap-2 mt-2">
+                  </div>
+                  <div className="flex flex-col gap-2 mt-2">
                     <p className="text-sm text-text-secondary">Parte trasera</p>
                     <div className="w-[200px] h-[100px] overflow-hidden rounded">
-                         {selectedItem?.back_dni ? (
-                           <img
-                            src={selectedItem?.back_dni}
-                            alt={selectedItem.full_name}
-                            className="w-full h-full object-cover"
-                            /> 
-                        ) : (
-                            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs text-center p-2">
-                                No document uploaded
-                            </div>
-                        )}
+                      {selectedItem?.back_dni ? (
+                        <img
+                          src={selectedItem?.back_dni}
+                          alt={selectedItem.full_name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs text-center p-2">
+                          No document uploaded
+                        </div>
+                      )}
                     </div>
-                </div>
-             
-                <div className="flex flex-col gap-2 mt-2">
+                  </div>
+
+                  <div className="flex flex-col gap-2 mt-2">
                     <p className="text-sm text-text-secondary">Notas</p>
                     <textarea className="w-full h-20 border border-border rounded-2xl p-2"></textarea>
-                </div>
-                <div className="flex justify-evenly gap-2 mt-5">
-                    <button className="cursor-pointer hover:bg-primary/80 hover:text-white rounded-2xl border border-border bg-background px-4 py-2 text-sm flex items-center gap-2">
-                    Aceptar
-                    </button>
-                    <button className="cursor-pointer hover:bg-danger hover:text-white rounded-2xl border border-border bg-background px-4 py-2 text-sm flex items-center gap-2">
-                    Rechazar
-                    </button>
-                </div>
+                  </div>
+                  <div className="flex  items-center gap-2 mt-5">
+                    <label htmlFor="status">Estado</label>
+                    <select onChange={(e) => handleChangeStatus(e.target.value, selectedItem?.profile_id)} value={selectedItem?.status} className="cursor-pointer border border-border rounded-2xl p-2 ">
+                      {["pending", "approved", "rejected","under_review"].map((status) => (
+                        <option key={status} value={status} >
+                          {translateStatus(status)} 
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </>
-                ) : (
-                    <div className="flex h-full items-center justify-center text-text-secondary">
-                        Selecciona un usuario para ver detalles
-                    </div>
-                )}
-              
+              ) : (
+                <div className="flex h-full items-center justify-center text-text-secondary">
+                  Selecciona un usuario para ver detalles
+                </div>
+              )}
             </div>
           </div>
         </div>

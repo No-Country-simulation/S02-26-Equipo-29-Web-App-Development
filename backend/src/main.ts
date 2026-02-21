@@ -1,13 +1,27 @@
-/* eslint-disable prettier/prettier */
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 
 import { AppModule } from './app.module';
 import { setupExternalSwagger } from './config';
+import { DataSource } from 'typeorm';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  const dataSource = app.get(DataSource);
+
+  try {
+    if (dataSource.isInitialized) {
+      console.log('🟢 Database connected successfully');
+    } else {
+      await dataSource.initialize();
+      console.log('🟢 Database initialized manually');
+    }
+  } catch (error) {
+    console.error('🔴 Database connection failed');
+    console.error(error);
+  }
 
   app.enableCors({
     origin: [
@@ -28,7 +42,6 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
-      // forbidNonWhitelisted: true,
       transform: true,
     }),
   );

@@ -1,8 +1,9 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { Home } from "../components/home/Home";
 import { Login } from "../components/login/LogIn";
 import {
   Appointments,
+  Caregivers,
   PatientInfo,
   Patients,
   PatientSchedule,
@@ -19,15 +20,14 @@ export const router = createBrowserRouter([
     path: "/",
     element: <Home />,
   },
-  // {
-  //   path: "/patient/:id",
-  //   element: <Patient />,
-  // },
   {
     path: "/login",
     element: <Login />,
   },
-
+  {
+    path: "*",
+    element: <Navigate to="/login" />,
+  },
   {
     element: (
       <QueryClientProvider>
@@ -53,10 +53,10 @@ export const router = createBrowserRouter([
         path: "/patients",
         element: <Patients />,
       },
-      // {
-      //   path: "/caregivers",
-      //   element: <Caregivers />,
-      // },
+      {
+        path: "/caregivers",
+        element: <Caregivers />,
+      },
       {
         path: "/agenda",
         element: <Agenda />,

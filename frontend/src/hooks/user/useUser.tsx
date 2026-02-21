@@ -8,6 +8,6 @@ export const useUser=()=>{
         queryKey:["user"],
         queryFn:getUser,
         staleTime:1000*60*5,
-
+        retry:1,
     })
 }
