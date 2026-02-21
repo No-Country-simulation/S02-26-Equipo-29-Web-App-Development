@@ -49,7 +49,7 @@ export function Patients() {
     }
   };
   return (
-    <>
+    <div className="p-5">
       <header className="rounded-3xl border border-border bg-surface p-6 shadow-lg">
         <h1 className="text-2xl font-bold ">Administrar Pacientes</h1>
         <p className="text-gray-400">
@@ -110,6 +110,6 @@ export function Patients() {
           </table>
         </div>
       </section>
-    </>
+    </div>
   );
 }

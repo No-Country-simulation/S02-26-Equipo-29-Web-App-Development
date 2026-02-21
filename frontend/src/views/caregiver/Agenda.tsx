@@ -1,7 +1,7 @@
 import { MessagesSquare, SquareX } from "lucide-react";
 import { useState, useRef, useEffect, type ChangeEvent } from "react";
 import { Patient } from "../../components/patient/patient";
-import { useUser } from "../../context/UserContext";
+import { useUser } from "../../hooks";
 import "cally";
 
 declare global {
@@ -25,7 +25,7 @@ declare global {
 }
 
 export const Agenda = () => {
-  const { user } = useUser();
+  const { data: user } = useUser();
   const [selectedPatient, setSelectedPatient] = useState<
     (typeof assignedPatients)[number] | null
   >(null);
@@ -212,7 +212,7 @@ export const Agenda = () => {
               </calendar-range>
               <button
                 onClick={() => setCalendarOpen(false)}
-                className="absolute top-50 right-110 font-bold text-red-500 transition hover:text-red-600 "
+                className="absolute top-2 right-2 font-bold text-red-500 transition hover:text-red-600 "
               >
                 <SquareX size={48} strokeWidth={1.5} />
               </button>

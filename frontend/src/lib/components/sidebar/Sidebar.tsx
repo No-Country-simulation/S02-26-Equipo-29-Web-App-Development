@@ -10,7 +10,7 @@ import {
   CalendarIcon,
 } from "lucide-react";
 import { DashboardLink } from "../UI/DashboardLink";
-import { useRole } from "../../../context/RoleContext";
+import { useUser } from "../../../hooks";
 
 const navLinks: Record<
   "ADMIN" | "CAREGIVER" | "PATIENT",
@@ -45,7 +45,8 @@ const navLinks: Record<
 
 export function Sidebar() {
   const { pathname } = useLocation();
-  const role = useRole();
+  const { data: user } = useUser();
+  const role = user?.role;
 
   return (
     <aside className="sticky top-0 min-h-screen bg-white shadow-lg w-18 md:w-55 transition-all duration-300">

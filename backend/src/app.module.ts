@@ -15,6 +15,8 @@ import { PayrollsModule } from './modules/payrolls/payroll.module';
 import { MediaModule } from './shared/media/media.module';
 import { AdminModule } from './modules/admin/admin.module';
 import cloudinaryConfig from './config/cloudinary.config';
+import { HealthModule } from './modules/health/health.module';
+
 @Module({
   imports: [
     // 🌍 Variables de entorno
@@ -50,6 +52,7 @@ import cloudinaryConfig from './config/cloudinary.config';
     MediaModule,
     // 🛠️ Admin (panel de administración)
     AdminModule,
+    HealthModule,
   ],
 })
 export class AppModule {}

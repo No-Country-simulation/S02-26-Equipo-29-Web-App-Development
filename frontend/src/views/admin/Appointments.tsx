@@ -34,13 +34,13 @@ export function Appointments() {
 
   const [filter, setFilter] = useState("all");
   return (
-    <>
-      <header className="rounded-3xl border border-border bg-surface p-6 shadow-lg">
+    <div className="p-5 bg-background">
+      <header className="rounded-3xl border border-border p-6 bg-surface  shadow-lg">
         <h1 className="text-2xl font-bold ">Calendario de cuidados</h1>
         <p className="text-gray-400">Gestionar los cuidados de los pacientes</p>
       </header>
 
-      <div className="rounded-3xl border border-border bg-surface p-6 shadow-lg">
+      <div className="mt-5 rounded-3xl border border-border bg-surface p-6 shadow-lg">
         <div className="flex gap-2 items-center">
           <h2 className="text-2xl font-bold flex items-center justify-center gap-2 whitespace-nowrap">
             Filtrar por:
@@ -98,7 +98,7 @@ export function Appointments() {
           </div>
         </div>
       </div>
-      <div className="rounded-2xl p-2 justify-between mt-5">
+      <div className="rounded-2xl justify-between mt-5">
         <div className="mt-6 overflow-hidden rounded-2xl border border-border w-auto flex-1">
           <table className="min-w-full divide-y divide-border text-sm">
             <thead className="bg-background text-left text-text-secondary">
@@ -133,6 +133,6 @@ export function Appointments() {
           </table>
         </div>
       </div>
-    </>
+    </div>
   );
 }

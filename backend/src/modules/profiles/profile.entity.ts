@@ -12,13 +12,8 @@ import { AuthUser } from '../auth/auth-user.entity';
 import { Patient } from '../patients/patient.entity';
 import { FamilyPatient } from '../family/family-patient.entity';
 import { Shift } from '../shifts/shift.entity';
-
-export enum ProfileRole {
-  ADMIN = 'ADMIN',
-  STAFF = 'STAFF',
-  FAMILY = 'FAMILY',
-  CAREGIVER = 'CAREGIVER',
-}
+import { Caregiver } from '../caregivers/caregiver.entity';
+import { ProfileRole } from './enums/profile-role.enum';
 
 @Entity('profiles')
 export class Profile {
@@ -56,4 +51,10 @@ export class Profile {
 
   @OneToMany(() => Shift, (shift: Shift) => shift.approved_by)
   approved_shifts!: Shift[];
+
+  @OneToOne(() => Caregiver, (caregiver: Caregiver) => caregiver.profile)
+  caregiver!: Caregiver;
+
+  @OneToOne(() => Patient, (patient: Patient) => patient.profile)
+  patient!: Patient;
 }

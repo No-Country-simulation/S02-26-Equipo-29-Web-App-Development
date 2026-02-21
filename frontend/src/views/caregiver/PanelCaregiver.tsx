@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import type { User } from "../../types";
-import axios from "axios";
+import { api } from "../../lib/axios/api";
 import { Agenda } from "./Agenda";
-import { CaregiverView } from "./caregiver";
+import { CaregiverInfo } from "./CaregiverInfo";
 
 export const PanelCaregiver = ({user}: {user: User}) => {
   const [, setUserAuth] = useState<User | null>(null);
@@ -17,17 +17,15 @@ export const PanelCaregiver = ({user}: {user: User}) => {
   // const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") as string) : null;
   const userToken = localStorage.getItem("userToken") ? JSON.parse(localStorage.getItem("userToken") as string) : null;
 
-  console.log("User token en MainDashboard:", userToken.access_token);
 
   const getUserData = async () => {
     if (userToken) {
       try {
-        const response = await axios.get("http://localhost:3002/auth/me", {
+        const response = await api.get("/auth/me", {
           headers: {
             Authorization: `Bearer ${userToken.access_token}`,
           },
         });
-        console.log("User data fetched successfully:", response.data);
         return response.data;
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -68,10 +66,10 @@ export const PanelCaregiver = ({user}: {user: User}) => {
           </p>
         </header>
 
-        <Agenda caregiver={caregiver}/>
+        <Agenda />
         
         <section className="mx-auto max-w-5xl space-y-8 mt-8">
-            <CaregiverView caregiver={caregiver} />
+            <CaregiverInfo />
         </section>
 
         
