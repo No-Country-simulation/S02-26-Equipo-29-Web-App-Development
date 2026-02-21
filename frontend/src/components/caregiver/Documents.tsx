@@ -6,7 +6,6 @@ import { AxiosError } from 'axios';
 import { useCaregiverDocuments } from '../../hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { useUser } from '../../hooks/user/useUser';
-import { usePatient } from '../../hooks/patient/usePatient';
 import { usePatientDocuments } from '../../hooks/patient/usePatientDocuments';
 
     interface UploadedDocument {
@@ -20,13 +19,12 @@ import { usePatientDocuments } from '../../hooks/patient/usePatientDocuments';
     
     export function Documents() {
        const {data:user}=useUser();
-       const {data:patient}=usePatient();
        const queryClient = useQueryClient();
-       const {data:documentsData,isLoading}=useCaregiverDocuments()
-       const {data:patientDataDoc}=usePatientDocuments();
+    const {data:documentsData,isLoading: caregiverLoading}=useCaregiverDocuments()
+    const {data:patientDataDoc,isLoading: patientLoading}=usePatientDocuments();
         
-       const [documents, setDocuments] = useState<UploadedDocument[]>(documentsData || []);
-       const [patientDocuments, setPatientDocuments] = useState<UploadedDocument[]>(patientDataDoc || []);
+    const [documents, setDocuments] = useState<UploadedDocument[]>(documentsData || []);
+    const [patientDocuments, setPatientDocuments] = useState<UploadedDocument[]>(patientDataDoc || []);
        const [isUploading, setIsUploading] = useState(false);
 
        useEffect(() => {
@@ -42,6 +40,20 @@ import { usePatientDocuments } from '../../hooks/patient/usePatientDocuments';
         }, [patientDataDoc])
         
 
+        const isCaregiver = user?.role === "CAREGIVER";
+        const activeDocuments = isCaregiver ? documents : patientDocuments;
+        const isLoading = isCaregiver ? caregiverLoading : patientLoading;
+
+        const updateDocuments = (
+            updater: (prev: UploadedDocument[]) => UploadedDocument[],
+        ) => {
+            if (isCaregiver) {
+                setDocuments(updater);
+                return;
+            }
+            setPatientDocuments(updater);
+        };
+
         const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
             const files = e.target.files;
             const inputId = e.target.id ; // Cast id to valid document type
@@ -56,16 +68,16 @@ import { usePatientDocuments } from '../../hooks/patient/usePatientDocuments';
                 }));
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
-                setDocuments(prev => [...prev, ...newDocs]);
+                updateDocuments((prev) => [...prev, ...newDocs]);
             }
         };
     
         const handleDeleteDocument = (id: string) => {
-            const doc = documents.find(d => d.id === id);
+            const doc = activeDocuments.find(d => d.id === id);
             if (doc && doc.previewUrl) {
                 URL.revokeObjectURL(doc.previewUrl);
             }
-            setDocuments(prev => prev.filter(d => d.id !== id));
+            updateDocuments((prev) => prev.filter(d => d.id !== id));
         };
     
         const handleUploadDocuments = async () => {
@@ -74,7 +86,7 @@ import { usePatientDocuments } from '../../hooks/patient/usePatientDocuments';
                 const formData = new FormData();
                 let hasFiles = false;
 
-                for (const doc of documents) {
+                for (const doc of activeDocuments) {
                     if (doc.file) {
                         formData.append(doc.document_type, doc.file);
                         hasFiles = true;
@@ -121,7 +133,7 @@ import { usePatientDocuments } from '../../hooks/patient/usePatientDocuments';
                     await api.delete(`/patients/documents/${id}`);
                 }
                 toast.success("Documento eliminado correctamente");
-                setDocuments(prev => prev.filter(doc => doc.id !== id));
+                updateDocuments((prev) => prev.filter(doc => doc.id !== id));
             } catch (error) {
                 if (error instanceof AxiosError) {
                     toast.error(error.response?.data?.message || "Error al eliminar documento");
@@ -145,9 +157,9 @@ import { usePatientDocuments } from '../../hooks/patient/usePatientDocuments';
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
                         <p className='text-gray-500 mb-2'>DNI Frente</p>
-                        {documents?.find(doc => doc.document_type === "dni_front") ? (
+                        {activeDocuments?.find(doc => doc.document_type === "dni_front") ? (
                             <ImageDocument 
-                                document={documents.find(doc => doc.document_type === "dni_front")!} 
+                                document={activeDocuments.find(doc => doc.document_type === "dni_front")!} 
                                 handleDeleteDocument={handleDeleteDocument} 
                                 handleDeleteDocFromServer={handleDeleteDocFromServer} 
                             />
@@ -160,9 +172,9 @@ import { usePatientDocuments } from '../../hooks/patient/usePatientDocuments';
                     </div>
                     <div>
                         <p className='text-gray-500 mb-2'>DNI Posterior</p>
-                        {documents?.find(doc => doc.document_type === "dni_back") ? (
+                        {activeDocuments?.find(doc => doc.document_type === "dni_back") ? (
                             <ImageDocument 
-                                document={documents.find(doc => doc.document_type=== "dni_back")!} 
+                                document={activeDocuments.find(doc => doc.document_type=== "dni_back")!} 
                                 handleDeleteDocument={handleDeleteDocument} 
                                 handleDeleteDocFromServer={handleDeleteDocFromServer} 
                             />
@@ -174,16 +186,16 @@ import { usePatientDocuments } from '../../hooks/patient/usePatientDocuments';
                         )}
                     </div>
                     <div>
-                        <p className='text-gray-500 mb-2'>Antecedentes Penales</p>
-                        {documents?.find(doc => doc.document_type=== "criminal_record") ? (
+                        <p className='text-gray-500 mb-2'>Historial Clinico</p>
+                        {activeDocuments?.find(doc => doc.document_type=== "medical_history") ? (
                             <ImageDocument 
-                                document={documents.find(doc => doc.document_type=== "criminal_record")!} 
+                                document={activeDocuments.find(doc => doc.document_type=== "medical_history")!} 
                                 handleDeleteDocument={handleDeleteDocument} 
                                 handleDeleteDocFromServer={handleDeleteDocFromServer} 
                             />
                         ) : (
                             <DocumentInput 
-                                id="criminal_record" 
+                                id="medical_history" 
                                 handleFileUpload={handleFileUpload} 
                             />
                         )}
