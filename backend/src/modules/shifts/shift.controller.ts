@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 // src/modules/shifts/shifts.controller.ts
 
 import {
@@ -9,8 +10,7 @@ import {
   Patch,
   Delete,
   UseGuards,
-  Request,
-  Req,
+  Query,
 } from '@nestjs/common';
 
 import { ShiftsService } from './shift.service';
@@ -21,11 +21,12 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { ProfileRole } from '../profiles/enums/profile-role.enum';
-import { Profile } from '../profiles/profile.entity';
+import { UpdateStatusDto } from './dto/update-status.dto';
+// import { Profile } from '../profiles/profile.entity';
 
-interface AuthRequest extends Request {
-  user: Profile;
-}
+// interface AuthRequest extends Request {
+//   user: Profile;
+// }
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('shifts')
@@ -34,16 +35,16 @@ export class ShiftsController {
 
   // 👨‍💼 SOLO ADMIN puede crear guardias
   @Post()
-  @Roles(ProfileRole.ADMIN)
-  create(@Body() dto: CreateShiftDto, @Req() req: AuthRequest) {
-    return this.shiftsService.create(dto, req.user);
+  @Roles()
+  create(@Body() dto: CreateShiftDto) {
+    return this.shiftsService.create(dto);
   }
 
   // 👀 ADMIN y STAFF pueden ver todas
   @Get()
   @Roles(ProfileRole.ADMIN, ProfileRole.STAFF)
-  findAll() {
-    return this.shiftsService.findAll();
+  findAll(@Query('page') page?: number, @Query('limit') limit?: number) {
+    return this.shiftsService.findAll(page, limit);
   }
 
   @Get(':id')
@@ -52,10 +53,26 @@ export class ShiftsController {
     return this.shiftsService.findOne(id);
   }
 
+  @Get('patient/:patientId')
+  @Roles(ProfileRole.ADMIN, ProfileRole.STAFF, ProfileRole.CAREGIVER, ProfileRole.FAMILY, ProfileRole.PATIENT)
+  findByPatient(
+    @Param('patientId') patientId: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return this.shiftsService.findByPatient(patientId, page, limit);
+  }
+
   @Patch(':id')
   @Roles(ProfileRole.ADMIN)
   update(@Param('id') id: string, @Body() dto: UpdateShiftDto) {
     return this.shiftsService.update(id, dto);
+  }
+
+  @Patch(':id/status')
+  @Roles(ProfileRole.ADMIN)
+  updateStatus(@Param('id') id: string, @Body() dto: UpdateStatusDto) {
+    return this.shiftsService.updateStatus(id, dto);
   }
 
   @Delete(':id')

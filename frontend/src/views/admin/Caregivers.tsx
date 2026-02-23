@@ -32,9 +32,9 @@ export function Caregivers() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-surface whitespace-nowrap">
-              {caregivers.map((caregiver, index) => (
+              {caregivers.map((caregiver) => (
                 <tr
-                  key={index}
+                  key={caregiver.id}
                   className="hover:bg-background hover:cursor-pointer"
                 >
                   <td className="px-4 py-4 flex items-center gap-2">

@@ -42,15 +42,15 @@ export const EditProfileForm: React.FC<EditProfileFormProps & { handleUpdateSucc
         full_name: user.full_name,
         email: user.email,
         ...(currentUser?.role === "CAREGIVER" && {
-            phone: caregiverData.phone || "",
-            cbu: caregiverData.cbu || "",
-            mercado_pago_alias: caregiverData.mercado_pago_alias || "",
-            hourly_rate: caregiverData.hourly_rate || 0,
+            phone: caregiverData?.phone || "",
+            cbu: caregiverData?.cbu || "",
+            mercado_pago_alias: caregiverData?.mercado_pago_alias || "",
+            hourly_rate: caregiverData?.hourly_rate || 0,
         }),
         ...(currentUser?.role === "PATIENT" && {
-            address: patientData.address || "",
-            notes: patientData.notes || "",
-            dni: patientData.dni || "",
+            address: patientData?.address || "",
+            notes: patientData?.notes || "",
+            dni: patientData?.dni || "",
         }),
     };
 
@@ -76,7 +76,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps & { handleUpdateSucc
                 hourly_rate: formData.hourly_rate,
             };
             
-            const response = await api.patch(`/caregivers/${user?.id}`, caregiverData);
+            const response = await api.put(`/caregivers/${user?.id}`, caregiverData);
             toast.success(response.data.message || "Perfil actualizado exitosamente");
             
 

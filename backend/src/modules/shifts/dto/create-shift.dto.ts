@@ -1,8 +1,11 @@
+/* eslint-disable prettier/prettier */
 import { IsUUID, IsDateString, IsString, IsOptional } from 'class-validator';
+import { ShiftStatus } from '../enums/shift-status.enum';
 
 export class CreateShiftDto {
   @IsUUID()
-  caregiverId!: string;
+  @IsOptional()
+  caregiverId?: string;
 
   @IsUUID()
   patientId!: string;
@@ -16,4 +19,11 @@ export class CreateShiftDto {
   @IsOptional()
   @IsString()
   report?: string;
+
+  @IsOptional()
+  @IsString()
+  status?: ShiftStatus;
+
+  @IsString()
+  service!: string;
 }

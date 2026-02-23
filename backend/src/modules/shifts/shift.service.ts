@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 // src/modules/shifts/shifts.service.ts
 
 import {
@@ -6,7 +7,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 
 import { Shift } from './shift.entity';
 import { Caregiver } from '../caregivers/caregiver.entity';
@@ -16,6 +17,7 @@ import { Profile } from '../profiles/profile.entity';
 import { CreateShiftDto } from './dto/create-shift.dto';
 import { UpdateShiftDto } from './dto/update-shift.dto';
 import { ShiftStatus } from './enums/shift-status.enum';
+import { UpdateStatusDto } from './dto/update-status.dto';
 
 @Injectable()
 export class ShiftsService {
@@ -33,27 +35,27 @@ export class ShiftsService {
     private readonly profileRepository: Repository<Profile>,
   ) {}
 
-  // 🔥 CREATE (solo ADMIN)
-  async create(dto: CreateShiftDto, adminPayload: Profile): Promise<Shift> {
-    // 🔥 Buscar el Profile real en DB
-    const admin = await this.profileRepository.findOneBy({
-      id: adminPayload.id,
-    });
-
-    if (!admin) {
-      throw new NotFoundException('Admin profile not found');
+  async updateStatus(id: string, dto: UpdateStatusDto): Promise<Shift> {
+    const shift = await this.findOne(id);
+    if (!shift) {
+      throw new BadRequestException('No se encontro el turno');
     }
-
-    const caregiver = await this.caregiverRepository.findOneBy({
-      profile_id: dto.caregiverId,
-    });
-
-    if (!caregiver) {
-      throw new NotFoundException('Caregiver not found');
+    if (dto.status === ShiftStatus.ASSIGNED) {
+      if (!shift.caregiver) {
+        throw new BadRequestException('Debes asignarle un cuidador');
+      }
     }
+    if (shift.status === ShiftStatus.COMPLETED) {
+      throw new BadRequestException('El turno ya se encuentra completado');
+    }
+    shift.status = dto.status;
+    return this.shiftRepository.save(shift);
+  }
 
-    const patient = await this.patientRepository.findOneBy({
-      profile_id: dto.patientId,
+  async create(dto: CreateShiftDto): Promise<Shift> {
+    const patient = await this.patientRepository.findOne({
+      where: { profile_id: dto.patientId },
+      relations: ['profile'],
     });
 
     if (!patient) {
@@ -62,39 +64,91 @@ export class ShiftsService {
 
     const start = new Date(dto.start_time);
     const end = new Date(dto.end_time);
+    const report = dto.report ? dto.report : null;
 
     if (end <= start) {
       throw new BadRequestException('end_time must be greater than start_time');
     }
 
+    const alreadyExists = await this.allReadyExists(
+      dto.start_time,
+      dto.end_time,
+      dto.patientId,
+    );
+    if (alreadyExists) {
+      throw new BadRequestException('Shift already exists');
+    }
     const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
 
     const shift = this.shiftRepository.create({
-      caregiver,
       patient,
-      created_by: admin, // 🔥 ahora sí es entidad real
       start_time: start,
       end_time: end,
       hours,
-      status: ShiftStatus.ASSIGNED,
+      status: ShiftStatus.PENDING,
+      service: dto.service,
+      profile: patient.profile,
+      report: report,
     });
-
+    console.log('Creating shift:', shift);
     return this.shiftRepository.save(shift);
   }
 
-  // 📄 FIND ALL
-  async findAll(): Promise<Shift[]> {
-    return this.shiftRepository.find({
-      relations: ['caregiver', 'patient', 'created_by', 'approved_by'],
-      order: { created_at: 'DESC' },
+  async allReadyExists(
+    start_time: string,
+    end_time: string,
+    patientId: string,
+  ): Promise<boolean> {
+    const start = new Date(start_time);
+    const end = new Date(end_time);
+    const shift = await this.shiftRepository.findOneBy({
+      start_time: Between(start, end),
+      end_time: Between(start, end),
+      patient: {
+        profile_id: patientId,
+      },
     });
+    return !!shift;
+  }
+
+  // 📄 FIND ALL
+  async findAll(page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.shiftRepository.findAndCount({
+      relations: [
+        'caregiver',
+        'patient',
+        'patient.profile',
+        'approved_by',
+        'profile',
+      ],
+      order: { created_at: 'DESC' },
+      take: limit,
+      skip: skip,
+    });
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+      },
+    };
   }
 
   // 🔍 FIND ONE
   async findOne(id: string): Promise<Shift> {
     const shift = await this.shiftRepository.findOne({
       where: { id },
-      relations: ['caregiver', 'patient', 'created_by', 'approved_by'],
+      relations: [
+        'caregiver',
+        'patient',
+        'patient.profile',
+        'approved_by',
+        'profile',
+      ],
     });
 
     if (!shift) {
@@ -102,6 +156,27 @@ export class ShiftsService {
     }
 
     return shift;
+  }
+
+  // FIND MANY BY PATIENT
+  async findByPatient(patientId: string, page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+    const [data, total] = await this.shiftRepository.findAndCount({
+      where: { patient: { profile_id: patientId } },
+      relations: ['caregiver', 'patient', 'approved_by', 'profile'],
+      order: { created_at: 'DESC' },
+      take: limit,
+      skip: skip,
+    });
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+      },
+    };
   }
 
   // ✏ UPDATE
@@ -131,6 +206,16 @@ export class ShiftsService {
     // 📝 Actualizar reporte si viene
     if (dto.report !== undefined) {
       shift.report = dto.report;
+    }
+
+    if (dto.caregiverId !== undefined) {
+      const caregiver = await this.caregiverRepository.findOneBy({
+        profile_id: dto.caregiverId,
+      });
+      if (!caregiver) {
+        throw new NotFoundException('Caregiver not found');
+      }
+      shift.caregiver = caregiver;
     }
 
     return this.shiftRepository.save(shift);

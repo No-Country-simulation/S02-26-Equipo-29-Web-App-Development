@@ -7,53 +7,9 @@ import { api } from "../../lib/axios/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getStatusColor, translateStatus } from "../../utils/status";
+import { takeFirstLetters } from "../../utils/firstLetters";
 
-const patients: Patient[] = [
-  {
-    id: "P-01",
-    full_name: "María López",
-    role: "patient",
-    email: "maria@example.com",
-    status: "pending",
-    notes: "",
-    created_at: "2022-01-01",
-    front_dni: "https://placehold.co/600x400/png",
-    back_dni: "https://placehold.co/600x400/png",
-  },
-  {
-    id: "P-02",
-    full_name: "Juan Fernández",
-    role: "patient",
-    email: "juan@example.com",
-    status: "under_review",
-    notes: "",
-    created_at: "2022-01-01",
-    front_dni: "https://placehold.co/600x400/png",
-    back_dni: "https://placehold.co/600x400/png",
-  },
-  {
-    id: "P-03",
-    full_name: "María López",
-    role: "patient",
-    email: "maria2@example.com",
-    status: "approved",
-    notes: "",
-    created_at: "2022-01-01",
-    front_dni: "https://placehold.co/600x400/png",
-    back_dni: "https://placehold.co/600x400/png",
-  },
-  {
-    id: "P-04",
-    full_name: "Juan Fernández",
-    role: "patient",
-    email: "juan2@example.com",
-    status: "rejected",
-    notes: "",
-    created_at: "2022-01-01",
-    front_dni: "https://placehold.co/600x400/png",
-    back_dni: "https://placehold.co/600x400/png",
-  },
-];
+
 
 export function Registration() {
   const queryClient = useQueryClient();
@@ -90,6 +46,8 @@ export function Registration() {
   if (isLoading) {
     return <div>Loading...</div>;
   }
+
+  console.log(selectedItem)
   return (
     <div className="bg-background p-5">
       <header className="p-5 rounded-3xl border border-border bg-surface  shadow-lg">
@@ -146,7 +104,6 @@ export function Registration() {
                     <thead className="bg-background text-left text-text-secondary whitespace-nowrap">
                       <tr>
                         <th className="px-4 py-3 font-medium">Aplicante</th>
-                        <th className="px-4 py-3 font-medium">Credenciales</th>
                         <th className="px-4 py-3 font-medium">
                           Fecha de Registro
                         </th>
@@ -167,14 +124,9 @@ export function Registration() {
                           }`}
                         >
                           <td className="px-4 py-4 flex items-center gap-2">
-                            <img
-                              src={
-                                caregiver.front_dni ||
-                                "https://placehold.co/100x100"
-                              }
-                              alt=""
-                              className="w-10 h-10 rounded-full"
-                            />
+                            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
+                              {takeFirstLetters(caregiver.full_name)}
+                            </div>
                             <div className="flex flex-col">
                               <p className="font-medium">
                                 {caregiver.full_name}
@@ -184,7 +136,6 @@ export function Registration() {
                               </p>
                             </div>
                           </td>
-                          <td className="px-4 py-4">{caregiver.credentials}</td>
                           <td className="px-4 py-4">
                             {formatDate(caregiver.created_at ?? "")}
                           </td>
@@ -215,7 +166,6 @@ export function Registration() {
                     <thead className="bg-background text-left text-text-secondary whitespace-nowrap">
                       <tr>
                         <th className="px-4 py-3 font-medium">Aplicante</th>
-                        <th className="px-4 py-3 font-medium">Credenciales</th>
                         <th className="px-4 py-3 font-medium">
                           Fecha de Registro
                         </th>
@@ -224,10 +174,10 @@ export function Registration() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border bg-surface whitespace-nowrap">
-                      {patients.map((patient, index) => (
+                      {registration?.patients.map((patient) => (
                         <tr
                           onClick={() => setSelectedItem(patient)}
-                          key={index}
+                          key={patient.id}
                           className={`hover:bg-background hover:cursor-pointer ${
                             selectedItem?.id === patient.id
                               ? "bg-primary/5"
@@ -235,11 +185,9 @@ export function Registration() {
                           }`}
                         >
                           <td className="px-4 py-4 flex items-center gap-2">
-                            <img
-                              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
-                              alt=""
-                              className="w-10 h-10 rounded-full"
-                            />
+                            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
+                              {takeFirstLetters(patient.full_name)}
+                            </div>
                             <div className="flex flex-col">
                               <p className="font-medium">{patient.full_name}</p>
                               <p className="text-xs text-text-secondary">
@@ -247,8 +195,8 @@ export function Registration() {
                               </p>
                             </div>
                           </td>
-                          <td className="px-4 py-4">{patient.credentials}</td>
-                          <td className="px-4 py-4">{patient.created_at}</td>
+                        
+                          <td className="px-4 py-4">{formatDate(patient.created_at)}</td>
                           <td className="px-4 py-4">
                             <span
                               className={`px-2 py-1 rounded-full ${getStatusColor(
@@ -275,13 +223,9 @@ export function Registration() {
             <div className="h-[80vh] col-span-3 lg:col-span-1 border border-border rounded-2xl p-2 sticky top-0 overflow-y-scroll">
               {selectedItem ? (
                 <>
-                  <img
-                    src={
-                      selectedItem?.front_dni || "https://placehold.co/100x100"
-                    }
-                    alt=""
-                    className="w-10 h-10 rounded-full"
-                  />
+                  <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
+                    {takeFirstLetters(selectedItem?.full_name)}
+                  </div>
                   <p className="font-bold">{selectedItem.full_name}</p>
                   {/* <p className="text-text-secondary/50 text-xs">id: {selectedItem?}</p> */}
 

@@ -90,7 +90,6 @@ export class AuthService {
   // 🔑 Login
   // =====================
   async login(dto: LoginDto) {
-    console.log(dto);
     const user = await this.authUserRepo.findOne({
       where: { email: dto.email },
       relations: ['profile'],

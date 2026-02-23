@@ -17,10 +17,10 @@ export class Shift {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  // 👨‍💼 ADMIN que creó la guardia
-  @ManyToOne(() => Profile, { nullable: false })
-  @JoinColumn({ name: 'created_by_id' })
-  created_by!: Profile;
+  // // 👨‍💼 ADMIN que creó la guardia
+  // @ManyToOne(() => Profile, { nullable: false })
+  // @JoinColumn({ name: 'created_by_id' })
+  // created_by!: Profile;
 
   // 👩‍⚕️ Cuidador asignado
   @ManyToOne(() => Caregiver, (caregiver) => caregiver.shifts, {
@@ -35,6 +35,10 @@ export class Shift {
   })
   @JoinColumn({ name: 'patient_id' })
   patient!: Patient;
+
+  @ManyToOne(() => Profile)
+  @JoinColumn({ name: 'profile_id' })
+  profile!: Profile;
 
   // 👨‍💼 ADMIN que aprueba
   @ManyToOne(() => Profile, { nullable: true })
@@ -56,6 +60,12 @@ export class Shift {
     default: ShiftStatus.PENDING,
   })
   status!: ShiftStatus;
+
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
+  service!: string | null;
 
   @Column({ type: 'text', nullable: true })
   report!: string | null;
