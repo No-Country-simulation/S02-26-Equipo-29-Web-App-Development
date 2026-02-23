@@ -24,7 +24,7 @@
     "openapi:check": "pnpm openapi:lint && pnpm openapi:bundle",
     "typeorm": "typeorm-ts-node-commonjs -d src/database/typeorm.config.ts",
     "migration:create": "typeorm-ts-node-commonjs migration:create",
-    "migration:generate": "pnpm typeorm migration:generate src/database/migrations/InitSchema",
+    "migration:generate": "pnpm typeorm migration:generate src/database/migrations/AutoMigration",
     "migration:run": "pnpm typeorm migration:run",
     "migration:revert": "pnpm typeorm migration:revert"
   },

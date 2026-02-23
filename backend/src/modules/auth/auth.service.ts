@@ -115,8 +115,7 @@ export class AuthService {
     profile: Profile,
   ): { access_token: string } {
     const payload = {
-      sub: user.id,
-      profileId: profile.id,
+      sub: profile.id,
       role: profile.role,
     };
 

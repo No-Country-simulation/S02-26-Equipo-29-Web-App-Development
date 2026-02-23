@@ -16,6 +16,7 @@ import { MediaModule } from './shared/media/media.module';
 import { AdminModule } from './modules/admin/admin.module';
 import cloudinaryConfig from './config/cloudinary.config';
 import { HealthModule } from './modules/health/health.module';
+import { RatingsModule } from './modules/ratings/rating.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { HealthModule } from './modules/health/health.module';
     // 🛠️ Admin (panel de administración)
     AdminModule,
     HealthModule,
+    RatingsModule,
   ],
 })
 export class AppModule {}

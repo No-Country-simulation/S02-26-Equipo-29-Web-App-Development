@@ -5,13 +5,14 @@ import {
   ManyToOne,
   CreateDateColumn,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 
 import { Caregiver } from '../caregivers/caregiver.entity';
 import { Patient } from '../patients/patient.entity';
 import { Profile } from '../profiles/profile.entity';
 import { ShiftStatus } from './enums/shift-status.enum';
-
+import { Rating } from '../ratings/rating.entity';
 @Entity('shifts')
 export class Shift {
   @PrimaryGeneratedColumn('uuid')
@@ -21,6 +22,9 @@ export class Shift {
   // @ManyToOne(() => Profile, { nullable: false })
   // @JoinColumn({ name: 'created_by_id' })
   // created_by!: Profile;
+  // ⭐ Rating de la guardia
+  @OneToOne(() => Rating, (rating) => rating.shift)
+  rating!: Rating | null;
 
   // 👩‍⚕️ Cuidador asignado
   @ManyToOne(() => Caregiver, (caregiver) => caregiver.shifts, {

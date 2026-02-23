@@ -7,10 +7,10 @@ export const AppDataSource = new DataSource({
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT ?? 5432),
   username: process.env.DB_USER,
-  password: String(process.env.DB_PASSWORD), // 🔑 FORZADO A STRING
+  password: String(process.env.DB_PASSWORD),
   database: process.env.DB_NAME,
   logging: false,
-  entities: ['src/modules/**/entities/*.entity.ts'],
-  migrations: ['src/database/migrations/*.ts'],
+  entities: [__dirname + '/../modules/**/entities/*.entity.{ts,js}'],
+  migrations: [__dirname + '/migrations/*.{ts,js}'],
   synchronize: false,
 });
