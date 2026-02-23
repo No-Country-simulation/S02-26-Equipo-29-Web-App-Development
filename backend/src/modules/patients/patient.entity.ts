@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 // src/modules/patients/entities/patient.entity.ts
 import {
   Entity,
@@ -14,6 +13,7 @@ import { Profile } from '../profiles/profile.entity';
 import { FamilyPatient } from '../family/family-patient.entity';
 import { Shift } from '../shifts/shift.entity';
 import { PatientDocument } from './patient-document.entity';
+import { PatientStatus } from './enums/patient-status-enum';
 
 @Entity('patients')
 export class Patient {
@@ -53,4 +53,11 @@ export class Patient {
 
   @OneToMany(() => PatientDocument, (doc) => doc.patient)
   documents: PatientDocument[];
+
+  @Column({
+    type: 'enum',
+    enum: PatientStatus,
+    default: PatientStatus.PENDING,
+  })
+  status!: PatientStatus;
 }

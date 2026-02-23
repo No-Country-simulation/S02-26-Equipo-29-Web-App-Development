@@ -84,6 +84,9 @@ export class PatientController {
       throw new BadRequestException('No se han enviado archivos');
     }
 
-    return this.patientService.uploadMultipleDocuments(req.user.profileId, files);
+    return this.patientService.uploadMultipleDocuments(
+      req.user.profileId,
+      files,
+    );
   }
 }
