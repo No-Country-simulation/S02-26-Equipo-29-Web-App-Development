@@ -4,4 +4,7 @@ export {getUser} from "./user/getUser";
 export {getCaregivers} from "./caregiver/getCaregivers";
 export {getDashboard} from "./admin/getDashboard";
 export {getRegistrations} from "./admin/getRegistrations";
+export {getShifts} from "./shifts/getShifts";
+export {updateShiftStatus} from "./shifts/updateShiftStatus";
+export {assignCaregiverShift} from "./shifts/assignCaregiverShift";
 

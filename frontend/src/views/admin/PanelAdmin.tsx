@@ -1,5 +1,8 @@
-import { ArrowRight, Clock, PersonStanding, Star, Users2 } from "lucide-react";
+import { ArrowRight, Check, Clock, PersonStanding, Star, Users2, X } from "lucide-react";
 import { useDashboard } from "../../hooks";
+import { formatDateSafe, formatTime } from "../../utils/formatDate";
+import { getStatusColorShift, translateStatusShift } from "../../utils/status";
+import { Link } from "react-router-dom";
 
 export function PanelAdmin() {
 
@@ -23,43 +26,19 @@ export function PanelAdmin() {
     },
     {
       title: "Horas este mes",
-      value: "160",
+      value: dashboard?.hours.hours || 0,
       icon: <Clock />,
-      percentage: 8,
+      percentage: dashboard?.hours.growth || 0,
       className: "text-orange-500 bg-orange-500/10",
     },
     {
       title: "Satisfacción",
-      value: "4/5",
       icon: <Star />,
       percentage: 8,
       className: "text-yellow-500 bg-yellow-500/10",
     },
   ];
 
-  const appointments = [
-    {
-      id: "P-102",
-      name: "Don José Pérez",
-      day: "11/02/2026",
-      schedule: "06:00 - 10:00",
-      caregiver: "María López",
-    },
-    {
-      id: "P-143",
-      name: "Sra. Emilia Torres",
-      day: "12/02/2026",
-      schedule: "10:00 - 14:00",
-      caregiver: "Juan Fernández",
-    },
-    {
-      id: "P-210",
-      name: "Srta. Lucía Gómez",
-      day: "13/02/2026",
-      schedule: "14:00 - 20:00",
-      caregiver: "Juan Fernández",
-    },
-  ];
   if (isLoading) {
     return (
       <div className="bg-background pt-5 px-5 animate-pulse">
@@ -151,10 +130,10 @@ export function PanelAdmin() {
             <Clock className="h-6 w-6 text-primary" /> Horas pendientes de
             aprobación
           </h2>
-          <button className="cursor-pointer hover:bg-primary/80 hover:text-white rounded-2xl border border-border bg-background px-4 py-2 text-sm flex items-center gap-2">
+          <Link to="/appointments" className="cursor-pointer hover:bg-primary/80 hover:text-white rounded-2xl border border-border bg-background px-4 py-2 text-sm flex items-center gap-2">
             <span className="whitespace-nowrap">Gestionar horas</span>
             <ArrowRight className="w-4 h-4" />
-          </button>
+          </Link>
         </div>
 
         <div className="rounded-2xl p-2 justify-between mt-5">
@@ -163,36 +142,62 @@ export function PanelAdmin() {
               <thead className="bg-background text-left text-text-secondary">
                 <tr>
                   <th className="px-4 py-3 font-medium">Paciente</th>
-                  <th className="px-4 py-3 font-medium">Cuidador</th>
                   <th className="px-4 py-3 font-medium">Día</th>
                   <th className="px-4 py-3 font-medium">Horario</th>
+                  <th className="px-4 py-3 font-medium">Servicio</th>
+                  <th className="px-4 py-3 font-medium">Cuidador</th> 
+                  <th className="px-4 py-3 font-medium">Estado</th>
                   <th className="px-4 py-3 font-medium text-center">
                     Acciones
                   </th>
+                
                 </tr>
               </thead>
               <tbody className="divide-y divide-border bg-surface">
-                {appointments.map((appointment, index) => (
-                  <tr key={index} className="hover:bg-white/5">
-                    <td className="px-4 py-4">
-                      <p className="font-medium">{appointment.name}</p>
-                      <p className="text-xs text-text-secondary">
-                        {appointment.id}
-                      </p>
-                    </td>
-                    <td className="px-4 py-4">{appointment.caregiver}</td>
-                    <td className="px-4 py-4">{appointment.day}</td>
-                    <td className="px-4 py-4">{appointment.schedule}</td>
-                    <td className="px-4 py-4 flex gap-2 justify-center">
-                      <button className="cursor-pointer hover:bg-primary/80 hover:text-white rounded-2xl border border-border bg-background px-4 py-2 text-sm flex items-center gap-2">
-                        Aprobar
+              {dashboard?.shifts.map((shift) => (
+                <tr key={shift.id} className="transition-colors hover:bg-white/5">
+                  <td className="px-6 py-5">
+                    <div className="flex items-center">
+                      <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold mr-3">
+                        {shift.patient.profile.full_name.charAt(0)}
+                      </div>
+                      <p className="font-semibold text-text-primary">{shift.patient.profile.full_name}</p>
+                    </div>
+                  </td>
+                  <td className="px-6 py-5">
+                    <p className="text-text-secondary">{formatDateSafe(shift.start_time)}</p>
+                  </td>
+                  <td className="px-6 py-5 text-text-secondary">
+                    {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
+                  </td>
+                  <td className="px-6 py-5">
+                    <span className="text-text-primary">{shift.service || "General"}</span>
+                  </td>
+                <td className="px-6 py-5">
+                    <span className="text-text-primary">Sin asignar</span>
+                  </td>
+                  <td className="px-6 py-5">
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ring-1 ring-inset ${getStatusColorShift(shift.status)}`}>
+                      {translateStatusShift(shift.status)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-5" >
+                    <div className="flex gap-2 justify-center">
+                      <button 
+                      disabled={shift.status!=="PENDING"}
+                      className="p-2 transition-all duration-200 rounded-xl border border-green-500/20 bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white hover:scale-110 active:scale-90 shadow-sm" title="Aprobar">
+                        <Check className="w-4 h-4" />
                       </button>
-                      <button className="cursor-pointer hover:bg-red-600 hover:text-white rounded-2xl border border-border bg-background px-4 py-2 text-sm flex items-center gap-2">
-                        Rechazar
+                      <button 
+                      disabled={shift.status!=="PENDING"}
+                      className="p-2 transition-all duration-200 rounded-xl border border-red-500/20 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white hover:scale-110 active:scale-90 shadow-sm" title="Rechazar">
+                        <X className="w-4 h-4" />
                       </button>
-                    </td>
-                  </tr>
-                ))}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            }
               </tbody>
             </table>
           </div>

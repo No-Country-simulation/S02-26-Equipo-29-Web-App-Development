@@ -1,12 +1,7 @@
 import CaregiverView from "../../views/caregiver/CaregiverInfo";
-import { Patient } from "../patient/patient";
-import { useState } from "react";
 
 export const CaregiverDashboard = ({ user }: { user: any }) => {
-  const [selectedPatient, setSelectedPatient] = useState<
-    (typeof assignedPatients)[number] | null
-  >(null);
-  const [patientDialogOpen, setPatientDialogOpen] = useState(false);
+
   const caregiver = {
     name: user ? user.full_name : "Cuidador Desconocido",
     role: user ? user.role : "Rol desconocido",
@@ -125,7 +120,7 @@ export const CaregiverDashboard = ({ user }: { user: any }) => {
         />
       )} */}
       <section className="mx-auto max-w-5xl space-y-8 mt-8">
-        <CaregiverView caregiver={caregiver} />
+        <CaregiverView />
       </section>
     </main>
   );

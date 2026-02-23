@@ -4,5 +4,6 @@ export {useCaregiverDocuments} from "./caregiver/useDocuments";
 export {useUser} from "./user/useUser";
 export {useDashboard} from "./admin/useDashboard";
 export {useRegistrations} from "./admin/useRegistrations";
+export {useShifts} from "./shifts/useShifts";
 
 
