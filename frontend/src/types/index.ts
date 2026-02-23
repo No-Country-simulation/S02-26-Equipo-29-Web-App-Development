@@ -67,5 +67,6 @@ export interface Shift {
   status?: string;
   hours?: number;
   location?: string;
+  report?: string;
 }
 

@@ -184,6 +184,11 @@ export const Shifts: React.FC<{ shifts?: Shift[] }> = ({ shifts: externalShifts 
                                         <span className="font-semibold">Ubicación:</span> {shift.location}
                                     </p>
                                 )}
+                                {shift.report && (
+                                    <p>
+                                        <span className="font-semibold">Notas:</span> {shift.report}
+                                    </p>
+                                )}
                                 <p>
                                     <span className="font-semibold">Estado:</span>{" "}
                                     <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-600">

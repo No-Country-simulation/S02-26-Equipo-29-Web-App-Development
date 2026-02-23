@@ -44,6 +44,7 @@ type ShiftApiResponse = {
   };
   start_time: string;
   end_time: string;
+  report?: string | null;
   service?: string | null;
   status?: string;
   hours?: number;
@@ -93,6 +94,7 @@ const mapShift = (shift: ShiftApiResponse): Shift => ({
   patient: shift.patient,
   startTime: shift.start_time,
   endTime: shift.end_time,
+  report: shift.report ?? undefined,
   location: shift.service || undefined,
   status: shift.status,
   hours: shift.hours,

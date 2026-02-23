@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { IsUUID, IsDateString, IsString, IsOptional } from 'class-validator';
 import { ShiftStatus } from '../enums/shift-status.enum';
 

@@ -64,6 +64,7 @@ export class ShiftsService {
 
     const start = new Date(dto.start_time);
     const end = new Date(dto.end_time);
+    const report = dto.report ? dto.report : null;
 
     if (end <= start) {
       throw new BadRequestException('end_time must be greater than start_time');
@@ -87,8 +88,9 @@ export class ShiftsService {
       status: ShiftStatus.PENDING,
       service: dto.service,
       profile: patient.profile,
+      report: report,
     });
-
+    console.log('Creating shift:', shift);
     return this.shiftRepository.save(shift);
   }
 
