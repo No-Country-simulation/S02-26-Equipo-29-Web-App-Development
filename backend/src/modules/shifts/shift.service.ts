@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 // src/modules/shifts/shifts.service.ts
 
 import {
@@ -153,6 +154,27 @@ export class ShiftsService {
     }
 
     return shift;
+  }
+
+  // FIND MANY BY PATIENT
+  async findByPatient(patientId: string, page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+    const [data, total] = await this.shiftRepository.findAndCount({
+      where: { patient: { profile_id: patientId } },
+      relations: ['caregiver', 'patient', 'approved_by', 'profile'],
+      order: { created_at: 'DESC' },
+      take: limit,
+      skip: skip,
+    });
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+      },
+    };
   }
 
   // ✏ UPDATE
