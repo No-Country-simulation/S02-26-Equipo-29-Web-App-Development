@@ -10,7 +10,7 @@ import {
   Registration,
 } from "../views";
 import { ProtectedRoute } from "../components/ProtectedRoute";
-import { Agenda } from "../views/caregiver/Agenda";
+import { Agenda } from "../views/caregiver/AgendaCaregiver";
 import { CaregiverInfo } from "../views/caregiver/CaregiverInfo";
 import { MainDashboard } from "../components/dashboard/MainDashboard";
 import { QueryClientProvider } from "../providers/QueryClientProvider";
