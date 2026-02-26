@@ -63,6 +63,16 @@ export class ShiftsController {
     return this.shiftsService.findByPatient(patientId, page, limit);
   }
 
+  @Get('caregiver/:caregiverProfileId')
+  @Roles(ProfileRole.ADMIN, ProfileRole.STAFF, ProfileRole.CAREGIVER)
+  findByCaregiver(
+    @Param('caregiverProfileId') caregiverProfileId: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return this.shiftsService.findByCaregiver(caregiverProfileId, page, limit);
+  }
+
   @Patch(':id')
   @Roles(ProfileRole.ADMIN)
   update(@Param('id') id: string, @Body() dto: UpdateShiftDto) {

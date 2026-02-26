@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { User } from "../../types";
 import { api } from "../../lib/axios/api";
-import { Agenda } from "./Agenda";
+import { Agenda } from "./AgendaCaregiver";
 import { CaregiverInfo } from "./CaregiverInfo";
 
 export const PanelCaregiver = ({user}: {user: User}) => {

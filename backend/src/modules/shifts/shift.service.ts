@@ -65,6 +65,8 @@ export class ShiftsService {
     const start = new Date(dto.start_time);
     const end = new Date(dto.end_time);
     const report = dto.report ? dto.report : null;
+    const service = dto.service ? dto.service : null;
+    const location = dto.location ? dto.location : null;
 
     if (end <= start) {
       throw new BadRequestException('end_time must be greater than start_time');
@@ -86,9 +88,10 @@ export class ShiftsService {
       end_time: end,
       hours,
       status: ShiftStatus.PENDING,
-      service: dto.service,
+      service: service,
       profile: patient.profile,
       report: report,
+      location: location,
     });
     console.log('Creating shift:', shift);
     return this.shiftRepository.save(shift);
@@ -163,7 +166,40 @@ export class ShiftsService {
     const skip = (page - 1) * limit;
     const [data, total] = await this.shiftRepository.findAndCount({
       where: { patient: { profile_id: patientId } },
-      relations: ['caregiver', 'patient', 'approved_by', 'profile'],
+      relations: [
+        'caregiver',
+        'caregiver.profile',
+        'patient',
+        'approved_by',
+        'profile',
+      ],
+      order: { created_at: 'DESC' },
+      take: limit,
+      skip: skip,
+    });
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  // FIND MANY BY CAREGIVER
+  async findByCaregiver(caregiverProfileId: string, page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+    const [data, total] = await this.shiftRepository.findAndCount({
+      where: { caregiver: { profile_id: caregiverProfileId } },
+      relations: [
+        'caregiver',
+        'caregiver.profile',
+        'patient',
+        'approved_by',
+        'profile',
+      ],
       order: { created_at: 'DESC' },
       take: limit,
       skip: skip,

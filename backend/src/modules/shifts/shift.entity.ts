@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -73,6 +74,9 @@ export class Shift {
 
   @Column({ type: 'text', nullable: true })
   report!: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  location!: string | null;
 
   @Column({ type: 'timestamp', nullable: true })
   approved_at!: Date | null;
