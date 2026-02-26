@@ -54,13 +54,29 @@ export class ShiftsController {
   }
 
   @Get('patient/:patientId')
-  @Roles(ProfileRole.ADMIN, ProfileRole.STAFF, ProfileRole.CAREGIVER, ProfileRole.FAMILY, ProfileRole.PATIENT)
+  @Roles(
+    ProfileRole.ADMIN,
+    ProfileRole.STAFF,
+    ProfileRole.CAREGIVER,
+    ProfileRole.FAMILY,
+    ProfileRole.PATIENT,
+  )
   findByPatient(
     @Param('patientId') patientId: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
     return this.shiftsService.findByPatient(patientId, page, limit);
+  }
+
+  @Get('caregiver/:caregiverProfileId')
+  @Roles(ProfileRole.ADMIN, ProfileRole.STAFF, ProfileRole.CAREGIVER)
+  findByCaregiver(
+    @Param('caregiverProfileId') caregiverProfileId: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return this.shiftsService.findByCaregiver(caregiverProfileId, page, limit);
   }
 
   @Patch(':id')

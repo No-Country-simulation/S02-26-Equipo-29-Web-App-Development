@@ -41,7 +41,7 @@ const navLinks: Record<
   ],
   PATIENT: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
-    { title: "Agenda", href: "/agenda", icon: CalendarIcon },
+    { title: "Agenda", href: "/patient/schedule", icon: CalendarIcon },
     { title: "Mi Información", href: "/patient_info", icon: UserPlusIcon },
   ],
 };

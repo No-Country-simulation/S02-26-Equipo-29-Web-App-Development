@@ -7,13 +7,33 @@ type PatientDialogProps = {
   patient: {
     id: string;
     name: string;
-    day: string;
-    schedule: string;
+    start_time: string;
+    end_time: string;
     notes: string;
     phone: string;
   };
   caregiver?: Caregiver;
   user?: User;
+  shift?: {
+    id: string;
+    caregiver_id: string;
+    patient_id: string;
+    startTime: string;
+    endTime: string;
+    location: string;
+    caregiver?: {
+      full_name: string;
+      phone: string;
+      profile?: {
+        full_name: string;
+      };
+    };
+  profile?: {
+    profile_id: string;
+    full_name: string;
+    phone: string;
+    };
+  };
 };
 
 export const Patient = ({
@@ -22,6 +42,7 @@ export const Patient = ({
   patient,
   caregiver,
   user,
+  shift,
 }: PatientDialogProps) => {
   if (!open) return null;
 
@@ -50,9 +71,9 @@ export const Patient = ({
             <p className="text-xs uppercase tracking-[0.3em] text-text-secondary">
               Cuidador asignado
             </p>
-            <p className="mt-2 font-medium">{user?.full_name}</p>
+            <p className="mt-2 font-medium">{shift?.caregiver?.profile?.full_name || shift?.caregiver?.full_name|| "Sin cuidador asignado"}</p>
             <p className="text-text-secondary">
-              Turno: {caregiver?.shiftRange}
+              Turno: {shift ? `${new Date(shift.start_time || shift.startTime).toLocaleTimeString()} - ${new Date(shift.end_time || shift.endTime).toLocaleTimeString()}` : "Sin turno asignado"}
             </p>
           </div>
 
@@ -72,6 +93,13 @@ export const Patient = ({
               Notas clínicas
             </p>
             <p className="mt-2">{patient.notes}</p>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-background p-4">
+            <p className="text-xs uppercase tracking-[0.3em] text-text-secondary">
+              Direccion
+            </p>
+            <p className="mt-2">{shift?.location}</p>
           </div>
 
           <div className="rounded-2xl border border-border bg-background p-4">
