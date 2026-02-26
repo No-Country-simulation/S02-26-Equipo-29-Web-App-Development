@@ -170,6 +170,7 @@ export class ShiftsService {
         'caregiver',
         'caregiver.profile',
         'patient',
+        'rating',
         'approved_by',
         'profile',
       ],

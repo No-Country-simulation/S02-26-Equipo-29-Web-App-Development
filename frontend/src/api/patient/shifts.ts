@@ -50,6 +50,10 @@ type ShiftApiResponse = {
   status?: string;
   hours?: number;
   location?: string | null;
+  rating?: {
+    number: number;
+    notes?: string | null;
+  } | null;
 };
 
 type PaginatedShiftsResponse = {
@@ -100,6 +104,12 @@ const mapShift = (shift: ShiftApiResponse): Shift => ({
   location: shift.location ?? undefined,
   status: shift.status,
   hours: shift.hours,
+  rating: shift.rating
+    ? {
+        number: shift.rating.number,
+        notes: shift.rating.notes ?? null,
+      }
+    : null,
 });
 
 export const getPatientShifts = async (patientId: string): Promise<Shift[]> => {
