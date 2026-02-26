@@ -1,13 +1,11 @@
 import React from "react";
-import { MessagesSquare, SquareX } from "lucide-react";
+import { MessagesSquare, SquareCheckBig, SquareX, Star } from "lucide-react";
 import { useState, useRef, useEffect, type ChangeEvent } from "react";
 import { Patient } from "../../components/patient/patient";
 import { useCaregivers, useUser } from "../../hooks";
 import { useShifts } from "../../hooks/patient/useShifts";
 import "cally";
 import { formatDayMonth, formatTime } from "../../utils/formatDate";
-import { Shifts } from "../../components";
-
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
@@ -36,11 +34,16 @@ export const PatientSchedule = () => {
     (typeof assignedPatients)[number] | null
   >(null);
   const [patientDialogOpen, setPatientDialogOpen] = useState(false);
+
+  const [endShift, setEndShift] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [report, setReport] = useState("");
+  const [selectedShiftId, setSelectedShiftId] = useState<string | null>(null);
  
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [assignedPatients, setAssignedPatients] = useState<
+  const [assignedPatients, ] = useState<
     {
       id: string;
       name: string;
@@ -90,6 +93,28 @@ export const PatientSchedule = () => {
   const handlePrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
   const handleNextPage = () =>
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+
+  const handleOpenEndShiftDialog = (shiftId: string) => {
+    setSelectedShiftId(shiftId);
+    setEndShift(true);
+  };
+
+  const handleFinalizeShift = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const payload = {
+      shiftId: selectedShiftId,
+      rating,
+      report,
+    };
+
+    console.log("Finalizar guardia payload:", payload);
+
+    setEndShift(false);
+    setSelectedShiftId(null);
+    setRating(0);
+    setReport("");
+  };
 
   // const rangeValue = range ? `${range.start}/${range.end}` : "";
 
@@ -165,7 +190,7 @@ export const PatientSchedule = () => {
                 <th className="px-4 py-3 font-medium">Día</th>
                 <th className="px-4 py-3 font-medium">Horario</th>
                 <th className="px-4 py-3 font-medium">Notas</th>
-                <th className="px-4 py-3 font-medium">Calificalo</th>
+                <th className="px-4 py-3 font-medium">Finalizar</th>
                 <th className="px-4 py-3 font-medium">Contacto</th>
               </tr>
             </thead>
@@ -201,16 +226,18 @@ export const PatientSchedule = () => {
                     </td>
                     <td className="px-4 py-4">
                       <button
-                        onClick={() => {}}
-                        className="rounded-2xl bg-yellow-100 px-3 py-2 text-xs font-medium text-white transition hover:bg-yellow-300"
+                        onClick={() => {
+                          handleOpenEndShiftDialog(shift.id);
+                        }}
+                        className="rounded-2xl bg-primary/50 px-3 py-2 text-xs font-medium text-white transition hover:bg-primary/90"
                       >
-                        ⭐
+                        <SquareCheckBig className="hover:text-background/95"/>
                       </button>
                     </td>
                     <td className="px-4 py-4">
                       <button
                         onClick={() => {
-                          alert(`Llamando a ${shift.patient?.phone}`);
+                          alert(`Llamando a ${shift.caregiver?.phone || "Número no disponible"}`);
                         }}
                         className="rounded-2xl bg-green-500 px-3 py-2 text-xs font-medium text-white transition hover:bg-green-600"
                       >
@@ -254,7 +281,71 @@ export const PatientSchedule = () => {
             onClose={() => setPatientDialogOpen(false)}
             patient={selectedPatient}
             user={user}
+            shift={hookShifts.find((shift) => shift.patient?.profile_id === selectedPatient.id) || undefined}
           />
+        )}
+
+        {endShift && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+            <div className="bg-white p-6 rounded-2xl shadow-lg min-w-62.5 w-full max-w-md">
+              <h2 className="text-xl font-semibold mb-4">Finalizar Guardia</h2>
+              <span className="text-sm text-text-secondary mb-4 block">
+                Guardia Ofrecida por : <span className="font-medium">{hookShifts.find((shift) => shift.id === selectedShiftId)?.caregiver?.full_name || "Sin cuidador asignado"}</span>
+              </span>
+              <form onSubmit={handleFinalizeShift} className="space-y-4">
+                <div>
+                  <label htmlFor="rating" className="mb-2 block text-sm font-medium text-text-primary">
+                    Calificar:
+                  </label>
+                  <div className="grid max-h-56 grid-cols-[repeat(auto-fit,minmax(20px,1fr))] gap-1 overflow-y-auto rounded-2xl border border-border p-3">
+                    {Array.from({ length: 5 }, (_, index) => {
+                      const value = index + 1;
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setRating(value)}
+                          className="flex items-center justify-center rounded p-1 transition hover:scale-105"
+                          aria-label={`Calificación ${value}`}
+                        >
+                          <Star
+                            size={18}
+                            className={
+                              value <= rating
+                                ? "fill-yellow-400 text-yellow-400 shadow-accent hover:fill-yellow-500 hover:text-yellow-500"
+                                : "text-gray-300"
+                            }
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <input id="rating" name="rating" type="number" value={rating} readOnly hidden />
+                </div>
+
+                <div>
+                  <label htmlFor="report" className="mb-2 block text-sm font-medium text-text-primary">
+                    Comentario:
+                  </label>
+                  <textarea
+                    id="report"
+                    name="report"
+                    value={report}
+                    onChange={(event) => setReport(event.target.value)}
+                    className="min-h-28 w-full rounded-2xl border border-border px-3 py-2 text-sm text-text-primary outline-none transition focus:border-primary"
+                    placeholder="Escribe tu comentario"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full rounded-2xl bg-primary px-3 py-2 text-xs font-medium text-white transition hover:bg-primary/90"
+                >
+                  Finalizar
+                </button>
+              </form>
+            </div>
+          </div>
         )}
       </section>
     </>

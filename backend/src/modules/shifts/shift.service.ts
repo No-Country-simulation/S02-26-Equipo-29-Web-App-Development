@@ -189,7 +189,11 @@ export class ShiftsService {
   }
 
   // FIND MANY BY CAREGIVER
-  async findByCaregiver(caregiverProfileId: string, page: number = 1, limit: number = 10) {
+  async findByCaregiver(
+    caregiverProfileId: string,
+    page: number = 1,
+    limit: number = 10,
+  ) {
     const skip = (page - 1) * limit;
     const [data, total] = await this.shiftRepository.findAndCount({
       where: { caregiver: { profile_id: caregiverProfileId } },

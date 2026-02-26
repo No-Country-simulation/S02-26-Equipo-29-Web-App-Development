@@ -6,10 +6,11 @@ import { api } from "../../lib/axios/api";
 
 export const useCaregiver=()=>{
   const {data:user}=useUser();
+  const caregiverProfileId = user?.profile?.id || user?.profile_id || user?.id;
   return useQuery({
-    queryKey:["caregiver",user?.id],
-    queryFn:()=>getCaregiverById(user?.id as string),
-    enabled:!!user?.id,  
+    queryKey:["caregiver",caregiverProfileId],
+    queryFn:()=>getCaregiverById(caregiverProfileId as string),
+    enabled:!!caregiverProfileId,
     staleTime:1000*60*5,
     gcTime:1000*60*10,
     retry:1,
@@ -22,10 +23,11 @@ export const useCaregiver=()=>{
 
 export const useCaregiverShifts=()=>{
   const {data:user}=useUser();
+  const caregiverProfileId = user?.profile?.id || user?.profile_id || user?.id;
   return useQuery({
-    queryKey:["caregiverShifts",user?.id],
-    queryFn:()=>getCaregiverShiftsById(user?.id as string),
-    enabled:!!user?.id,  
+    queryKey:["caregiverShifts",caregiverProfileId],
+    queryFn:()=>getCaregiverShiftsById(caregiverProfileId as string),
+    enabled:!!caregiverProfileId,
     staleTime:1000*60*5,
     gcTime:1000*60*10,
     retry:1,

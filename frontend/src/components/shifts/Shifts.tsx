@@ -94,116 +94,11 @@ export const Shifts: React.FC<{ shifts?: Shift[] }> = ({ shifts: externalShifts 
                 </p>
                 <button
                     onClick={() => setShowForm(!showForm)}
-                    className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary/90 transition"
+                    className={`rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary/90 transition ${user?.role === "CAREGIVER" ? "hidden" : ""}`} 
                 >
                     {showForm ? "Cancelar" : "+ Solicitar turno"}
                 </button>
             </div>
-
-            {/* Formulario de creación */}
-            {showForm && (
-                <form
-                    onSubmit={handleSubmit}
-                    className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-4"
-                >
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
-                                Inicio
-                            </label>
-                            <input
-                                type="datetime-local"
-                                name="start_time"
-                                value={formData.start_time}
-                                onChange={handleInputChange}
-                                required
-                                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
-                                Fin
-                            </label>
-                            <input
-                                type="datetime-local"
-                                name="end_time"
-                                value={formData.end_time}
-                                onChange={handleInputChange}
-                                required
-                                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
-                            Nombre del cuidador <span className="text-xs text-slate-400">(Puede Sugerir el nombre del cuidador que quiere que se le asigne)</span>
-                        </label>
-                        <select
-                            name="caregiverName"
-                            value={formData.caregiverName}
-                            onChange={handleInputChange}
-                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                        >
-                            <option value="">Selecciona un cuidador</option>
-                            {caregivers.map(
-                                (caregiver: { full_name?: string; profile_id?: string }) => (
-                                    <option
-                                        key={caregiver.profile_id || caregiver.full_name}
-                                        value={caregiver.full_name}
-                                    >
-                                        {caregiver.full_name}
-                                    </option>
-                                ),
-                            )}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
-                            Notas <span className="text-xs text-slate-400">(Opcional)</span>
-                        </label>
-                        <textarea
-                            name="report"
-                            value={formData.report}
-                            onChange={handleInputChange}
-                            placeholder="Detalles del turno..."
-                            rows={3}
-                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                        />
-                    </div>
-                    
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
-                            Ubicación
-                        </label>
-                        <textarea
-                            name="location"
-                            value={formData.location}
-                            onChange={handleInputChange}
-                            placeholder="Detalles de la ubicación..."
-                            rows={1}
-                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                        />
-                    </div>
-                    
-
-                    {createError && (
-                        <p className="text-sm text-red-600">
-                            Error: {(createError as any)?.message || "No se pudo crear el turno"}
-                        </p>
-                    )}
-
-                    <button
-                        type="submit"
-                        disabled={isCreating}
-                        className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition disabled:opacity-50"
-                    >
-                        {isCreating ? "Enviando solicitud..." : "Solicitar turno"}
-                    </button>
-                </form>
-            )}
 
             {/* Lista de turnos */}
                 <div className="space-y-4">
@@ -280,6 +175,124 @@ export const Shifts: React.FC<{ shifts?: Shift[] }> = ({ shifts: externalShifts 
                         </article>
                     ))}
                 </div>
+
+                {/* Formulario de creación */}
+            {showForm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                        <form
+                            onSubmit={handleSubmit}
+                            className="space-y-4"
+                        >
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-lg font-semibold text-slate-900">Solicitar turno</h2>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowForm(false)}
+                                    className="rounded-lg border border-slate-300 px-3 py-1 text-sm text-slate-700 hover:bg-slate-100"
+                                >
+                                    Cerrar
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                                        Inicio
+                                    </label>
+                                    <input
+                                        type="datetime-local"
+                                        name="start_time"
+                                        value={formData.start_time}
+                                        onChange={handleInputChange}
+                                        required
+                                        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                                        Fin
+                                    </label>
+                                    <input
+                                        type="datetime-local"
+                                        name="end_time"
+                                        value={formData.end_time}
+                                        onChange={handleInputChange}
+                                        required
+                                        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                    Nombre del cuidador <span className="text-xs text-slate-400">(Puede Sugerir el nombre del cuidador que quiere que se le asigne)</span>
+                                </label>
+                                <select
+                                    name="caregiverName"
+                                    value={formData.caregiverName}
+                                    onChange={handleInputChange}
+                                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                                >
+                                    <option value="">Selecciona un cuidador</option>
+                                    {caregivers.map(
+                                        (caregiver: { full_name?: string; profile_id?: string }) => (
+                                            <option
+                                                key={caregiver.profile_id || caregiver.full_name}
+                                                value={caregiver.full_name}
+                                            >
+                                                {caregiver.full_name}
+                                            </option>
+                                        ),
+                                    )}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                    Notas <span className="text-xs text-slate-400">(Opcional)</span>
+                                </label>
+                                <textarea
+                                    name="report"
+                                    value={formData.report}
+                                    onChange={handleInputChange}
+                                    placeholder="Detalles del turno..."
+                                    rows={3}
+                                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                    Ubicación
+                                </label>
+                                <textarea
+                                    name="location"
+                                    value={formData.location}
+                                    onChange={handleInputChange}
+                                    placeholder="Detalles de la ubicación..."
+                                    rows={1}
+                                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                                />
+                            </div>
+
+                            {createError && (
+                                <p className="text-sm text-red-600">
+                                    Error: {(createError)?.message || "No se pudo crear el turno"}
+                                </p>
+                            )}
+
+                            <button
+                                type="submit"
+                                disabled={isCreating}
+                                className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition disabled:opacity-50"
+                            >
+                                {isCreating ? "Enviando solicitud..." : "Solicitar turno"}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

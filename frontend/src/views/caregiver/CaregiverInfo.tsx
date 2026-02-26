@@ -22,7 +22,7 @@ export const CaregiverInfo: React.FC = () => {
 
     const [activeTab, setActiveTab] = useState<'info' | 'documents' | 'shifts'>('info');
 
-    const [shifts, ] = useState<Shift[]>([]);
+    // const [shifts, ] = useState<Shift[]>([]);
 
   
 

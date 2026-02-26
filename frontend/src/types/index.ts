@@ -55,6 +55,11 @@ export interface ShiftCaregiverSummary {
 
 export interface ShiftPatientSummary {
   profile_id: string;
+  phone?: string | null;
+  address?: string | null;
+  notes?: string | null;
+  status?: string;
+  full_name?: string;
 }
 
 export interface Shift {
