@@ -7,7 +7,6 @@ export  function Info() {
     const { data: user } = useUser();
     const [activeTab, setActiveTab] = useState(false);
     
-    // ✅ Llamar hooks siempre al nivel superior
     const { data: patientData, isLoading: patientLoading, error: patientError, refetch: refetchPatient } = usePatient();
     const { data: caregiverData, isLoading: caregiverLoading, error: caregiverError, refetch: refetchCaregiver } = useCaregiver();
     
@@ -69,19 +68,19 @@ export  function Info() {
                                 <button onClick={() => setActiveTab(!activeTab)} className="w-full rounded-2xl bg-primary px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-primary-hover sm:w-auto">
                                     Editar Perfil
                                 </button>
-                                                                    {activeTab && (
-                                                                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                                                                            <div className="relative w-full max-w-2xl rounded-3xl border border-border bg-surface p-6 shadow-2xl">
-                                                                                <button
-                                                                                    onClick={() => setActiveTab(false)}
-                                                                                    className="absolute right-4 top-4 rounded-full border border-border px-3 py-1 text-sm text-text-secondary transition hover:text-text-primary"
-                                                                                >
-                                                                                    Cerrar
-                                                                                </button>
-                                                                                <EditProfileForm user={user} handleUpdateSuccess={handleUpdateSuccess} />
-                                                                            </div>
-                                                                        </div>
-                                                                    )}
+                                    {activeTab && (
+                                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                                            <div className="relative w-full max-w-2xl rounded-3xl border border-border bg-surface p-6 shadow-2xl">
+                                                <button
+                                                    onClick={() => setActiveTab(false)}
+                                                    className="absolute right-4 top-4 rounded-full border border-border px-3 py-1 text-sm text-text-secondary transition hover:text-text-primary"
+                                                >
+                                                    Cerrar
+                                                </button>
+                                                <EditProfileForm user={user} handleUpdateSuccess={handleUpdateSuccess} />
+                                            </div>
+                                        </div>
+                                    )}
                             </div>
                              
   )

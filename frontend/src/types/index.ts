@@ -62,6 +62,11 @@ export interface ShiftPatientSummary {
   full_name?: string;
 }
 
+export interface ShiftRatingSummary {
+  number: number;
+  notes?: string | null;
+}
+
 export interface Shift {
   id: string;
   created_by: ShiftCreatedBy;
@@ -73,5 +78,6 @@ export interface Shift {
   hours?: number;
   location?: string;
   report?: string;
+  rating?: ShiftRatingSummary | null;
 }
 

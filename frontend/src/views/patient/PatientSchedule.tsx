@@ -1,30 +1,11 @@
 import React from "react";
-import { MessagesSquare, SquareCheckBig, SquareX, Star } from "lucide-react";
+import { MessagesSquare, SquareCheckBig, Star } from "lucide-react";
 import { useState, useRef, useEffect, type ChangeEvent } from "react";
 import { Patient } from "../../components/patient/patient";
 import { useCaregivers, useUser } from "../../hooks";
 import { useShifts } from "../../hooks/patient/useShifts";
-import "cally";
 import { formatDayMonth, formatTime } from "../../utils/formatDate";
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace JSX {
-    interface IntrinsicElements {
-      "calendar-date": React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement>,
-        HTMLElement
-      >;
-      "calendar-month": React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement>,
-        HTMLElement
-      >;
-      "calendar-range": React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement>,
-        HTMLElement
-      > & { months?: number };
-    }
-  }
-}
+import { api } from "../../lib/axios/api";
 
 export const PatientSchedule = () => {
   const { data: user } = useUser();
@@ -53,11 +34,6 @@ export const PatientSchedule = () => {
       phone: string;
     }[]
   >([]);
-  
-
-  console.log("Caregivers data in Agenda:", caregivers);
-  console.log("Shifts data in Agenda:", hookShifts);
-  console.log("User data in Agenda:", user);
 
 
   const calendarRef = useRef<HTMLElement & { value?: string }>(null);
@@ -104,9 +80,17 @@ export const PatientSchedule = () => {
 
     const payload = {
       shiftId: selectedShiftId,
-      rating,
-      report,
+      number: rating,
+      notes: report
     };
+
+    api.post("/ratings", payload)
+      .then((response) => {
+        console.log("Finalizar guardia response:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error al finalizar guardia:", error);
+      });
 
     console.log("Finalizar guardia payload:", payload);
 
@@ -115,6 +99,8 @@ export const PatientSchedule = () => {
     setRating(0);
     setReport("");
   };
+
+  console.log("Shifts del hook:", hookShifts);
 
   // const rangeValue = range ? `${range.start}/${range.end}` : "";
 
@@ -152,34 +138,6 @@ export const PatientSchedule = () => {
               Ver calendario completo
             </button>
           </div>
-          {calendarOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-              {/* <calendar-range
-                value={rangeValue}
-                months={month}
-                className="bg-white p-6 rounded-2xl shadow-lg"
-                ref={calendarRef as never}
-              >
-                <calendar-month month={month} className="p-4">
-                  <calendar-date
-                    date={day}
-                    className="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center"
-                  ></calendar-date>
-                </calendar-month>
-                <div className="mt-4 text-sm text-text-accent">
-                  {range
-                    ? `Rango seleccionado: ${range.start} a ${range.end}`
-                    : "Selecciona un rango de fechas"}
-                </div>
-              </calendar-range> */}
-              <button
-                onClick={() => setCalendarOpen(false)}
-                className="absolute top-2 right-2 font-bold text-red-500 transition hover:text-red-600 "
-              >
-                <SquareX size={48} strokeWidth={1.5} />
-              </button>
-            </div>
-          )}
         </div>
 
         <div className="mt-6 overflow-hidden rounded-2xl border border-border">
@@ -195,7 +153,9 @@ export const PatientSchedule = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-surface">
-              {hookShifts.map((shift) => (
+              {hookShifts
+                .filter((shift) => shift.status !== "COMPLETED")
+                .map((shift) => (
                 <>
                   <tr key={shift.patient?.profile_id || shift.id} className="hover:bg-white/5">
                     <td className="px-4 py-4 hover:bg-accent/20 rounded-lg">
@@ -324,12 +284,12 @@ export const PatientSchedule = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="report" className="mb-2 block text-sm font-medium text-text-primary">
+                  <label htmlFor="notes" className="mb-2 block text-sm font-medium text-text-primary">
                     Comentario:
                   </label>
                   <textarea
-                    id="report"
-                    name="report"
+                    id="reports"
+                    name="reports"
                     value={report}
                     onChange={(event) => setReport(event.target.value)}
                     className="min-h-28 w-full rounded-2xl border border-border px-3 py-2 text-sm text-text-primary outline-none transition focus:border-primary"
@@ -348,6 +308,41 @@ export const PatientSchedule = () => {
           </div>
         )}
       </section>
+
+      {
+        <section className="m-10 rounded-3xl border border-border bg-surface p-6 shadow-lg">
+          <h2 className="text-xl font-semibold mb-4">Calendario Completo</h2>
+          <p className="text-sm text-text-secondary mb-4">
+            Turnos Finalizados
+          </p>
+          <div className="flex items-center gap-3">
+            {
+              hookShifts.filter(shift => shift.status === "COMPLETED").map(shift => (
+                <div key={shift.id} className="flex items-center gap-2 rounded-2xl border border-border px-3 py-2">
+                  <p className="text-sm font-medium">{shift.caregiver?.full_name || "Sin cuidador asignado"}</p>
+                  <p className="text-xs text-text-secondary">{shift.startTime ? formatDayMonth(shift.startTime) : ""} {shift.startTime && shift.endTime ? `- ${formatTime(shift.startTime)} a ${formatTime(shift.endTime)}` : ""}</p>
+                  <p className="flex items-center gap-1 text-xs text-text-secondary">
+                    {shift.rating
+                      ? Array.from({ length: 5 }, (_, index) => (
+                          <Star
+                            key={`${shift.id}-rating-star-${index}`}
+                            size={14}
+                            className={
+                              index < shift.rating.number
+                                ? "fill-yellow-400 text-yellow-400"
+                                : "text-gray-300"
+                            }
+                          />
+                        ))
+                      : "Sin calificación"}
+                  </p>
+                </div>
+              ))
+            }
+          </div>
+          </section>
+            
+      }
     </>
   );
 };

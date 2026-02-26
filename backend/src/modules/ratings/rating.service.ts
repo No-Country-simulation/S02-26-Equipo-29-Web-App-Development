@@ -34,10 +34,6 @@ export class RatingsService {
       throw new NotFoundException('Shift not found');
     }
 
-    if (shift.status !== ShiftStatus.COMPLETED) {
-      throw new BadRequestException('You can only rate completed shifts');
-    }
-
     if (shift.rating) {
       throw new BadRequestException('Shift already rated');
     }
@@ -46,6 +42,20 @@ export class RatingsService {
     // 🔥 Validación de ownership
     if (shift.patient.profile.id !== profileId) {
       throw new ForbiddenException('You are not allowed to rate this shift');
+    }
+
+    if (
+      shift.status === ShiftStatus.CANCELLED ||
+      shift.status === ShiftStatus.REJECTED
+    ) {
+      throw new BadRequestException(
+        'You cannot rate a cancelled or rejected shift',
+      );
+    }
+
+    if (shift.status !== ShiftStatus.COMPLETED) {
+      shift.status = ShiftStatus.COMPLETED;
+      await this.shiftRepository.save(shift);
     }
 
     const rating = this.ratingRepository.create({
