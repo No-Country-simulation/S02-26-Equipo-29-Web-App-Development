@@ -16,4 +16,8 @@ export class UpdatePatientDto {
   @IsOptional()
   @IsString({ message: 'Las notas deben ser una cadena de texto' })
   notes?: string;
+
+  @IsOptional()
+  @IsString({ message: 'El teléfono debe ser una cadena de texto' })
+  phone?: string;
 }

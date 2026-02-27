@@ -14,6 +14,7 @@ import { CloudinaryService } from '../../shared/media/media.service';
 import { UploadDocumentDto } from './dto/upload-document.dto';
 import { PatientDocumentStatus } from './enums/patient-document-status.enum';
 import { PatientDocumentType } from './enums/patient-document-type.enum';
+import { Profile } from '../profiles/profile.entity';
 
 @Injectable()
 export class PatientService {
@@ -23,6 +24,9 @@ export class PatientService {
 
     @InjectRepository(PatientDocument)
     private readonly documentRepo: Repository<PatientDocument>,
+
+    @InjectRepository(Profile)
+    private readonly profileRepo: Repository<Profile>,
 
     private readonly cloudinaryService: CloudinaryService,
   ) {}
@@ -50,19 +54,19 @@ export class PatientService {
   }
 
   async update(id: string, updateData: UpdatePatientDto) {
-    // Log para debugging
-    console.log('🔍 Datos recibidos para actualizar:', updateData);
-    console.log('🔍 ID del paciente:', id);
 
     // Verificar que el paciente existe
     const patient = await this.findOne(id);
     console.log('🔍 Paciente antes de actualizar:', patient);
 
+    const { phone, ...patientData } = updateData;
+
     // Actualizar usando el método update de TypeORM
-    const result = await this.patientRepo.update(
-      { profile_id: id },
-      updateData,
-    );
+    const result = await this.patientRepo.update({ profile_id: id }, patientData);
+
+    if (typeof phone !== 'undefined') {
+      await this.profileRepo.update({ id }, { phone });
+    }
 
     console.log('🔍 Resultado de la actualización:', result);
 
