@@ -7,6 +7,7 @@ import { PanelPatient } from "../../views";
 
 export function MainDashboard() {
   const { data: user } = useUser(); // "ADMIN", "CAREGIVER" , "PATIENT"
+
   const role = user?.role;
   const location = useLocation();
   const defaultView =

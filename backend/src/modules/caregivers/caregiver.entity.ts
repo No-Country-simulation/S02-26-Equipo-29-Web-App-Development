@@ -18,6 +18,12 @@ export class Caregiver {
   @PrimaryColumn('uuid')
   profile_id!: string;
 
+  @OneToOne(() => Profile, (profile: Profile) => profile.caregiver, {
+    eager: true,
+  })
+  @JoinColumn({ name: 'profile_id' })
+  profile!: Profile;
+
   @Column({ nullable: true })
   phone?: string;
 
@@ -38,10 +44,6 @@ export class Caregiver {
 
   @OneToMany(() => CaregiverDocument, (doc: any) => doc.caregiver)
   documents!: CaregiverDocument[];
-
-  @OneToOne(() => Profile, (profile: Profile) => profile.caregiver)
-  @JoinColumn({ name: 'profile_id' })
-  profile!: Profile;
 
   @OneToMany(() => Shift, (shift: Shift) => shift.caregiver)
   shifts!: Shift[];

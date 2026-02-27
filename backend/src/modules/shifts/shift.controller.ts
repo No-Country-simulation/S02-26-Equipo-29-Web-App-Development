@@ -54,7 +54,13 @@ export class ShiftsController {
   }
 
   @Get('patient/:patientId')
-  @Roles(ProfileRole.ADMIN, ProfileRole.STAFF, ProfileRole.CAREGIVER, ProfileRole.FAMILY, ProfileRole.PATIENT)
+  @Roles(
+    ProfileRole.ADMIN,
+    ProfileRole.STAFF,
+    ProfileRole.CAREGIVER,
+    ProfileRole.FAMILY,
+    ProfileRole.PATIENT,
+  )
   findByPatient(
     @Param('patientId') patientId: string,
     @Query('page') page?: number,

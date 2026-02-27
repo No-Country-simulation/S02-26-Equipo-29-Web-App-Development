@@ -17,6 +17,8 @@ import { AdminModule } from './modules/admin/admin.module';
 import cloudinaryConfig from './config/cloudinary.config';
 import { HealthModule } from './modules/health/health.module';
 import { RatingsModule } from './modules/ratings/rating.module';
+import { QueueModule } from './modules/queue/queue.module';
+import { MailModule } from './modules/email/email.module';
 
 @Module({
   imports: [
@@ -55,6 +57,8 @@ import { RatingsModule } from './modules/ratings/rating.module';
     AdminModule,
     HealthModule,
     RatingsModule,
+    QueueModule,
+    MailModule,
   ],
 })
 export class AppModule {}

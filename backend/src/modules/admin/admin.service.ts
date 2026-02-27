@@ -88,6 +88,8 @@ export class AdminService {
       getWeekRanges();
 
     const [
+      patients,
+      caregivers,
       patientsThisWeek,
       caregiversThisWeek,
       patientsLastWeek,
@@ -96,6 +98,12 @@ export class AdminService {
       hoursThisWeek,
       hoursLastWeek,
     ] = await Promise.all([
+      this.patientRepo.count(),
+      this.caregiverRepo.count({
+        where: {
+          status: Status.APPROVED,
+        },
+      }),
       this.patientRepo.count({
         where: { created_at: Between(startOfWeek, endOfWeek) },
       }),
@@ -115,13 +123,7 @@ export class AdminService {
         },
       }),
       this.shiftRepository.find({
-        relations: [
-          'caregiver',
-          'patient',
-          'patient.profile',
-          'approved_by',
-          'profile',
-        ],
+        relations: ['caregiver', 'patient', 'patient.profile', 'approved_by'],
         order: {
           start_time: 'DESC',
         },
@@ -156,11 +158,11 @@ export class AdminService {
     );
     return {
       patients: {
-        total: patientsThisWeek,
+        total: patients,
         growth: growth(patientsThisWeek, patientsLastWeek),
       },
       caregivers: {
-        total: caregiversThisWeek,
+        total: caregivers,
         growth: growth(caregiversThisWeek, caregiversLastWeek),
       },
       shifts: shifts,

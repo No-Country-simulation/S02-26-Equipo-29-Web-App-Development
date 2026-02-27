@@ -106,7 +106,6 @@ export class AuthService {
 
     return this.buildToken(user, user.profile);
   }
-
   // =====================
   // 🎟️ JWT
   // =====================

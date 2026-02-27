@@ -147,9 +147,7 @@ export function PanelAdmin() {
                   <th className="px-4 py-3 font-medium">Servicio</th>
                   <th className="px-4 py-3 font-medium">Cuidador</th> 
                   <th className="px-4 py-3 font-medium">Estado</th>
-                  <th className="px-4 py-3 font-medium text-center">
-                    Acciones
-                  </th>
+                
                 
                 </tr>
               </thead>
@@ -181,20 +179,7 @@ export function PanelAdmin() {
                       {translateStatusShift(shift.status)}
                     </span>
                   </td>
-                  <td className="px-6 py-5" >
-                    <div className="flex gap-2 justify-center">
-                      <button 
-                      disabled={shift.status!=="PENDING"}
-                      className="p-2 transition-all duration-200 rounded-xl border border-green-500/20 bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white hover:scale-110 active:scale-90 shadow-sm" title="Aprobar">
-                        <Check className="w-4 h-4" />
-                      </button>
-                      <button 
-                      disabled={shift.status!=="PENDING"}
-                      className="p-2 transition-all duration-200 rounded-xl border border-red-500/20 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white hover:scale-110 active:scale-90 shadow-sm" title="Rechazar">
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
+                
                 </tr>
               ))
             }
