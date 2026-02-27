@@ -1,11 +1,13 @@
 import React from "react";
-import { MessagesSquare, SquareCheckBig, Star } from "lucide-react";
+import { MessagesSquare, SquareCheckBig, SquareX, Star, ZoomIn } from "lucide-react";
 import { useState, useRef, useEffect, type ChangeEvent } from "react";
 import { Patient } from "../../components/patient/patient";
 import { useCaregivers, useUser } from "../../hooks";
 import { useShifts } from "../../hooks/patient/useShifts";
 import { formatDayMonth, formatTime } from "../../utils/formatDate";
 import { api } from "../../lib/axios/api";
+import { ReporteDialog } from "../../components/caregiver/Reporte";
+import { ShiftCardDialog } from "../../components/shifts/summaryShift";
 
 export const PatientSchedule = () => {
   const { data: user } = useUser();
@@ -20,7 +22,11 @@ export const PatientSchedule = () => {
   const [rating, setRating] = useState(0);
   const [report, setReport] = useState("");
   const [selectedShiftId, setSelectedShiftId] = useState<string | null>(null);
- 
+  const [selectedReport, setSelectedReport] = useState({
+      comportamiento: "",
+      medicacion: "",
+      observaciones: "",
+    });
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -42,6 +48,16 @@ export const PatientSchedule = () => {
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
   );
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [openSummaryShiftId, setOpenSummaryShiftId] = useState<string | null>(null);
+  const handleOpenReportDialog = (report: string) => {
+    setSelectedReport({
+      comportamiento: report,
+      medicacion: "",
+      observaciones: "",
+    });
+    setReportDialogOpen(true);
+  };
 
   useEffect(() => {
     if (!calendarOpen || !calendarRef.current) return;
@@ -100,6 +116,16 @@ export const PatientSchedule = () => {
     setReport("");
   };
 
+  const getTotalHours = (start?: string, end?: string) => {
+    if (!start || !end) return undefined;
+    const startDate = new Date(start).getTime();
+    const endDate = new Date(end).getTime();
+    if (Number.isNaN(startDate) || Number.isNaN(endDate) || endDate <= startDate) {
+      return undefined;
+    }
+    return Number(((endDate - startDate) / (1000 * 60 * 60)).toFixed(2));
+  };
+
   console.log("Shifts del hook:", hookShifts);
 
   // const rangeValue = range ? `${range.start}/${range.end}` : "";
@@ -148,6 +174,7 @@ export const PatientSchedule = () => {
                 <th className="px-4 py-3 font-medium">Día</th>
                 <th className="px-4 py-3 font-medium">Horario</th>
                 <th className="px-4 py-3 font-medium">Notas</th>
+                <th className="px-4 py-3 font-medium">Reporte</th>
                 <th className="px-4 py-3 font-medium">Finalizar</th>
                 <th className="px-4 py-3 font-medium">Contacto</th>
               </tr>
@@ -183,6 +210,17 @@ export const PatientSchedule = () => {
                     <td className="px-4 py-4 text-xs text-text-secondary"> {shift.startTime && shift.endTime ? `${formatTime(shift.startTime)} - ${formatTime(shift.endTime)}` : "--"} </td>
                     <td className="px-4 py-4 text-xs text-text-secondary">
                       {shift.report || "Sin notas disponibles"}
+                    </td>
+                    <td className="px-4 py-4 text-xs text-text-secondary">
+                      {shift.report ? (
+                        <button
+                          type="button"
+                          onClick={() => handleOpenReportDialog(shift.report)}
+                          className="rounded-2xl border border-border px-3 py-2 text-xs font-medium text-text-primary transition hover:bg-accent/20"
+                        >
+                          <ZoomIn className="text-text-primary" />
+                        </button>
+                      ) : ("Sin reporte disponible")}
                     </td>
                     <td className="px-4 py-4">
                       <button
@@ -303,6 +341,17 @@ export const PatientSchedule = () => {
                 >
                   Finalizar
                 </button>
+
+                <div className="flex justify-center ">
+                  <button
+                    type="button"
+                    onClick={() => setEndShift(false)}
+                    className="flex items-center justify-center"
+                  >
+                    <SquareX className="text-red-500 hover:bg-red-100" />
+                  </button>
+                </div>
+                
               </form>
             </div>
           </div>
@@ -315,27 +364,46 @@ export const PatientSchedule = () => {
           <p className="text-sm text-text-secondary mb-4">
             Turnos Finalizados
           </p>
-          <div className="flex items-center gap-3">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
             {
               hookShifts.filter(shift => shift.status === "COMPLETED").map(shift => (
-                <div key={shift.id} className="flex items-center gap-2 rounded-2xl border border-border px-3 py-2">
-                  <p className="text-sm font-medium">{shift.caregiver?.full_name || "Sin cuidador asignado"}</p>
-                  <p className="text-xs text-text-secondary">{shift.startTime ? formatDayMonth(shift.startTime) : ""} {shift.startTime && shift.endTime ? `- ${formatTime(shift.startTime)} a ${formatTime(shift.endTime)}` : ""}</p>
-                  <p className="flex items-center gap-1 text-xs text-text-secondary">
-                    {shift.rating
-                      ? Array.from({ length: 5 }, (_, index) => (
-                          <Star
-                            key={`${shift.id}-rating-star-${index}`}
-                            size={14}
-                            className={
-                              index < shift.rating.number
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-gray-300"
-                            }
-                          />
-                        ))
-                      : "Sin calificación"}
-                  </p>
+                <div key={shift.id} className="flex items-center gap-2 rounded-2xl border border-border px-3 py-2 hover:bg-accent/20 transition">
+                  <button
+                    type="button"
+                    onClick={() => setOpenSummaryShiftId(shift.id)}
+                    className="w-full text-left rounded-lg px-2 py-1 transition"
+                  >
+                    <p className="text-sm font-medium text-text-primary">
+                      {shift.caregiver?.full_name || "Sin cuidador asignado"}
+                    </p>
+                    <p className="text-xs text-text-secondary">
+                      {shift.startTime ? formatDayMonth(shift.startTime) : ""}
+                      {shift.startTime && shift.endTime
+                        ? ` - ${formatTime(shift.startTime)} a ${formatTime(shift.endTime)}    -`
+                        : ""}
+                             ⭐{shift.rating?.number || "-"}
+                    </p>
+                  </button>
+                  <ShiftCardDialog
+                    shift={{
+                      id: shift.id,
+                      caregiver: {
+                        full_name: shift.caregiver?.full_name || "Sin cuidador asignado",
+                      },
+                      startTime: shift.startTime,
+                      endTime: shift.endTime,
+                      rating: shift.rating,
+                      status: shift.status,
+                      patient: {
+                        full_name: shift.patient?.profile?.full_name || "-",
+                      },
+                      location: shift.location || "-",
+                      notes: shift.report || "-",
+                      totalHours: getTotalHours(shift.startTime, shift.endTime),
+                    }}
+                    isOpen={openSummaryShiftId === shift.id}
+                    onOpenChange={(open) => setOpenSummaryShiftId(open ? shift.id : null)}
+                  />
                 </div>
               ))
             }
@@ -343,6 +411,13 @@ export const PatientSchedule = () => {
           </section>
             
       }
+
+      <ReporteDialog
+        open={reportDialogOpen}
+        onClose={() => setReportDialogOpen(false)}
+        onSave={() => {}}
+        initialData={selectedReport}
+      />
     </>
   );
 };

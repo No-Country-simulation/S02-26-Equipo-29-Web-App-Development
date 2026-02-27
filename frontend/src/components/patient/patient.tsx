@@ -1,5 +1,3 @@
-import type { Caregiver } from "../../types/index";
-import type { User } from "../../types/index";
 
 type PatientDialogProps = {
   open: boolean;
@@ -11,9 +9,10 @@ type PatientDialogProps = {
     end_time: string;
     notes: string;
     phone: string;
+    profile?: {
+      full_name: string;
+    };
   };
-  caregiver?: Caregiver;
-  user?: User;
   shift?: {
     id: string;
     caregiver_id: string;
@@ -28,11 +27,6 @@ type PatientDialogProps = {
         full_name: string;
       };
     };
-  profile?: {
-    profile_id: string;
-    full_name: string;
-    phone: string;
-    };
   };
 };
 
@@ -40,8 +34,6 @@ export const Patient = ({
   open,
   onClose,
   patient,
-  caregiver,
-  user,
   shift,
 }: PatientDialogProps) => {
   if (!open) return null;

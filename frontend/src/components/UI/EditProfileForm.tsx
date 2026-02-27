@@ -41,8 +41,9 @@ export const EditProfileForm: React.FC<EditProfileFormProps & { handleUpdateSucc
     const defaultValues: EditProfileFormData = {
         full_name: user.full_name,
         email: user.email,
+        phone: currentUser?.phone || "",
         ...(currentUser?.role === "CAREGIVER" && {
-            phone: caregiverData?.phone || "",
+            phone: caregiverData?.phone || currentUser?.phone || "",
             cbu: caregiverData?.cbu || "",
             mercado_pago_alias: caregiverData?.mercado_pago_alias || "",
             hourly_rate: caregiverData?.hourly_rate || 0,
@@ -86,12 +87,14 @@ export const EditProfileForm: React.FC<EditProfileFormProps & { handleUpdateSucc
                 dni: formData.dni,
                 address: formData.address,
                 notes: formData.notes,
+                phone: formData.phone,
             };
             
             const response = await api.patch(`/patients/${user?.id}`, patientData);
             toast.success(response.data.message || "Perfil actualizado exitosamente");
         }
         handleUpdateSuccess();
+        console.log(formData);
     } catch (error) {
        if(isAxiosError(error)){
         toast.error(error.response?.data.message);
