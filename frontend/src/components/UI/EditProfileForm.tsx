@@ -2,15 +2,14 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import type { Caregiver, Patient } from "../../types";
 import { toast } from "sonner";
-import { api } from "../../lib/axios/api";
 import { isAxiosError } from "axios";
-import { useUser } from "../../hooks/user/useUser";
+import { useUser, useUpdateProfile } from "../../hooks";
 import { useCaregiver } from "../../hooks";
 import { usePatient } from "../../hooks/patient/usePatient";
 interface EditProfileFormData {
     full_name: string;
     email: string;
-    phone: string;
+    phone?: string;
     cbu?: string;
     mercado_pago_alias?: string;
     hourly_rate?: number;
@@ -63,44 +62,38 @@ export const EditProfileForm: React.FC<EditProfileFormProps & { handleUpdateSucc
         defaultValues,
     });
 
+    const updateProfile = useUpdateProfile();
+
    const onSubmit = async (formData: EditProfileFormData) => {
-
-
     try {
         setIsPending(true);
-        if (currentUser?.role === "CAREGIVER") {
-            // Solo enviar campos de cuidador
-            const caregiverData = {
+        const role = currentUser?.role as string;
+        const profileData = role === "CAREGIVER" ? {
+            phone: formData.phone,
+            cbu: formData.cbu,
+            mercado_pago_alias: formData.mercado_pago_alias,
+            hourly_rate: formData.hourly_rate,
+        } : {
+            dni: formData.dni,
+            address: formData.address,
+            notes: formData.notes,
                 phone: formData.phone,
-                cbu: formData.cbu,
-                mercado_pago_alias: formData.mercado_pago_alias,
-                hourly_rate: formData.hourly_rate,
-            };
-            
-            const response = await api.put(`/caregivers/${user?.id}`, caregiverData);
-            toast.success(response.data.message || "Perfil actualizado exitosamente");
-            
+        };
 
-        } else if (currentUser?.role === "PATIENT") {
-            // Solo enviar campos de paciente
-            const patientData = {
-                dni: formData.dni,
-                address: formData.address,
-                notes: formData.notes,
-                phone: formData.phone,
-            };
-            
-            const response = await api.patch(`/patients/${user?.id}`, patientData);
-            toast.success(response.data.message || "Perfil actualizado exitosamente");
-        }
+        await updateProfile.mutateAsync({
+            id: user?.id as string,
+            role,
+            data: profileData,
+        });
+        
+        toast.success("Perfil actualizado exitosamente");
         handleUpdateSuccess();
-        console.log(formData);
-    } catch (error) {
+    } catch (error: unknown) {
        if(isAxiosError(error)){
         toast.error(error.response?.data.message);
-       }
+       } else {
         toast.error("Error al editar el perfil");
-        
+       }
     }finally{
         setIsPending(false);
     }

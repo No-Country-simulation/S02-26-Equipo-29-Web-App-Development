@@ -31,9 +31,8 @@ export class RatingsController {
   async create(
     @Body() dto: CreateRatingDto,
     @Req() req: Request & { user: JwtPayload },
-  ): Promise<Rating> {
+  ): Promise<Rating | null> {
     const user = req.user;
-
     return this.ratingsService.create(dto, user.sub);
   }
 

@@ -9,6 +9,7 @@ import { Status } from '../caregivers/enums/caregiver-status.enum';
 import { Shift } from '../shifts/shift.entity';
 import { ShiftStatus } from '../shifts/enums/shift-status.enum';
 import { PatientDocument } from '../patients/patient-document.entity';
+import { Rating } from '../ratings/rating.entity';
 
 @Injectable()
 export class AdminService {
@@ -21,6 +22,8 @@ export class AdminService {
     private readonly caregiverDocumentRepo: Repository<CaregiverDocument>,
     @InjectRepository(Shift)
     private readonly shiftRepository: Repository<Shift>,
+    @InjectRepository(Rating)
+    private readonly ratingRepository: Repository<Rating>,
   ) {}
 
   async getRegistrations() {
@@ -88,6 +91,8 @@ export class AdminService {
       getWeekRanges();
 
     const [
+      patients,
+      caregivers,
       patientsThisWeek,
       caregiversThisWeek,
       patientsLastWeek,
@@ -95,7 +100,16 @@ export class AdminService {
       shifts,
       hoursThisWeek,
       hoursLastWeek,
+      ratingsThisWeek,
+      ratingsLastWeek,
+      ratings,
     ] = await Promise.all([
+      this.patientRepo.count(),
+      this.caregiverRepo.count({
+        where: {
+          status: Status.APPROVED,
+        },
+      }),
       this.patientRepo.count({
         where: { created_at: Between(startOfWeek, endOfWeek) },
       }),
@@ -115,13 +129,7 @@ export class AdminService {
         },
       }),
       this.shiftRepository.find({
-        relations: [
-          'caregiver',
-          'patient',
-          'patient.profile',
-          'approved_by',
-          'profile',
-        ],
+        relations: ['caregiver', 'patient', 'patient.profile', 'approved_by'],
         order: {
           start_time: 'DESC',
         },
@@ -144,6 +152,13 @@ export class AdminService {
         },
         select: ['hours'],
       }),
+      this.ratingRepository.count({
+        where: { createdAt: Between(startOfWeek, endOfWeek) },
+      }),
+      this.ratingRepository.count({
+        where: { createdAt: Between(startOfLastWeek, endOfLastWeek) },
+      }),
+      this.ratingRepository.find(),
     ]);
 
     const hoursSumThisWeek = hoursThisWeek.reduce(
@@ -154,19 +169,29 @@ export class AdminService {
       (acc, shift) => acc + Number(shift.hours),
       0,
     );
+
+    const ratingsSum = ratings.reduce((acc, rating) => {
+      return acc + Number(rating.number);
+    }, 0);
+    const ratingsAverage = ratingsSum / ratings.length;
+
     return {
       patients: {
-        total: patientsThisWeek,
+        total: patients,
         growth: growth(patientsThisWeek, patientsLastWeek),
       },
       caregivers: {
-        total: caregiversThisWeek,
+        total: caregivers,
         growth: growth(caregiversThisWeek, caregiversLastWeek),
       },
       shifts: shifts,
       hours: {
-        hours: hoursSumThisWeek,
+        hours: hoursSumThisWeek.toFixed(2),
         growth: growth(hoursSumThisWeek, hoursSumLastWeek),
+      },
+      ratings: {
+        ratings: ratingsAverage.toFixed(2),
+        growth: growth(ratingsThisWeek, ratingsLastWeek),
       },
     };
   }

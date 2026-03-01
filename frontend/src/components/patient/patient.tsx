@@ -4,13 +4,14 @@ type PatientDialogProps = {
   onClose: () => void;
   patient: {
     id: string;
-    name: string;
     start_time: string;
     end_time: string;
     notes: string;
     phone: string;
     profile?: {
+      profile_id: string;
       full_name: string;
+      phone: string;
     };
   };
   shift?: {
@@ -46,7 +47,7 @@ export const Patient = ({
             <p className="text-xs uppercase tracking-[0.4em] text-text-secondary">
               Ficha del paciente
             </p>
-            <h2 className="mt-2 text-2xl font-semibold">{patient.name}</h2>
+            <h2 className="mt-2 text-2xl font-semibold">{patient.profile?.full_name}</h2>
             <p className="text-sm text-text-secondary">ID {patient.id}</p>
           </div>
           <button

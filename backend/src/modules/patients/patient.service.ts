@@ -54,7 +54,6 @@ export class PatientService {
   }
 
   async update(id: string, updateData: UpdatePatientDto) {
-
     // Verificar que el paciente existe
     const patient = await this.findOne(id);
     console.log('🔍 Paciente antes de actualizar:', patient);
@@ -72,7 +71,6 @@ export class PatientService {
 
     // Retornar el paciente actualizado
     const updatedPatient = await this.findOne(id);
-    console.log('🔍 Paciente después de actualizar:', updatedPatient);
 
     return updatedPatient;
   }

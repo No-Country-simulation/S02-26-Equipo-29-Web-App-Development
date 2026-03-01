@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 // src/modules/shifts/shifts.controller.ts
 
 import {

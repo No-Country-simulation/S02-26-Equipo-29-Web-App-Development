@@ -10,8 +10,7 @@ export function MainDashboard() {
   const { data:user } = useUser(); // "ADMIN", "CAREGIVER", etc.
   const role = user?.role
   const location = useLocation();
-
-  const defaultView =
+const defaultView =
     // role === "ADMIN" ? (
     //   <PanelAdmin />
     // ) : user ? (

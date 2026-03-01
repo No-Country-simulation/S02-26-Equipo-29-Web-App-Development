@@ -3,44 +3,23 @@ import { Patient } from "../../components/patient/patient";
 import { useUser } from "../../hooks";
 import { useShifts } from "../../hooks/patient/useShifts";
 import { formatDate, formatDayMonth, formatTime } from "../../utils/formatDate";
-import { api } from "../../lib/axios/api";
-import { useState } from "react";
-import { useCaregivers } from "../../hooks/caregiver/useCaregivers";
 
 export function PanelPatient() {
-  const { data: caregivers = [] } = useCaregivers();
+
   const { data: patient } = useUser();
+  const { shifts: hookShifts } = useShifts();
+
     if (!patient) {
       return <div>Loading...</div>;
     }
 
-  const { shifts: hookShifts } = useShifts();
 
-  console.log("Caregivers data in PanelPatient:", caregivers);
 
-  // check que cuidadodr es , luego borrar esto y modificar el back end
-    // const getCaregiverName = async (caregiverId: string) => {
-    //   try {
-    //     const response = await api.get(`/profiles/${caregiverId}`);
-    //     return response.data;
-    //   } catch (error) {
-    //     console.error("Error fetching caregiver name:", error);
-    //     return "Sin cuidador asignado";
-    //   }
-    // };
-
-    // getCaregiverName(hookShifts[0]?.caregiver?.profile_id || "").then((name) => {
-    //   console.log("Caregiver name:", name);
-    //   setCaregiverName(name);
-    // });
 
   const formatDateTime = (value?: string) => {
     if (!value) return "-";
     return `${formatDate(value)} ${formatTime(value)}`;
   };
-
-    console.log("Patient data in PanelPatient:", patient);
-    console.log("Shifts data in PanelPatient:", hookShifts);
 
   return (
     <div className="p-5 bg-background h-screen">
@@ -97,7 +76,7 @@ export function PanelPatient() {
             Próximas visitas
           </p>
           <ul className="mt-4 space-y-4 text-sm">
-            {hookShifts.map((visit) => (
+            { hookShifts.filter(shift => shift.status !== "COMPLETED").map((visit) => (
               <li
                 key={`${visit.startTime}-${visit.endTime}`}
                 className="rounded-2xl border border-border bg-background px-4 py-3"

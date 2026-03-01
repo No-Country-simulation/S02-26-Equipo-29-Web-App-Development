@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { Shift } from "../../types/index";
 import { useShifts } from "../../hooks/patient/useShifts";
-import { useCaregivers } from "../../hooks/caregiver/useCaregivers";
 import { formatDate, formatTime } from "../../utils/formatDate";
 import { useCaregiverShifts } from "../../hooks/caregiver/useCaregiver";
 import { useUser } from "../../hooks";
@@ -9,7 +8,6 @@ import { useUser } from "../../hooks";
 export const Shifts: React.FC<{ shifts?: Shift[] }> = ({ shifts: externalShifts }) => {
     const { data: user } = useUser();
     const { shifts: hookShifts, createShift, isCreating, createError } = useShifts();
-    const { data: caregivers = [] } = useCaregivers();
     const { data: caregiverShifts = [] } = useCaregiverShifts();
     const caregiverShiftsList = Array.isArray(caregiverShifts)
         ? caregiverShifts
@@ -28,10 +26,7 @@ export const Shifts: React.FC<{ shifts?: Shift[] }> = ({ shifts: externalShifts 
 
     
     
-    console.log("Caregiver shifts data in Shifts component:", caregiverShifts);
-    console.log("User data in Shifts component:", user);
-    console.log("Shifts selected by role:", shiftsToRender);
-
+ 
     // Estado para el formulario
     const [showForm, setShowForm] = useState(false);
     const [formData, setFormData] = useState({
@@ -52,23 +47,13 @@ export const Shifts: React.FC<{ shifts?: Shift[] }> = ({ shifts: externalShifts 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (!formData.start_time || !formData.end_time || !formData.caregiverName) {
+        if (!formData.start_time || !formData.end_time) {
             alert("Por favor completa horarios y cuidador");
             return;
         }
 
-        const selectedCaregiver = caregivers.find(
-            (caregiver: { full_name?: string; profile_id?: string }) =>
-                caregiver.full_name === formData.caregiverName
-        );
-
-        if (!selectedCaregiver?.profile_id) {
-            alert("Selecciona un cuidador válido");
-            return;
-        }
-
+     
         createShift({
-            caregiverId: selectedCaregiver.profile_id,
             start_time: formData.start_time,
             end_time: formData.end_time,
             report: formData.report || undefined,
@@ -77,13 +62,7 @@ export const Shifts: React.FC<{ shifts?: Shift[] }> = ({ shifts: externalShifts 
 
         setFormData({ start_time: "", end_time: "", caregiverName: "", report: "", location: "" });
         setShowForm(false);
-        console.log("Creating shift with data:", {
-            caregiverId: selectedCaregiver.profile_id,
-            start_time: formData.start_time,    
-            end_time: formData.end_time,
-            report: formData.report || undefined,
-            location: formData.location || undefined,
-        });
+     
     };
 
     return (
@@ -222,30 +201,6 @@ export const Shifts: React.FC<{ shifts?: Shift[] }> = ({ shifts: externalShifts 
                                         className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
                                     />
                                 </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">
-                                    Nombre del cuidador <span className="text-xs text-slate-400">(Puede Sugerir el nombre del cuidador que quiere que se le asigne)</span>
-                                </label>
-                                <select
-                                    name="caregiverName"
-                                    value={formData.caregiverName}
-                                    onChange={handleInputChange}
-                                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                                >
-                                    <option value="">Selecciona un cuidador</option>
-                                    {caregivers.map(
-                                        (caregiver: { full_name?: string; profile_id?: string }) => (
-                                            <option
-                                                key={caregiver.profile_id || caregiver.full_name}
-                                                value={caregiver.full_name}
-                                            >
-                                                {caregiver.full_name}
-                                            </option>
-                                        ),
-                                    )}
-                                </select>
                             </div>
 
                             <div>

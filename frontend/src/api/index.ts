@@ -7,4 +7,4 @@ export {getRegistrations} from "./admin/getRegistrations";
 export {getShifts} from "./shifts/getShifts";
 export {updateShiftStatus} from "./shifts/updateShiftStatus";
 export {assignCaregiverShift} from "./shifts/assignCaregiverShift";
-
+export {getPayrolls} from "./admin/getPayrolls";

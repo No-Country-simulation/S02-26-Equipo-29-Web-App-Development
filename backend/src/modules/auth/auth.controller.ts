@@ -34,7 +34,6 @@ export class AuthController {
   @Get('me')
   async me(@Req() req: RequestWithUser) {
     const { sub } = req.user;
-
     const profile = await this.profilesService.findById(sub);
 
     if (!profile) {

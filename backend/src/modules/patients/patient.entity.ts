@@ -41,7 +41,9 @@ export class Patient {
   @CreateDateColumn()
   created_at: Date;
 
-  @OneToOne(() => Profile, (profile: Profile) => profile.patient)
+  @OneToOne(() => Profile, (profile: Profile) => profile.patient, {
+    eager: true,
+  })
   @JoinColumn({ name: 'profile_id' })
   profile!: Profile;
 

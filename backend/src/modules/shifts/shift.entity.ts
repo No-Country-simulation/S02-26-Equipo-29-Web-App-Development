@@ -7,6 +7,7 @@ import {
   CreateDateColumn,
   JoinColumn,
   OneToOne,
+  OneToMany,
 } from 'typeorm';
 
 import { Caregiver } from '../caregivers/caregiver.entity';
@@ -14,6 +15,7 @@ import { Patient } from '../patients/patient.entity';
 import { Profile } from '../profiles/profile.entity';
 import { ShiftStatus } from './enums/shift-status.enum';
 import { Rating } from '../ratings/rating.entity';
+import { Payroll } from '../payrolls/payroll.entity';
 @Entity('shifts')
 export class Shift {
   @PrimaryGeneratedColumn('uuid')
@@ -27,9 +29,13 @@ export class Shift {
   @OneToOne(() => Rating, (rating) => rating.shift)
   rating!: Rating | null;
 
+  @OneToMany(() => Payroll, (payroll) => payroll.shift)
+  payrolls: Payroll[];
+
   // 👩‍⚕️ Cuidador asignado
   @ManyToOne(() => Caregiver, (caregiver) => caregiver.shifts, {
     nullable: true,
+    eager: true,
   })
   @JoinColumn({ name: 'caregiver_id' })
   caregiver!: Caregiver | null;
@@ -37,13 +43,10 @@ export class Shift {
   // 🧑‍🦽 Paciente
   @ManyToOne(() => Patient, (patient) => patient.shifts, {
     nullable: false,
+    eager: true,
   })
   @JoinColumn({ name: 'patient_id' })
   patient!: Patient;
-
-  @ManyToOne(() => Profile)
-  @JoinColumn({ name: 'profile_id' })
-  profile!: Profile;
 
   // 👨‍💼 ADMIN que aprueba
   @ManyToOne(() => Profile, { nullable: true })

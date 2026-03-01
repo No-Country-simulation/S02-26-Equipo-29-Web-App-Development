@@ -10,8 +10,6 @@ export  function Info() {
     const { data: patientData, isLoading: patientLoading, error: patientError, refetch: refetchPatient } = usePatient();
     const { data: caregiverData, isLoading: caregiverLoading, error: caregiverError, refetch: refetchCaregiver } = useCaregiver();
     
-    // Determinar qué datos mostrar según el rol
-    // const roleData = user?.role === "CAREGIVER" ? caregiverData : patientData;
     const isLoading = user?.role === "CAREGIVER" ? caregiverLoading : patientLoading;
     const error = user?.role === "CAREGIVER" ? caregiverError : patientError;
     const refetch = user?.role === "CAREGIVER" ? refetchCaregiver : refetchPatient;

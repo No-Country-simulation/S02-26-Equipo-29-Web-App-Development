@@ -29,7 +29,7 @@ export function Appointments() {
     return <div>Error...</div>
   }
 
-  const filteredShifts = shiftsData?.data.filter((shift: any) => {
+  const filteredShifts = shiftsData?.data.filter((shift) => {
     if (filter === "ALL") return true;
     return shift.status === filter;
   });
@@ -49,7 +49,7 @@ export function Appointments() {
   };
 
   const handleAssignCaregiver = async (shiftId: string, caregiverId: string) => {
-    console.log(shiftId, caregiverId);
+
     try {
       await assignCaregiverShift(shiftId, caregiverId);
       toast.success("Cuidador asignado correctamente");
@@ -66,9 +66,14 @@ export function Appointments() {
 
   return (
     <div className="p-5 bg-background min-h-screen">
-      <header className="rounded-3xl border border-border p-6 bg-surface shadow-lg">
-        <h1 className="text-2xl font-bold">Calendario de cuidados</h1>
-        <p className="text-gray-400 mt-1">Gestionar los cuidados de los pacientes</p>
+         <header className="rounded-3xl border border-border bg-surface p-8 shadow-xl relative overflow-hidden group">
+
+        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-primary/60">
+         Calendario de cuidados
+        </h1>
+        <p className="text-text-secondary mt-2 max-w-2xl">
+          Gestionar los cuidados de los pacientes
+        </p>
       </header>
       
 
@@ -152,27 +157,29 @@ export function Appointments() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-surface">
-              {filteredShifts?.map((shift: any) => (
+              {filteredShifts?.map((shift) => (
                 <tr key={shift.id} className="transition-colors hover:bg-white/5">
                   <td className="px-6 py-5 ">
                     <div className="flex items-center">
                       <div className="h-9 p-2 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold mr-3">
-                        {takeFirstLetters(shift.patient.profile.full_name)}
+                        {takeFirstLetters(shift.patient.profile?.full_name || "")}
                       </div>
-                      <p className="font-semibold text-text-primary whitespace-nowrap">{shift.patient.profile.full_name}</p>
+                      <p className="font-semibold text-text-primary whitespace-nowrap">{shift.patient.profile?.full_name || "N/A"}</p>
                     </div>
                   </td>
                   <td className="px-6 py-5">
-                    <p className="text-text-secondary  whitespace-nowrap">{formatDateSafe(shift.start_time)}</p>
+                    <p className="text-text-secondary  whitespace-nowrap">{formatDateSafe(shift.start_time || "")}</p>
                   </td>
                   <td className="px-6 py-5 text-text-secondary  whitespace-nowrap">
-                    {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
+                    {formatTime(shift.start_time || "")} - {formatTime(shift.end_time || "")}
                   </td>
                   <td className="px-6 py-5  whitespace-nowrap">
                     <span className="text-text-primary">{shift.service || "General"}</span>
                   </td>
                   <td className="px-6 py-5">
-                    <select onChange={(e) => handleAssignCaregiver(shift.id, e.target.value)} className="bg-background border border-border rounded-xl px-3 py-1.5 text-xs focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all cursor-pointer w-full max-w-[160px]">
+                    <select
+                     onChange={(e) => handleAssignCaregiver(shift.id, e.target.value)} 
+                     className="bg-background border border-border rounded-xl px-3 py-1.5 text-xs focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all cursor-pointer w-full max-w-[160px]">
                       <option value="">Seleccionar...</option>
                       {caregivers?.map((caregiver: Caregiver) => (
                         <option key={caregiver.id} value={caregiver.profile_id} selected={shift.caregiver?.profile_id === caregiver.profile_id}>
@@ -216,7 +223,7 @@ export function Appointments() {
           </table>
         </div>
         
-        {filteredShifts?.length > 0 && shiftsData && (
+        {filteredShifts && filteredShifts.length > 0 && shiftsData && (
           <div className="border-t border-border bg-surface/50">
             <Pagination
               currentPage={shiftsData.meta.page}

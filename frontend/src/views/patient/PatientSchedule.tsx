@@ -1,18 +1,17 @@
 import React from "react";
-import { MessagesSquare, SquareCheckBig, SquareX, Star, ZoomIn } from "lucide-react";
+import { MessagesSquare, SquareCheckBig, SquareX, Star, XIcon, ZoomIn } from "lucide-react";
 import { useState, useRef, useEffect, type ChangeEvent } from "react";
 import { Patient } from "../../components/patient/patient";
-import { useCaregivers, useUser } from "../../hooks";
-import { useShifts } from "../../hooks/patient/useShifts";
+import { useUser } from "../../hooks";
+import { useShifts, useFinalizeShift } from "../../hooks/patient/useShifts";
 import { formatDayMonth, formatTime } from "../../utils/formatDate";
-import { api } from "../../lib/axios/api";
+import { toast } from "sonner";
 import { ReporteDialog } from "../../components/caregiver/Reporte";
 import { ShiftCardDialog } from "../../components/shifts/summaryShift";
 
 export const PatientSchedule = () => {
   const { data: user } = useUser();
   const { shifts: hookShifts } = useShifts();
-  const { data: caregivers = [] } = useCaregivers();
   const [selectedPatient, setSelectedPatient] = useState<
     (typeof assignedPatients)[number] | null
   >(null);
@@ -91,24 +90,23 @@ export const PatientSchedule = () => {
     setEndShift(true);
   };
 
-  const handleFinalizeShift = (event: React.FormEvent<HTMLFormElement>) => {
+  const finalizeShiftMutation = useFinalizeShift();
+
+  const handleFinalizeShift = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const payload = {
-      shiftId: selectedShiftId,
+      shiftId: selectedShiftId as string,
       number: rating,
       notes: report
     };
 
-    api.post("/ratings", payload)
-      .then((response) => {
-        console.log("Finalizar guardia response:", response.data);
-      })
-      .catch((error) => {
-        console.error("Error al finalizar guardia:", error);
-      });
-
-    console.log("Finalizar guardia payload:", payload);
+    try {
+      await finalizeShiftMutation.mutateAsync(payload);
+      toast.success("Guardia finalizada correctamente");
+    } catch (error) {
+      toast.error("Error al finalizar la guardia");
+    }
 
     setEndShift(false);
     setSelectedShiftId(null);
@@ -201,7 +199,7 @@ export const PatientSchedule = () => {
                         className="text-left w-full px-2 py-1 transition"
                       >
                         
-                        <p className="text-xs text-text-secondary">
+                        <p className="text-xs font-bold text-text-secondary">
                          {shift.caregiver?.full_name || "Sin cuidador asignado"}
                         </p>
                       </button>
@@ -284,15 +282,34 @@ export const PatientSchedule = () => {
         )}
 
         {endShift && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-white p-6 rounded-2xl shadow-lg min-w-62.5 w-full max-w-md">
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            onClick={() => setEndShift(false)}
+          >
+            <div
+              className="relative bg-white p-6 rounded-2xl shadow-lg min-w-62.5 w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setEndShift(false)}
+                className="absolute right-4 top-4 text-text-secondary hover:text-text-primary transition-colors"
+              >
+                <XIcon size={20} />
+              </button>
               <h2 className="text-xl font-semibold mb-4">Finalizar Guardia</h2>
               <span className="text-sm text-text-secondary mb-4 block">
-                Guardia Ofrecida por : <span className="font-medium">{hookShifts.find((shift) => shift.id === selectedShiftId)?.caregiver?.full_name || "Sin cuidador asignado"}</span>
+                Guardia Ofrecida por :{" "}
+                <span className="font-medium">
+                  {hookShifts.find((shift) => shift.id === selectedShiftId)
+                    ?.caregiver?.full_name || "Sin cuidador asignado"}
+                </span>
               </span>
               <form onSubmit={handleFinalizeShift} className="space-y-4">
                 <div>
-                  <label htmlFor="rating" className="mb-2 block text-sm font-medium text-text-primary">
+                  <label
+                    htmlFor="rating"
+                    className="mb-2 block text-sm font-medium text-text-primary"
+                  >
                     Calificar:
                   </label>
                   <div className="grid max-h-56 grid-cols-[repeat(auto-fit,minmax(20px,1fr))] gap-1 overflow-y-auto rounded-2xl border border-border p-3">
@@ -318,11 +335,21 @@ export const PatientSchedule = () => {
                       );
                     })}
                   </div>
-                  <input id="rating" name="rating" type="number" value={rating} readOnly hidden />
+                  <input
+                    id="rating"
+                    name="rating"
+                    type="number"
+                    value={rating}
+                    readOnly
+                    hidden
+                  />
                 </div>
 
                 <div>
-                  <label htmlFor="notes" className="mb-2 block text-sm font-medium text-text-primary">
+                  <label
+                    htmlFor="notes"
+                    className="mb-2 block text-sm font-medium text-text-primary"
+                  >
                     Comentario:
                   </label>
                   <textarea
@@ -336,21 +363,15 @@ export const PatientSchedule = () => {
                 </div>
 
                 <button
+                  disabled={
+                    !hookShifts.find((shift) => shift.id === selectedShiftId)
+                      ?.caregiver?.full_name
+                  }
                   type="submit"
-                  className="w-full rounded-2xl bg-primary px-3 py-2 text-xs font-medium text-white transition hover:bg-primary/90"
+                  className="w-full rounded-2xl bg-primary px-3 py-2 text-xs font-medium text-white transition hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Finalizar
                 </button>
-
-                <div className="flex justify-center ">
-                  <button
-                    type="button"
-                    onClick={() => setEndShift(false)}
-                    className="flex items-center justify-center"
-                  >
-                    <SquareX className="text-red-500 hover:bg-red-100" />
-                  </button>
-                </div>
                 
               </form>
             </div>

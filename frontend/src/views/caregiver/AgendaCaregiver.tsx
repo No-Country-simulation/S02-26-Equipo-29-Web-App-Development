@@ -15,6 +15,7 @@ export const Agenda = () => {
     ? hookShifts
     : hookShifts?.data || [];
 
+
   const [selectedPatient, setSelectedPatient] = useState<
     {
       id: string;
@@ -216,7 +217,7 @@ export const Agenda = () => {
                         onClick={() => {
                           setSelectedShift(shift);
                           setSelectedPatient({
-                            id: shift.id,
+                            id: shift.patient?.profile?.profile_id || shift.id,
                             name: shift.patient?.profile?.full_name || "Sin nombre",
                             start_time: shift.start_time || shift.startTime || "",
                             end_time: shift.end_time || shift.endTime || "",
@@ -228,9 +229,7 @@ export const Agenda = () => {
                         className="text-left w-full px-2 py-1 transition"
                       >
                         <p className="font-medium">{shift.patient?.profile?.full_name || "Sin nombre"}</p>
-                        <p className="text-xs text-text-secondary">
-                          ID {shift.id}
-                        </p>
+                       
                       </button>
                     </td>
                     <td className="px-4 py-4">
