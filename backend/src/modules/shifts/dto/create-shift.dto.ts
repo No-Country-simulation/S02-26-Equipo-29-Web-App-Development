@@ -26,4 +26,8 @@ export class CreateShiftDto {
 
   @IsString()
   service!: string;
+
+  @IsString()
+  @IsOptional()
+  location?: string;
 }

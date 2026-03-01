@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 // src/modules/shifts/shifts.controller.ts
 
 import {
@@ -67,6 +66,16 @@ export class ShiftsController {
     @Query('limit') limit?: number,
   ) {
     return this.shiftsService.findByPatient(patientId, page, limit);
+  }
+
+  @Get('caregiver/:caregiverProfileId')
+  @Roles(ProfileRole.ADMIN, ProfileRole.STAFF, ProfileRole.CAREGIVER)
+  findByCaregiver(
+    @Param('caregiverProfileId') caregiverProfileId: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return this.shiftsService.findByCaregiver(caregiverProfileId, page, limit);
   }
 
   @Patch(':id')

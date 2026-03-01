@@ -2,16 +2,17 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { Home } from "../components/home/Home";
 import { Login } from "../components/login/LogIn";
 import {
+  Agenda,
   Appointments,
+  CaregiverInfo,
   Caregivers,
   PatientInfo,
   Patients,
   PatientSchedule,
+  Payrolls,
   Registration,
 } from "../views";
 import { ProtectedRoute } from "../components/ProtectedRoute";
-import { Agenda } from "../views/caregiver/Agenda";
-import { CaregiverInfo } from "../views/caregiver/CaregiverInfo";
 import { MainDashboard } from "../components/dashboard/MainDashboard";
 import { QueryClientProvider } from "../providers/QueryClientProvider";
 
@@ -40,6 +41,10 @@ export const router = createBrowserRouter([
       {
         path: "/dashboard",
         element: null,
+      },
+      {
+        path: "/payrolls",
+        element: <Payrolls />,
       },
       {
         path: "/registration",

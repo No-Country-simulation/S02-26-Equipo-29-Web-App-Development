@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Documents, Info } from '../../components';
-import { Shifts as PatientShifts } from '../../components/shifts/Shifts';
+import { Shifts } from '../../components/shifts/Shifts';
   
   export interface Document {
       id: string;
@@ -52,7 +52,7 @@ export const PatientInfo: React.FC = () => {
                       )}
   
                       {activeTab === 'shifts' && (
-                          <PatientShifts />
+                          <Shifts />
                       )}
                   </section>
               </div>

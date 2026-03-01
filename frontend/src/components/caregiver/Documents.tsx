@@ -1,12 +1,10 @@
 import { XIcon } from 'lucide-react';
 import React, { useState, useEffect } from 'react'
-import { api } from '../../lib/axios/api';
 import { toast } from 'sonner';
 import { AxiosError } from 'axios';
-import { useCaregiverDocuments } from '../../hooks';
-import { useQueryClient } from '@tanstack/react-query';
+import { useCaregiverDocuments, useUploadCaregiverDocuments, useDeleteCaregiverDocument } from '../../hooks';
 import { useUser } from '../../hooks/user/useUser';
-import { usePatientDocuments } from '../../hooks/patient/usePatientDocuments';
+import { usePatientDocuments, useUploadPatientDocuments, useDeletePatientDocument } from '../../hooks/patient/usePatientDocuments';
 
     interface UploadedDocument {
         file?:File
@@ -19,9 +17,13 @@ import { usePatientDocuments } from '../../hooks/patient/usePatientDocuments';
     
     export function Documents() {
        const {data:user}=useUser();
-       const queryClient = useQueryClient();
     const {data:documentsData,isLoading: caregiverLoading}=useCaregiverDocuments()
     const {data:patientDataDoc,isLoading: patientLoading}=usePatientDocuments();
+    
+    const uploadCaregiverDocs = useUploadCaregiverDocuments();
+    const deleteCaregiverDoc = useDeleteCaregiverDocument();
+    const uploadPatientDocs = useUploadPatientDocuments();
+    const deletePatientDoc = useDeletePatientDocument();
         
     const [documents, setDocuments] = useState<UploadedDocument[]>(documentsData || []);
     const [patientDocuments, setPatientDocuments] = useState<UploadedDocument[]>(patientDataDoc || []);
@@ -97,23 +99,13 @@ import { usePatientDocuments } from '../../hooks/patient/usePatientDocuments';
                     toast.error("No hay archivos para subir");
                     return;
                 }
+
                 if (user?.role === "CAREGIVER") {
-                    await api.post("/caregivers/documents", formData, {
-                        headers: { "Content-Type": "multipart/form-data" },
-                        timeout: 60000,
-                    });
+                    await uploadCaregiverDocs.mutateAsync(formData);
                 } else if (user?.role === "PATIENT") {
-                    await api.post("/patients/documents", formData, {
-                        headers: { "Content-Type": "multipart/form-data" },
-                        timeout: 60000,
-                    });
+                    await uploadPatientDocs.mutateAsync(formData);
                 }
                 toast.success("Documentos subidos correctamente");
-                if (user?.role === "CAREGIVER") {
-                    queryClient.invalidateQueries({ queryKey: ["caregiver-documents"] });
-                } else if (user?.role === "PATIENT") {
-                    queryClient.invalidateQueries({ queryKey: ["patient-documents"] });
-                }
             } catch (error) {
                 if (error instanceof AxiosError) {
                     toast.error(error.response?.data?.message || "Error al subir documentos");
@@ -128,12 +120,11 @@ import { usePatientDocuments } from '../../hooks/patient/usePatientDocuments';
         const handleDeleteDocFromServer=async(id:string) => {
             try {
                 if (user?.role === "CAREGIVER") {
-                    await api.delete(`/caregivers/documents/${id}`);
+                    await deleteCaregiverDoc.mutateAsync(id);
                 } else if (user?.role === "PATIENT") {
-                    await api.delete(`/patients/documents/${id}`);
+                    await deletePatientDoc.mutateAsync(id);
                 }
                 toast.success("Documento eliminado correctamente");
-                updateDocuments((prev) => prev.filter(doc => doc.id !== id));
             } catch (error) {
                 if (error instanceof AxiosError) {
                     toast.error(error.response?.data?.message || "Error al eliminar documento");

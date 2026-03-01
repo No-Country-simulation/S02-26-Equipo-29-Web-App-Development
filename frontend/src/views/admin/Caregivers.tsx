@@ -12,9 +12,12 @@ export function Caregivers() {
   }
   return (
     <div className="p-5 bg-background">
-      <header className="rounded-3xl border border-border bg-surface p-6 shadow-lg">
-        <h1 className="text-2xl font-bold ">Administrar Cuidadores</h1>
-        <p className="text-gray-400">
+      <header className="rounded-3xl border border-border bg-surface p-8 shadow-xl relative overflow-hidden group">
+
+        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-primary/60">
+         Administrar Cuidadores
+        </h1>
+        <p className="text-text-secondary mt-2 max-w-2xl">
           Gestionar los aplicantes registrados en el sistema
         </p>
       </header>
@@ -32,7 +35,7 @@ export function Caregivers() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-surface whitespace-nowrap">
-              {caregivers.map((caregiver) => (
+              {caregivers?.map((caregiver) => (
                 <tr
                   key={caregiver.id}
                   className="hover:bg-background hover:cursor-pointer"
@@ -50,15 +53,15 @@ export function Caregivers() {
                       </p>
                     </div>
                   </td>
-                  <td className="px-4 py-4">{caregiver.credentials}</td>
-                  <td className="px-4 py-4">{formatDate(caregiver.created_at)}</td>
+                  <td className="px-4 py-4">{caregiver.credentials || "N/A"}</td>
+                  <td className="px-4 py-4">{formatDate(caregiver.created_at || "")}</td>
                   <td className="px-4 py-4">
                     <span
                       className={`px-2 py-1 rounded-full ${getStatusColor(
-                        caregiver.status,
+                        caregiver.status || "",
                       )}`}
                     >
-                      {translateStatus(caregiver.status)}
+                      {translateStatus(caregiver.status || "")}
                     </span>
                   </td>
                   <td className="px-4 py-4">

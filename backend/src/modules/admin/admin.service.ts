@@ -9,6 +9,7 @@ import { Status } from '../caregivers/enums/caregiver-status.enum';
 import { Shift } from '../shifts/shift.entity';
 import { ShiftStatus } from '../shifts/enums/shift-status.enum';
 import { PatientDocument } from '../patients/patient-document.entity';
+import { Rating } from '../ratings/rating.entity';
 
 @Injectable()
 export class AdminService {
@@ -21,6 +22,8 @@ export class AdminService {
     private readonly caregiverDocumentRepo: Repository<CaregiverDocument>,
     @InjectRepository(Shift)
     private readonly shiftRepository: Repository<Shift>,
+    @InjectRepository(Rating)
+    private readonly ratingRepository: Repository<Rating>,
   ) {}
 
   async getRegistrations() {
@@ -97,6 +100,9 @@ export class AdminService {
       shifts,
       hoursThisWeek,
       hoursLastWeek,
+      ratingsThisWeek,
+      ratingsLastWeek,
+      ratings,
     ] = await Promise.all([
       this.patientRepo.count(),
       this.caregiverRepo.count({
@@ -146,6 +152,13 @@ export class AdminService {
         },
         select: ['hours'],
       }),
+      this.ratingRepository.count({
+        where: { createdAt: Between(startOfWeek, endOfWeek) },
+      }),
+      this.ratingRepository.count({
+        where: { createdAt: Between(startOfLastWeek, endOfLastWeek) },
+      }),
+      this.ratingRepository.find(),
     ]);
 
     const hoursSumThisWeek = hoursThisWeek.reduce(
@@ -156,6 +169,12 @@ export class AdminService {
       (acc, shift) => acc + Number(shift.hours),
       0,
     );
+
+    const ratingsSum = ratings.reduce((acc, rating) => {
+      return acc + Number(rating.number);
+    }, 0);
+    const ratingsAverage = ratingsSum / ratings.length;
+
     return {
       patients: {
         total: patients,
@@ -167,8 +186,12 @@ export class AdminService {
       },
       shifts: shifts,
       hours: {
-        hours: hoursSumThisWeek,
+        hours: hoursSumThisWeek.toFixed(2),
         growth: growth(hoursSumThisWeek, hoursSumLastWeek),
+      },
+      ratings: {
+        ratings: ratingsAverage.toFixed(2),
+        growth: growth(ratingsThisWeek, ratingsLastWeek),
       },
     };
   }

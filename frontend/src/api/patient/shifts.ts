@@ -7,6 +7,7 @@ export interface CreateShiftRequest {
   start_time: string;
   end_time: string;
   report?: string;
+  location?: string;
 }
 
 type ShiftApiResponse = {
@@ -48,6 +49,11 @@ type ShiftApiResponse = {
   service?: string | null;
   status?: string;
   hours?: number;
+  location?: string | null;
+  rating?: {
+    number: number;
+    notes?: string | null;
+  } | null;
 };
 
 type PaginatedShiftsResponse = {
@@ -95,9 +101,15 @@ const mapShift = (shift: ShiftApiResponse): Shift => ({
   startTime: shift.start_time,
   endTime: shift.end_time,
   report: shift.report ?? undefined,
-  location: shift.service || undefined,
+  location: shift.location ?? undefined,
   status: shift.status,
   hours: shift.hours,
+  rating: shift.rating
+    ? {
+        number: shift.rating.number,
+        notes: shift.rating.notes ?? null,
+      }
+    : null,
 });
 
 export const getPatientShifts = async (patientId: string): Promise<Shift[]> => {
@@ -115,6 +127,7 @@ export const createShift = async (
     end_time: data.end_time,
     service: "Cuidado general",
     report: data.report || undefined,
+    location: data.location || undefined,
   });
   return mapShift(response.data);
 };

@@ -29,10 +29,7 @@ export class ShiftsConsumer extends WorkerHost {
       default:
         console.log('Unknown job type:', job.name);
     }
-    console.log('Procesando turno:', job.name, job.data);
 
     await new Promise((r) => setTimeout(r, 2000));
-
-    console.log('Turno finalizado');
   }
 }

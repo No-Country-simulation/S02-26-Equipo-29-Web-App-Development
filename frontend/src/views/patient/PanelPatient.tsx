@@ -1,34 +1,30 @@
 import { Link } from "react-router-dom";
 import { Patient } from "../../components/patient/patient";
+import { useUser } from "../../hooks";
+import { useShifts } from "../../hooks/patient/useShifts";
+import { formatDate, formatDayMonth, formatTime } from "../../utils/formatDate";
 
 export function PanelPatient() {
-  const patient = {
-    id: "P-210",
-    name: "Srta. Lucía Gómez",
-    age: 72,
-    condition: "Seguimiento post operatorio",
-    caregiver: {
-      name: "Juan Fernández",
-      shiftRange: "14:00 - 22:00",
-      phone: "+54 11 5555-9988",
-    },
-    nextVisits: [
-      {
-        day: "Miércoles",
-        schedule: "14:00 - 20:00",
-        focus: "Control de movilidad",
-      },
-      {
-        day: "Viernes",
-        schedule: "16:00 - 20:00",
-        focus: "Supervisión medicación",
-      },
-    ],
+
+  const { data: patient } = useUser();
+  const { shifts: hookShifts } = useShifts();
+
+    if (!patient) {
+      return <div>Loading...</div>;
+    }
+
+
+
+
+  const formatDateTime = (value?: string) => {
+    if (!value) return "-";
+    return `${formatDate(value)} ${formatTime(value)}`;
   };
+
   return (
     <div className="p-5 bg-background h-screen">
       <header className="rounded-3xl border border-border p-6 bg-surface  shadow-lg">
-        <h1 className="text-2xl font-bold ">Dashboard del paciente</h1>
+        <h1 className="text-2xl font-bold ">Dashboard del {patient.full_name}</h1>
         <p className="text-gray-400">Gestiona tus cuidados</p>
       </header>
 
@@ -47,11 +43,11 @@ export function PanelPatient() {
           onClose={() => {}}
           patient={{
             id: patient.id,
-            name: patient.name,
-            day: patient.nextVisits[0]?.day ?? "",
-            schedule: patient.nextVisits[0]?.schedule ?? "",
+            name: patient.full_name || "Sin Cuidador Asignado",
+            day: hookShifts[0]?.startTime ? formatDayMonth(hookShifts[0].startTime) : "",
+            schedule: hookShifts[0]?.endTime ? formatTime(hookShifts[0].endTime) : "",
             notes: "",
-            phone: patient.caregiver.phone,
+            phone: ""
           }}
         />
       </div>
@@ -62,15 +58,15 @@ export function PanelPatient() {
             Cuidador asignado
           </p>
           <h2 className="mt-3 text-xl font-semibold">
-            {patient.caregiver.name}
+            {hookShifts[0]?.caregiver?.full_name || "Sin cuidador asignado"}
           </h2>
           <p className="text-sm text-text-secondary">
-            Turno: {patient.caregiver.shiftRange}
+            Turno: {hookShifts[0]?.startTime ? `${formatDateTime(hookShifts[0].startTime)} - ${formatDateTime(hookShifts[0].endTime)} - 🕛${hookShifts[0]?.hours} horas` : "Sin turno asignado"}
           </p>
           <p className="mt-4 text-sm">
             Teléfono de contacto:{" "}
             <span className="font-medium text-primary">
-              {patient.caregiver.phone}
+              {hookShifts[0]?.caregiver?.phone || "Sin teléfono disponible"}
             </span>
           </p>
         </article>
@@ -80,14 +76,15 @@ export function PanelPatient() {
             Próximas visitas
           </p>
           <ul className="mt-4 space-y-4 text-sm">
-            {patient.nextVisits.map((visit) => (
+            { hookShifts.filter(shift => shift.status !== "COMPLETED").map((visit) => (
               <li
-                key={`${visit.day}-${visit.schedule}`}
+                key={`${visit.startTime}-${visit.endTime}`}
                 className="rounded-2xl border border-border bg-background px-4 py-3"
               >
-                <p className="text-base font-semibold">{visit.day}</p>
-                <p className="text-text-secondary">{visit.schedule}</p>
-                <p className="mt-1">{visit.focus}</p>
+                <p className="text-base font-semibold">🗓️{formatDateTime(visit.startTime)} 🕛</p>
+                <p className="text-text-secondary">🗓️{formatDateTime(visit.endTime)} 🕛</p>
+                <p className="mt-1">NOTAS : <span className="text-xs text-slate-400">{visit.report || "Sin notas disponibles"}</span></p>
+                <p className="mt-1">UBICACIÓN : <span className="text-xs text-slate-400">{visit.location || "Sin ubicación disponible"}</span></p>
               </li>
             ))}
           </ul>

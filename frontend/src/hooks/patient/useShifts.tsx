@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePatient } from "./usePatient";
 import { createShift, getPatientShifts, type CreateShiftRequest } from "../../api/patient/shifts";
+import { api } from "../../lib/axios/api";
 
 export const useShifts = () => {
   const { data: patient } = usePatient();
@@ -45,7 +46,7 @@ export const useShifts = () => {
       // Refrescar la lista de shifts
       queryClient.invalidateQueries({ queryKey: ["shifts", patient?.profile_id] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error("Error creating shift:", error);
     },
   });
@@ -59,4 +60,19 @@ export const useShifts = () => {
     isCreating: createShiftMutation.isPending,
     createError: createShiftMutation.error,
   };
+};
+
+export const useFinalizeShift = () => {
+  const queryClient = useQueryClient();
+  const { data: patient } = usePatient();
+  
+  return useMutation({
+    mutationFn: async (payload: { shiftId: string; number: number; notes: string }) => {
+      const response = await api.post("/ratings", payload);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["shifts", patient?.profile_id] });
+    },
+  });
 };

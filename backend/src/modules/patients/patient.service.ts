@@ -50,25 +50,16 @@ export class PatientService {
   }
 
   async update(id: string, updateData: UpdatePatientDto) {
-    // Log para debugging
-    console.log('🔍 Datos recibidos para actualizar:', updateData);
-    console.log('🔍 ID del paciente:', id);
-
     // Verificar que el paciente existe
     const patient = await this.findOne(id);
-    console.log('🔍 Paciente antes de actualizar:', patient);
-
+    if (!patient) {
+      throw new BadRequestException('El paciente no existe');
+    }
     // Actualizar usando el método update de TypeORM
-    const result = await this.patientRepo.update(
-      { profile_id: id },
-      updateData,
-    );
-
-    console.log('🔍 Resultado de la actualización:', result);
+    await this.patientRepo.update({ profile_id: id }, updateData);
 
     // Retornar el paciente actualizado
     const updatedPatient = await this.findOne(id);
-    console.log('🔍 Paciente después de actualizar:', updatedPatient);
 
     return updatedPatient;
   }

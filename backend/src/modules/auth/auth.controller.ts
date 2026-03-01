@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Controller, Post, Body, UseGuards, Get, Req } from '@nestjs/common';
 import { Request } from 'express';
 

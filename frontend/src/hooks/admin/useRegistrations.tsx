@@ -1,13 +1,10 @@
-import { useQuery } from "@tanstack/react-query"
-import { getRegistrations } from "../../api"
+import { useQuery } from "@tanstack/react-query";
+import { getRegistrations } from "../../api";
+import type { RegistrationResponse } from "../../types";
 
-
-
-
-export const useRegistrations=()=>{
-    return useQuery({
+export const useRegistrations = () => {
+    return useQuery<RegistrationResponse>({
         queryKey: ["registrations"],
-        queryFn: () => getRegistrations(),
-        staleTime: 1000 * 60 * 5,
-    })
+        queryFn: getRegistrations,
+    });
 }

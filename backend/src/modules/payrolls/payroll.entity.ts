@@ -22,10 +22,10 @@ export class Payroll {
   @ManyToOne(() => Shift, (shift) => shift.payrolls)
   shift: Shift;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'timestamp' })
   period_start: Date;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'timestamp' })
   period_end: Date;
 
   @Column({ type: 'numeric' })

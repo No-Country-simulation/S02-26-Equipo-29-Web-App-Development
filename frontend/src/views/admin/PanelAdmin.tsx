@@ -1,8 +1,9 @@
-import { ArrowRight, Check, Clock, PersonStanding, Star, Users2, X } from "lucide-react";
+import { ArrowRight, Clock, PersonStanding, Star, TrendingDown, TrendingUp, Users2} from "lucide-react";
 import { useDashboard } from "../../hooks";
 import { formatDateSafe, formatTime } from "../../utils/formatDate";
 import { getStatusColorShift, translateStatusShift } from "../../utils/status";
 import { Link } from "react-router-dom";
+import type { Shift } from "../../types";
 
 export function PanelAdmin() {
 
@@ -34,7 +35,8 @@ export function PanelAdmin() {
     {
       title: "Satisfacción",
       icon: <Star />,
-      percentage: 8,
+      value: dashboard?.ratings.ratings || 0,
+      percentage: dashboard?.ratings.growth || 0,
       className: "text-yellow-500 bg-yellow-500/10",
     },
   ];
@@ -93,9 +95,14 @@ export function PanelAdmin() {
 
   return (
     <div className="bg-background pt-5 px-5">
-      <header className="rounded-3xl border border-border bg-surface p-6 shadow-lg">
-        <h1 className="text-2xl font-bold ">Panel Administrativo</h1>
-        <p className="text-gray-400">Información general del sistema</p>
+      <header className="rounded-3xl border border-border bg-surface p-8 shadow-xl relative overflow-hidden group">
+
+        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-primary/60">
+          Panel Administrativo
+        </h1>
+        <p className="text-text-secondary mt-2 max-w-2xl">
+          Información general del sistema
+        </p>
       </header>
 
       {/* Seccion de cards */}
@@ -115,7 +122,15 @@ export function PanelAdmin() {
                   : "text-red-400 bg-red-400/50"
               }`}
             >
-              {card.percentage > 0 ? "+" : ""} {card.percentage}%
+              {card.title === "Satisfacción" && card.percentage > 0 ? (
+                <TrendingUp />
+              ) : card.title === "Satisfacción" && card.percentage < 0 ? (
+                <TrendingDown />
+              ) : (
+                <>
+                  {card.percentage > 0 ? "+" : ""} {card.percentage}%
+                </>
+              )}
             </div>
             <p className="whitespace-nowrap text-xl">{card.title}</p>
             <p className="text-2xl font-bold">{card.value}</p>
@@ -152,21 +167,21 @@ export function PanelAdmin() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border bg-surface">
-              {dashboard?.shifts.map((shift) => (
+              {dashboard?.shifts.map((shift: Shift) => (
                 <tr key={shift.id} className="transition-colors hover:bg-white/5">
                   <td className="px-6 py-5">
                     <div className="flex items-center">
                       <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold mr-3">
-                        {shift.patient.profile.full_name.charAt(0)}
+                        {shift.patient.profile?.full_name.charAt(0) || "U"}
                       </div>
-                      <p className="font-semibold text-text-primary">{shift.patient.profile.full_name}</p>
+                      <p className="font-semibold text-text-primary">{shift.patient.profile?.full_name || "N/A"}</p>
                     </div>
                   </td>
                   <td className="px-6 py-5">
-                    <p className="text-text-secondary">{formatDateSafe(shift.start_time)}</p>
+                    <p className="text-text-secondary">{formatDateSafe(shift.start_time || "")}</p>
                   </td>
                   <td className="px-6 py-5 text-text-secondary">
-                    {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
+                    {formatTime(shift.start_time || "")} - {formatTime(shift.end_time || "")}
                   </td>
                   <td className="px-6 py-5">
                     <span className="text-text-primary">{shift.service || "General"}</span>
