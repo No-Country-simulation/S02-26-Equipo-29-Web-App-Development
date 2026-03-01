@@ -1,5 +1,3 @@
-import type { Caregiver } from "../../types/index";
-import type { User } from "../../types/index";
 
 type PatientDialogProps = {
   open: boolean;

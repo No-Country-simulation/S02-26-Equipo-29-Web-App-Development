@@ -21,4 +21,8 @@ export class UpdatePatientDto {
   @IsOptional()
   @IsEnum(PatientStatus, { message: 'El estado no es válido' })
   status?: PatientStatus;
+
+  @IsOptional()
+  @IsString({ message: 'El teléfono debe ser una cadena de texto' })
+  phone?: string;
 }

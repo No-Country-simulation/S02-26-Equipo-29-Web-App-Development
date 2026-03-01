@@ -1,10 +1,11 @@
 import React from "react";
-import { MessagesSquare } from "lucide-react";
+import { MessagesSquare, ZoomIn } from "lucide-react";
 import { useState, useRef, useEffect, type ChangeEvent } from "react";
 import { Patient } from "../../components/patient/patient";
 import { useCaregivers, useUser } from "../../hooks";
 import { useCaregiverShifts } from "../../hooks/caregiver/useCaregiver";
 import { formatDayMonth, formatTime } from "../../utils/formatDate";
+import { ReporteDialog } from "../../components/caregiver/Reporte";
 
 export const Agenda = () => {
   const { data: user } = useUser();
@@ -36,6 +37,12 @@ export const Agenda = () => {
   
   const [selectedShift, setSelectedShift] = useState<any | null>(null);
   const [patientDialogOpen, setPatientDialogOpen] = useState(false);
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState({
+    comportamiento: "",
+    medicacion: "",
+    observaciones: "",
+  });
   // const [range, setRange] = useState<{ start: string; end: string } | null>(
   //   null,
   // );
@@ -76,6 +83,15 @@ export const Agenda = () => {
   const handlePrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
   const handleNextPage = () =>
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+
+  const handleOpenReportDialog = (report: string) => {
+    setSelectedReport({
+      comportamiento: report,
+      medicacion: "",
+      observaciones: "",
+    });
+    setReportDialogOpen(true);
+  };
   
   const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -115,6 +131,8 @@ export const Agenda = () => {
 
 
   // const rangeValue = range ? `${range.start}/${range.end}` : "";
+
+  console.log("Caregiver Shifts:", caregiverShifts);
 
   return (
     <>
@@ -185,6 +203,7 @@ export const Agenda = () => {
                 <th className="px-4 py-3 font-medium">Día</th>
                 <th className="px-4 py-3 font-medium">Horario</th>
                 <th className="px-4 py-3 font-medium">Notas</th>
+                <th className="px-4 py-3 font-medium">Resporte</th>
                 <th className="px-4 py-3 font-medium">Direccion</th>
                 <th className="px-4 py-3 font-medium">Contacto</th>
               </tr>
@@ -227,6 +246,18 @@ export const Agenda = () => {
                       {shift.report || "Sin notas disponibles"}
                     </td>
 
+                    <td className="px-4 py-4 text-text-secondary">
+                      {shift.report ? (
+                        <button
+                          type="button"
+                          onClick={() => handleOpenReportDialog(shift.report)}
+                          className="rounded-2xl border border-border px-3 py-2 text-xs font-medium text-text-primary transition hover:bg-accent/20"
+                        >
+                          <ZoomIn className="text-text-primary" />
+                        </button>
+                      ) : ("Sin reporte disponible")}
+                    </td>
+
                     <td className="px-4 py-4">
                       {shift.location || "Sin dirección disponible"}
                     </td>
@@ -234,7 +265,7 @@ export const Agenda = () => {
                     <td className="px-4 py-4">
                       <button
                         onClick={() => {
-                          alert(`Llamando a ${shift.patient?.phone || "sin teléfono"}`);
+                          alert(`Llamando a ${shift.patient?.profile?.phone || "sin teléfono"}`);
                         }}
                         className="rounded-2xl bg-green-500 px-3 py-2 text-xs font-medium text-white transition hover:bg-green-600"
                       >
@@ -284,6 +315,12 @@ export const Agenda = () => {
             shift={selectedShift || undefined}
           />
         )}
+        <ReporteDialog
+          open={reportDialogOpen}
+          onClose={() => setReportDialogOpen(false)}
+          onSave={() => {}}
+          initialData={selectedReport}
+        />
       </section>
     </>
   );

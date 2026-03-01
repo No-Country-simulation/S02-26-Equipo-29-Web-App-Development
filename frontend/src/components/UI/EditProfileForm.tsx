@@ -40,8 +40,9 @@ export const EditProfileForm: React.FC<EditProfileFormProps & { handleUpdateSucc
     const defaultValues: EditProfileFormData = {
         full_name: user.full_name,
         email: user.email,
+        phone: currentUser?.phone || "",
         ...(currentUser?.role === "CAREGIVER" && {
-            phone: caregiverData?.phone || "",
+            phone: caregiverData?.phone || currentUser?.phone || "",
             cbu: caregiverData?.cbu || "",
             mercado_pago_alias: caregiverData?.mercado_pago_alias || "",
             hourly_rate: caregiverData?.hourly_rate || 0,
@@ -76,6 +77,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps & { handleUpdateSucc
             dni: formData.dni,
             address: formData.address,
             notes: formData.notes,
+                phone: formData.phone,
         };
 
         await updateProfile.mutateAsync({
