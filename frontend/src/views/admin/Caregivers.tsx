@@ -1,59 +1,24 @@
-export function Caregivers() {
-  const caregivers = [
-    {
-      id: "C-01",
-      name: "María López",
-      credentials: "12345678-9",
-      status: "Pendiente",
-      notes: "",
-      date: "2022-01-01",
-    },
-    {
-      id: "P-02",
-      name: "Juan Fernández",
-      credentials: "12345678-9",
-      status: "En Revisión",
-      notes: "",
-      date: "2022-01-01",
-    },
-    {
-      id: "P-03",
-      name: "María López",
-      credentials: "12345678-9",
-      status: "Aprobado",
-      notes: "",
-      date: "2022-01-01",
-    },
-    {
-      id: "P-04",
-      name: "Juan Fernández",
-      credentials: "12345678-9",
-      status: "Rechazado",
-      notes: "",
-      date: "2022-01-01",
-    },
-  ];
+import { useCaregivers } from "../../hooks";
+import { formatDate } from "../../utils/formatDate";
+import { getStatusColor } from "../../utils/status";
+import { translateStatus } from "../../utils/status";
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Pendiente":
-        return "bg-yellow-500/10 text-yellow-500";
-      case "En Revisión":
-        return "bg-blue-500/10 text-blue-500";
-      case "Aprobado":
-        return "bg-green-500/10 text-green-500";
-      case "Rechazado":
-        return "bg-red-500/10 text-red-500";
-      default:
-        return "bg-gray-500/10 text-gray-500";
-    }
-  };
+export function Caregivers() {
+
+ const {data: caregivers, isLoading} = useCaregivers();
+  
+  if(isLoading){
+    return (<div> loading</div>)
+  }
   return (
-    <>
-      <header className="rounded-3xl border border-border bg-surface p-6 shadow-lg">
-        <h1 className="text-2xl font-bold ">Administrar Pacientes</h1>
-        <p className="text-gray-400">
-          Gestionar los pacientes registrados en el sistema
+    <div className="p-5 bg-background">
+      <header className="rounded-3xl border border-border bg-surface p-8 shadow-xl relative overflow-hidden group">
+
+        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-primary/60">
+         Administrar Cuidadores
+        </h1>
+        <p className="text-text-secondary mt-2 max-w-2xl">
+          Gestionar los aplicantes registrados en el sistema
         </p>
       </header>
 
@@ -62,7 +27,7 @@ export function Caregivers() {
           <table className="min-w-full divide-y divide-border text-sm ">
             <thead className="bg-background text-left text-text-secondary whitespace-nowrap">
               <tr>
-                <th className="px-4 py-3 font-medium">Aplicante</th>
+                <th className="px-4 py-3 font-medium">Cuidador</th>
                 <th className="px-4 py-3 font-medium">Credenciales</th>
                 <th className="px-4 py-3 font-medium">Fecha de Registro</th>
                 <th className="px-4 py-3 font-medium">Estado</th>
@@ -70,9 +35,9 @@ export function Caregivers() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-surface whitespace-nowrap">
-              {caregivers.map((caregiver, index) => (
+              {caregivers?.map((caregiver) => (
                 <tr
-                  key={index}
+                  key={caregiver.id}
                   className="hover:bg-background hover:cursor-pointer"
                 >
                   <td className="px-4 py-4 flex items-center gap-2">
@@ -82,21 +47,21 @@ export function Caregivers() {
                       className="w-10 h-10 rounded-full"
                     />
                     <div className="flex flex-col">
-                      <p className="font-medium">{caregiver.name}</p>
+                      <p className="font-medium">{caregiver.full_name}</p>
                       <p className="text-xs text-text-secondary">
-                        {caregiver.id}
+                        {caregiver.profile_id}
                       </p>
                     </div>
                   </td>
-                  <td className="px-4 py-4">{caregiver.credentials}</td>
-                  <td className="px-4 py-4">{caregiver.date}</td>
+                  <td className="px-4 py-4">{caregiver.credentials || "N/A"}</td>
+                  <td className="px-4 py-4">{formatDate(caregiver.created_at || "")}</td>
                   <td className="px-4 py-4">
                     <span
                       className={`px-2 py-1 rounded-full ${getStatusColor(
-                        caregiver.status,
+                        caregiver.status || "",
                       )}`}
                     >
-                      {caregiver.status}
+                      {translateStatus(caregiver.status || "")}
                     </span>
                   </td>
                   <td className="px-4 py-4">
@@ -110,6 +75,6 @@ export function Caregivers() {
           </table>
         </div>
       </section>
-    </>
+    </div>
   );
 }

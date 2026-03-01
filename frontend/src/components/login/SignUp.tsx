@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Login } from "./LogIn";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../lib/axios/api";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
 
 type SignUpFormValues = {
   email: string;
@@ -32,24 +34,24 @@ export const SignUp = () => {
   });
 
   const onSubmit = handleSubmit(async (values) => {
-    console.log("SignUp payload", values);
-    if (values) {
-      const newUser = {
-        email: values.email,
-        password: values.password,
-        full_name: `${values.name} ${values.lastname}`,
-        role: values.role || "FAMILY",
-      };
-      // Aquí iría la lógica para enviar los datos al backend
+    const newUser = {
+      email: values.email,
+      password: values.password,
+      full_name: `${values.name} ${values.lastname}`,
+      role: values.role || "PATIENT",
+    };
+
+    try {
       const response = await api.post("/auth/register", newUser);
-      console.log("SignUp response", response);
-      if (response.status === 201) {
-        console.log("SignUp exitoso:", response.data);
-        setMode(true); // Cambia al modo de login después de un registro exitoso
-        navigate("/login"); // Redirige al login después de registrarse
+      if (response.status === 201 || response.status === 200) {
+        setMode(true);
+        toast.success("Usuario creado exitosamente")
+        navigate("/login");
       }
-    } else {
-      console.error("Error en el SignUp: No se proporcionaron datos válidos");
+    } catch (error) {
+      if(error instanceof AxiosError && error.response?.status === 400){
+        toast.error("No se pudo crear la cuenta, intenta de nuevo")
+      }
     }
   });
 
@@ -181,11 +183,11 @@ export const SignUp = () => {
                   htmlFor="role"
                 >
                   Rol
-                </label>
+                </label>        
                 <InputOptions
                   id="role"
                   options={[
-                    { value: "FAMILY", label: "Familiar / Paciente" },
+                    { value: "PATIENT", label: "Paciente" },
                     { value: "CAREGIVER", label: "Cuidador" },
                   ]}
                   {...register("role", {
@@ -193,9 +195,7 @@ export const SignUp = () => {
                   })}
                 />
                 {errors.role && (
-                  <p className="text-sm text-danger">
-                    {errors.role.message}
-                  </p>
+                  <p className="text-sm text-danger">{errors.role.message}</p>
                 )}
               </div>
 

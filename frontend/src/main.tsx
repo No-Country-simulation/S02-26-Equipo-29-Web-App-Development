@@ -3,12 +3,11 @@ import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import "./index.css";
 import { router } from "./router/router.tsx";
-import { UserProvider } from "./context/UserProvider.tsx";
+import { Toaster } from "sonner";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <UserProvider>
       <RouterProvider router={router} />
-    </UserProvider>
+      <Toaster richColors position="bottom-right" />
   </StrictMode>,
 );

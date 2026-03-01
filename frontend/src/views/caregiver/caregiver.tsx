@@ -21,8 +21,6 @@ export const CaregiverView: React.FC<{caregiver: Caregiver}> = ({caregiver}) => 
     const [documents, setDocuments] = useState<Document[]>([]);
     const [shifts, ] = useState<Shift[]>([]);
 
-    // console.log('Caregiver data:', caregiver);
-
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (files) {

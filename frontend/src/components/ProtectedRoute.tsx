@@ -1,13 +1,13 @@
 import { Navigate } from "react-router-dom";
-import { useUser } from "../context/UserContext";
+import { useUser } from "../hooks";
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useUser();
-  if (loading) {
+  const { data, isLoading } = useUser();
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (!user) {
+  if (!data) {
     return <Navigate to="/login" replace />;
   }
 

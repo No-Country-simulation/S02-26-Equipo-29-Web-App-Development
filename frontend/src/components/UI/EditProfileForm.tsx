@@ -1,54 +1,106 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import type { Caregiver } from "../../types";
-
+import type { Caregiver, Patient } from "../../types";
+import { toast } from "sonner";
+import { isAxiosError } from "axios";
+import { useUser, useUpdateProfile } from "../../hooks";
+import { useCaregiver } from "../../hooks";
+import { usePatient } from "../../hooks/patient/usePatient";
 interface EditProfileFormData {
     full_name: string;
     email: string;
-    phone: string;
+    phone?: string;
     cbu?: string;
     mercado_pago_alias?: string;
     hourly_rate?: number;
+    address?: string;
+    notes?: string;
+    dni?: string;
 }
 
-interface EditProfileFormProps {
-    user: Caregiver;
-    onSubmit: (data: EditProfileFormData) => Promise<void>;
+interface EditProfileFormPropsCaregiver {
+    user: Caregiver
 }
 
-export const EditProfileForm: React.FC<EditProfileFormProps> = ({
-    user,
-    onSubmit,
+interface EditProfileFormPropsPatient {
+    user: Patient
+}
+
+type EditProfileFormProps = EditProfileFormPropsCaregiver | EditProfileFormPropsPatient;
+
+export const EditProfileForm: React.FC<EditProfileFormProps & { handleUpdateSuccess: () => void }> = ({
+    user, handleUpdateSuccess
 }) => {
-    const [isLoading, setIsLoading] = useState(false);
+ const [isPending,setIsPending] = useState(false);
+ const { data: currentUser } = useUser();
+ const { data: caregiverData } = useCaregiver();
+ const { data: patientData } = usePatient();
+ 
+
+    const defaultValues: EditProfileFormData = {
+        full_name: user.full_name,
+        email: user.email,
+        phone: currentUser?.phone || "",
+        ...(currentUser?.role === "CAREGIVER" && {
+            phone: caregiverData?.phone || currentUser?.phone || "",
+            cbu: caregiverData?.cbu || "",
+            mercado_pago_alias: caregiverData?.mercado_pago_alias || "",
+            hourly_rate: caregiverData?.hourly_rate || 0,
+        }),
+        ...(currentUser?.role === "PATIENT" && {
+            address: patientData?.address || "",
+            notes: patientData?.notes || "",
+            dni: patientData?.dni || "",
+        }),
+    };
+
     const {
         register,
         handleSubmit,
         formState: { errors },
-        reset,
     } = useForm<EditProfileFormData>({
-        defaultValues: {
-            full_name: user.full_name,
-            email: user.email,
-            phone: user.phone,
-            cbu: user.cbu || "",
-            mercado_pago_alias: user.mercado_pago_alias || "",
-            hourly_rate: user.hourly_rate || 0,
-        },
+        defaultValues,
     });
 
-    const handleFormSubmit = async (data: EditProfileFormData) => {
-        setIsLoading(true);
-        try {
-            await onSubmit(data);
-            reset(data);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const updateProfile = useUpdateProfile();
+
+   const onSubmit = async (formData: EditProfileFormData) => {
+    try {
+        setIsPending(true);
+        const role = currentUser?.role as string;
+        const profileData = role === "CAREGIVER" ? {
+            phone: formData.phone,
+            cbu: formData.cbu,
+            mercado_pago_alias: formData.mercado_pago_alias,
+            hourly_rate: formData.hourly_rate,
+        } : {
+            dni: formData.dni,
+            address: formData.address,
+            notes: formData.notes,
+                phone: formData.phone,
+        };
+
+        await updateProfile.mutateAsync({
+            id: user?.id as string,
+            role,
+            data: profileData,
+        });
+        
+        toast.success("Perfil actualizado exitosamente");
+        handleUpdateSuccess();
+    } catch (error: unknown) {
+       if(isAxiosError(error)){
+        toast.error(error.response?.data.message);
+       } else {
+        toast.error("Error al editar el perfil");
+       }
+    }finally{
+        setIsPending(false);
+    }
+   }
 
     return (
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 mt-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4">
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     Nombre Completo
@@ -115,6 +167,8 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({
                 )}
             </div>
 
+            {currentUser?.role === "CAREGIVER" && (
+            <>
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     CBU
@@ -183,13 +237,71 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({
                     </span>
                 )}
             </div>
+            </>
+            )}
+
+            {currentUser?.role === "PATIENT" && (
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Dirección
+                    </label>
+                    <input
+                        type="text"
+                        {...register("address", {
+                            
+                            minLength: { value: 5, message: "Mínimo 5 caracteres" },
+                        })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Tu dirección"
+                    />
+                    {errors.address && (
+                        <span className="text-red-500 text-sm mt-1">
+                            {errors.address.message}
+                        </span>
+                    )}
+
+                    <label className="block text-sm font-medium text-gray-700 mb-1 mt-4">
+                        Notas
+                    </label>
+                    <textarea
+                        {...register("notes", { 
+                            
+                        })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Tus notas"
+                    />
+                    {errors.notes && (
+                        <span className="text-red-500 text-sm mt-1">
+                            {errors.notes.message}
+                        </span>
+                    )}
+
+                    <label className="block text-sm font-medium text-gray-700 mb-1 mt-4">
+                        DNI
+                    </label>
+                    <input
+                        type="text"
+                        {...register("dni", {
+                            
+                            minLength: { value: 5, message: "Mínimo 5 caracteres" },
+                        })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Tu DNI"
+                    />
+                    {errors.dni && (
+                        <span className="text-red-500 text-sm mt-1">
+                            {errors.dni.message}
+                        </span>
+                    )}
+                </div>
+            )}
 
             <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isPending}
                 className="w-full bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary-hover disabled:bg-gray-400 transition-colors"
             >
-                {isLoading ? "Guardando..." : "Guardar cambios"}
+                {isPending ? "Guardando..." : "Guardar cambios"}
             </button>
         </form>
     );

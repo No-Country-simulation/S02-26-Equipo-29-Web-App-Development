@@ -15,6 +15,11 @@ import { PayrollsModule } from './modules/payrolls/payroll.module';
 import { MediaModule } from './shared/media/media.module';
 import { AdminModule } from './modules/admin/admin.module';
 import cloudinaryConfig from './config/cloudinary.config';
+import { HealthModule } from './modules/health/health.module';
+import { RatingsModule } from './modules/ratings/rating.module';
+import { QueueModule } from './modules/queue/queue.module';
+import { MailModule } from './modules/email/email.module';
+
 @Module({
   imports: [
     // 🌍 Variables de entorno
@@ -50,6 +55,10 @@ import cloudinaryConfig from './config/cloudinary.config';
     MediaModule,
     // 🛠️ Admin (panel de administración)
     AdminModule,
+    HealthModule,
+    RatingsModule,
+    QueueModule,
+    MailModule,
   ],
 })
 export class AppModule {}

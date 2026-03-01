@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Controller, Post, Body, UseGuards, Get, Req } from '@nestjs/common';
 import { Request } from 'express';
 
@@ -32,14 +33,12 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async me(@Req() req: RequestWithUser) {
-    const { profileId } = req.user;
-
-    const profile = await this.profilesService.findById(profileId);
+    const { sub } = req.user;
+    const profile = await this.profilesService.findById(sub);
 
     if (!profile) {
       return null;
     }
-
     return {
       id: profile.id,
       full_name: profile.full_name,

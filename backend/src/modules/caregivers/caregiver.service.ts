@@ -12,6 +12,7 @@ import { CaregiverDocument } from './caregiver-document.entity';
 import { UploadDocumentDto } from './dto/upload-document.dto';
 import { CaregiverDocumentStatus } from './enums/caregiver-document-status.enum';
 import { CloudinaryService } from '../../shared/media/media.service';
+import { CaregiverDocumentType } from './enums/caregiver-document-type.enum';
 
 @Injectable()
 export class CaregiverService {
@@ -25,8 +26,52 @@ export class CaregiverService {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
+  async getDocuments(profileId: string) {
+    const documents = await this.documentRepo.find({
+      where: { caregiver: { profile_id: profileId } },
+    });
+    return documents;
+  }
+
   async findAll() {
-    return this.caregiverRepo.find();
+    const caregivers = await this.caregiverRepo.find({
+      relations: ['profile', 'documents', 'shifts', 'payrolls'],
+    });
+    const data = caregivers.map((caregiver) => {
+      return {
+        full_name: caregiver.profile.full_name,
+        profile_id: caregiver.profile_id,
+        phone: caregiver.phone,
+        cbu: caregiver.cbu,
+        mercado_pago_alias: caregiver.mercado_pago_alias,
+        hourly_rate: caregiver.hourly_rate,
+        is_verified: caregiver.is_verified,
+        created_at: caregiver.profile.created_at,
+        status: caregiver.status,
+        front_dni: caregiver.documents.find(
+          (doc: CaregiverDocument) =>
+            doc.document_type === CaregiverDocumentType.DNI_FRONT,
+        )?.file_url,
+        back_dni: caregiver.documents.find(
+          (doc: CaregiverDocument) =>
+            doc.document_type === CaregiverDocumentType.DNI_BACK,
+        )?.file_url,
+        criminal_record: caregiver.documents.find(
+          (doc: CaregiverDocument) =>
+            doc.document_type === CaregiverDocumentType.CRIMINAL_RECORD,
+        )?.file_url,
+        certificate: caregiver.documents.find(
+          (doc: CaregiverDocument) =>
+            doc.document_type === CaregiverDocumentType.CERTIFICATE,
+        )?.file_url,
+        contract: caregiver.documents.find(
+          (doc: CaregiverDocument) =>
+            doc.document_type === CaregiverDocumentType.CONTRACT,
+        )?.file_url,
+      };
+    });
+
+    return data;
   }
 
   async create(caregiver: Caregiver) {
@@ -57,7 +102,7 @@ export class CaregiverService {
   async uploadDocument(
     caregiverProfileId: string,
     dto: UploadDocumentDto,
-    file: unknown,
+    file: Express.Multer.File,
   ): Promise<CaregiverDocument> {
     // 1️⃣ Validar caregiver
     const caregiver = await this.caregiverRepo.findOne({
@@ -80,13 +125,11 @@ export class CaregiverService {
       throw new BadRequestException('El documento ya fue cargado');
     }
 
-    // 3️⃣ Subir archivo a Cloudinary
     const upload = await this.cloudinaryService.uploadImage(file, {
       folder: `caregivers/${caregiverProfileId}`,
       resource_type: 'auto',
     });
 
-    // 4️⃣ Crear documento
     const document = this.documentRepo.create({
       caregiver,
       document_type: dto.document_type,
@@ -94,7 +137,35 @@ export class CaregiverService {
       status: CaregiverDocumentStatus.PENDING,
     });
 
-    // 5️⃣ Guardar
     return this.documentRepo.save(document);
+  }
+
+  async uploadMultipleDocuments(
+    caregiverProfileId: string,
+    files: { [key: string]: Express.Multer.File[] },
+  ) {
+    const results: CaregiverDocument[] = [];
+    for (const [type, fileArray] of Object.entries(files)) {
+      if (fileArray && fileArray.length > 0) {
+        const file = fileArray[0];
+        const dto = new UploadDocumentDto();
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        dto.document_type = type;
+        results.push(await this.uploadDocument(caregiverProfileId, dto, file));
+      }
+    }
+    return results;
+  }
+
+  async deleteDocument(id: string, caregiverProfileId: string) {
+    const document = await this.documentRepo.findOne({
+      where: { id, caregiver: { profile_id: caregiverProfileId } },
+    });
+    if (!document) {
+      throw new NotFoundException('Documento no encontrado');
+    }
+    await this.cloudinaryService.delete(document.file_url);
+    return this.documentRepo.remove(document);
   }
 }
