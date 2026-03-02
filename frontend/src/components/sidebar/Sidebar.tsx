@@ -31,6 +31,7 @@ const navLinks: Record<
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
     { title: "Agenda", href: "/agenda", icon: CalendarIcon },
     { title: "Mi Información", href: "/caregiver_info", icon: UserPlusIcon },
+      { title: "Mis Sueldos", href: "/caregiver/payrolls", icon: DollarSign },
   ],
   FAMILY: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },

@@ -1,6 +1,6 @@
 import React from "react";
 import { MessagesSquare, ZoomIn } from "lucide-react";
-import { useState, useRef, useEffect, type ChangeEvent } from "react";
+import { useState, useEffect, type ChangeEvent } from "react";
 import { Patient } from "../../components/patient/patient";
 import { useCaregivers, useUser } from "../../hooks";
 import { useCaregiverShifts } from "../../hooks/caregiver/useCaregiver";
@@ -50,26 +50,26 @@ export const Agenda = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
-  const calendarRef = useRef<HTMLElement & { value?: string }>(null);
+  // const calendarRef = useRef<HTMLElement & { value?: string }>(null);
   const totalPages = Math.max(1, Math.ceil(caregiverShifts.length / pageSize));
   const paginatedPatients = caregiverShifts.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
   );
 
-  useEffect(() => {
-    if (!calendarOpen || !calendarRef.current) return;
+  // useEffect(() => {
+  //   if (!calendarOpen || !calendarRef.current) return;
 
-    const calendar = calendarRef.current;
-    const handleChange = (event: Event) => {
-      const value = (event.currentTarget as typeof calendar).value ?? "";
-      const [start = "", end = ""] = value.split("/");
-      setRange(start && end ? { start, end } : null);
-    };
+  //   const calendar = calendarRef.current;
+  //   const handleChange = (event: Event) => {
+  //     const value = (event.currentTarget as typeof calendar).value ?? "";
+  //     const [start = "", end = ""] = value.split("/");
+  //     setRange(start && end ? { start, end } : null);
+  //   };
 
-    calendar.addEventListener("change", handleChange);
-    return () => calendar.removeEventListener("change", handleChange);
-  }, [calendarOpen]);
+  //   calendar.addEventListener("change", handleChange);
+  //   return () => calendar.removeEventListener("change", handleChange);
+  // }, [calendarOpen]);
 
   useEffect(() => {
     setCurrentPage((prev) => Math.min(prev, totalPages));

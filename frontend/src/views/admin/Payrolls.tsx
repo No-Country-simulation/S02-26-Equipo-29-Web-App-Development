@@ -12,7 +12,7 @@ export function Payrolls() {
 
   if (isLoading) {
     return (
-      <div className="p-10 flex flex-col items-center justify-center gap-4 text-text-secondary min-h-[400px]">
+      <div className="p-10 flex flex-col items-center justify-center gap-4 text-text-secondary min-h-100">
         <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
         <p className="font-medium animate-pulse">Cargando información de sueldos...</p>
       </div>

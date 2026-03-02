@@ -1,5 +1,5 @@
 import React from "react";
-import { MessagesSquare, SquareCheckBig, SquareX, Star, XIcon, ZoomIn } from "lucide-react";
+import { MessagesSquare, SquareCheckBig, Star, XIcon, ZoomIn } from "lucide-react";
 import { useState, useRef, useEffect, type ChangeEvent } from "react";
 import { Patient } from "../../components/patient/patient";
 import { useUser } from "../../hooks";
@@ -58,19 +58,19 @@ export const PatientSchedule = () => {
     setReportDialogOpen(true);
   };
 
-  useEffect(() => {
-    if (!calendarOpen || !calendarRef.current) return;
+  // useEffect(() => {
+  //   if (!calendarOpen || !calendarRef.current) return;
 
-    const calendar = calendarRef.current;
-    const handleChange = (event: Event) => {
-      const value = (event.currentTarget as typeof calendar).value ?? "";
-      const [start = "", end = ""] = value.split("/");
-      setRange(start && end ? { start, end } : null);
-    };
+  //   const calendar = calendarRef.current;
+  //   const handleChange = (event: Event) => {
+  //     const value = (event.currentTarget as typeof calendar).value ?? "";
+  //     const [start = "", end = ""] = value.split("/");
+  //     // setRange(start && end ? { start, end } : null);
+  //   };
 
-    calendar.addEventListener("change", handleChange);
-    return () => calendar.removeEventListener("change", handleChange);
-  }, [calendarOpen]);
+  //   calendar.addEventListener("change", handleChange);
+  //   return () => calendar.removeEventListener("change", handleChange);
+  // }, [calendarOpen]);
 
   useEffect(() => {
     setCurrentPage((prev) => Math.min(prev, totalPages));
@@ -213,7 +213,7 @@ export const PatientSchedule = () => {
                       {shift.report ? (
                         <button
                           type="button"
-                          onClick={() => handleOpenReportDialog(shift.report)}
+                          onClick={() => handleOpenReportDialog(shift.report || "")}
                           className="rounded-2xl border border-border px-3 py-2 text-xs font-medium text-text-primary transition hover:bg-accent/20"
                         >
                           <ZoomIn className="text-text-primary" />

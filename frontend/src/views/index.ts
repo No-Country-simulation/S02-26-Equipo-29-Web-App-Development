@@ -9,5 +9,6 @@ export { PatientInfo } from "./patient/PatientInfo";
 export { PatientSchedule } from "./patient/PatientSchedule";
 export { Agenda } from "./caregiver/AgendaCaregiver";
 export { CaregiverInfo } from "./caregiver/CaregiverInfo";
+export { PayrollsCaregiver } from "./caregiver/PayrollsCaregiver";
 
 
