@@ -23,10 +23,13 @@ export class PayrollsService {
     const countQuery = this.payrollRepository
       .createQueryBuilder('payroll')
       .leftJoin('payroll.caregiver', 'caregiver')
+      .leftJoin('payroll.payment', 'payment')
       .select('caregiver.profile_id')
       .addSelect('payroll.status')
+      .addSelect('payment.id')
       .groupBy('caregiver.profile_id')
-      .addGroupBy('payroll.status');
+      .addGroupBy('payroll.status')
+      .addGroupBy('payment.id');
 
     const totalGroups = await countQuery.getRawMany();
     const count = totalGroups.length;
@@ -35,6 +38,7 @@ export class PayrollsService {
       .createQueryBuilder('payroll')
       .leftJoin('payroll.caregiver', 'caregiver')
       .leftJoin('caregiver.profile', 'profile')
+      .leftJoin('payroll.payment', 'payment')
       .select('caregiver.profile_id', 'profile_id')
       .addSelect('caregiver.cbu', 'cbu')
       .addSelect('caregiver.mercado_pago_alias', 'mercado_pago_alias')
@@ -42,13 +46,15 @@ export class PayrollsService {
       .addSelect('SUM(payroll.total_hours)', 'totalHours')
       .addSelect('SUM(payroll.total_amount)', 'totalAmount')
       .addSelect('payroll.status', 'status')
+      .addSelect('payment.id', 'payment_id')
+      .addSelect('ARRAY_AGG(payroll.id)', 'ids')
       .groupBy('caregiver.profile_id')
       .addGroupBy('profile.full_name')
       .addGroupBy('payroll.status')
+      .addGroupBy('payment.id')
       .limit(limit)
       .offset((page - 1) * limit)
       .getRawMany();
-
     return {
       payrolls: data,
       meta: {

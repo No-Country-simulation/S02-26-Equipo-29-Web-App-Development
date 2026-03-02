@@ -6,7 +6,7 @@ import { PayrollsController } from './payrolls.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Payroll])],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, PayrollsService],
   controllers: [PayrollsController],
   providers: [PayrollsService],
 })

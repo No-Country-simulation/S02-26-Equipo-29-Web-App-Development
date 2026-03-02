@@ -5,7 +5,6 @@ import {
   Column,
   ManyToOne,
   CreateDateColumn,
-  OneToMany,
 } from 'typeorm';
 import { Caregiver } from '../caregivers/caregiver.entity';
 import { Payment } from '../payments/payment.entity';
@@ -43,6 +42,6 @@ export class Payroll {
   @CreateDateColumn()
   created_at: Date;
 
-  @OneToMany(() => Payment, (payment) => payment.payroll)
-  payments: Payment[];
+  @ManyToOne(() => Payment, (payment) => payment.payrolls)
+  payment: Payment;
 }
