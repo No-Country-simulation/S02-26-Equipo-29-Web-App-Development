@@ -10,6 +10,7 @@ import { Shift } from '../shifts/shift.entity';
 import { ShiftStatus } from '../shifts/enums/shift-status.enum';
 import { PatientDocument } from '../patients/patient-document.entity';
 import { Rating } from '../ratings/rating.entity';
+import { PatientStatus } from '../patients/enums/patient-status-enum';
 
 @Injectable()
 export class AdminService {
@@ -104,14 +105,21 @@ export class AdminService {
       ratingsLastWeek,
       ratings,
     ] = await Promise.all([
-      this.patientRepo.count(),
+      this.patientRepo.count({
+        where: {
+          status: PatientStatus.APPROVED,
+        },
+      }),
       this.caregiverRepo.count({
         where: {
           status: Status.APPROVED,
         },
       }),
       this.patientRepo.count({
-        where: { created_at: Between(startOfWeek, endOfWeek) },
+        where: {
+          status: PatientStatus.APPROVED,
+          created_at: Between(startOfWeek, endOfWeek),
+        },
       }),
       this.caregiverRepo.count({
         where: {

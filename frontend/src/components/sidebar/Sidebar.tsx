@@ -91,6 +91,17 @@ export function Sidebar() {
         </ul>
       </nav>
 
+      <div className="p-2 border-t border-gray-100 flex-shrink-0 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        {
+          user && (
+            <div className="flex flex-col items-center justify-center">
+              <p className="text-xs text-gray-500">{user?.full_name}</p>
+              <p className="text-xs text-gray-500">{user?.email}</p>
+            </div>
+          )
+        }
+      </div>
+
       {/* Logout */}
       <div className="p-2 border-t border-gray-100 flex-shrink-0 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
         <button

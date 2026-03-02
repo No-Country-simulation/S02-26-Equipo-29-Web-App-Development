@@ -17,6 +17,7 @@ import { ProtectedRoute } from "../components/ProtectedRoute";
 import { MainDashboard } from "../components/dashboard/MainDashboard";
 import { QueryClientProvider } from "../providers/QueryClientProvider";
 
+
 export const router = createBrowserRouter([
   {
     path: "/",
