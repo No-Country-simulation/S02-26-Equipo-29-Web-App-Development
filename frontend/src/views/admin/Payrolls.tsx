@@ -59,8 +59,8 @@ export function Payrolls() {
                   <th className="px-6 py-4">Cuidador</th>
                   <th className="px-6 py-4">Horas Totales</th>
                   <th className="px-6 py-4">Monto a Liquidar</th>
-                  <th className="px-6 py-4">Estado</th>
-                  <th className="px-6 py-4 text-right">OPERACIONES</th>
+                  <th className="px-6 py-4 text-left">Estado</th>
+                  <th className="px-6 py-4 text-center">OPERACIONES</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border whitespace-nowrap">

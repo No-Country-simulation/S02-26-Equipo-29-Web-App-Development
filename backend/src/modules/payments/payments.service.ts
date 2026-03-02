@@ -8,6 +8,7 @@ import { CloudinaryService } from '../../shared/media/media.service';
 import { Payroll } from '../payrolls/payroll.entity';
 import { PaymentMethod } from './enum/payment-method.enum';
 import { CreateTransferDto } from './dto/create-transfer.dto';
+import { PaymentStatus } from './enum/payment-status.enum';
 
 @Injectable()
 export class PaymentService {
@@ -44,14 +45,18 @@ export class PaymentService {
     const payment = this.paymentRepository.create({
       amount: Number(amount),
       payment_method: PaymentMethod.TRANSFER,
-      status: 'completed',
+      status: PaymentStatus.PAYED,
       transfer_receipt: upload.secure_url,
+      paid_at: new Date(),
     });
     await this.paymentRepository.save(payment);
 
     await this.payrollRepository.update(
       { id: In(payrollIds) },
-      { status: 'approved' },
+      {
+        status: 'approved',
+        payment: payment,
+      },
     );
 
     return payment;
