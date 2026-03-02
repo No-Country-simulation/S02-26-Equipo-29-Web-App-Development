@@ -1,6 +1,7 @@
 // src/modules/payments/entities/payment.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Payroll } from '../payrolls/payroll.entity';
+import { PaymentMethod } from './enum/payment-method.enum';
 
 @Entity('payments')
 export class Payment {
@@ -10,11 +11,14 @@ export class Payment {
   @ManyToOne(() => Payroll, (payroll) => payroll.payments)
   payroll: Payroll;
 
-  @Column()
-  payment_method: string;
+  @Column({ type: 'numeric', precision: 15, scale: 2, default: 0 })
+  amount: number;
+
+  @Column({ type: 'enum', enum: PaymentMethod })
+  payment_method: PaymentMethod;
 
   @Column({ nullable: true })
-  external_reference: string;
+  transfer_receipt: string;
 
   @Column()
   status: string;

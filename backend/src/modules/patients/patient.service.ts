@@ -61,7 +61,10 @@ export class PatientService {
     const { phone, ...patientData } = updateData;
 
     // Actualizar usando el método update de TypeORM
-    const result = await this.patientRepo.update({ profile_id: id }, patientData);
+    const result = await this.patientRepo.update(
+      { profile_id: id },
+      patientData,
+    );
 
     if (typeof phone !== 'undefined') {
       await this.profileRepo.update({ id }, { phone });

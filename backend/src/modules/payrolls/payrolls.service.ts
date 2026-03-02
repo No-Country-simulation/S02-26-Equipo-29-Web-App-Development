@@ -42,13 +42,13 @@ export class PayrollsService {
       .addSelect('SUM(payroll.total_hours)', 'totalHours')
       .addSelect('SUM(payroll.total_amount)', 'totalAmount')
       .addSelect('payroll.status', 'status')
+      .addSelect('ARRAY_AGG(payroll.id)', 'ids')
       .groupBy('caregiver.profile_id')
       .addGroupBy('profile.full_name')
       .addGroupBy('payroll.status')
       .limit(limit)
       .offset((page - 1) * limit)
       .getRawMany();
-
     return {
       payrolls: data,
       meta: {

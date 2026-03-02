@@ -57,8 +57,13 @@ export const Login = () => {
         <SignUp />
       ) : (
         <section className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
+         
           <div className="w-full max-w-md rounded-3xl border border-border bg-surface shadow-xl p-8">
-            <div className="space-y-2 text-center mb-8">
+            
+            <div className="space-y-2 text-center mb-8 flex flex-col items-center">
+              <div className="flex items-center justify-center w-[100px] h-[100px]">
+              <img src="/logo.png" alt="logo" />
+            </div>
               <p className="text-sm uppercase tracking-[0.25em] text-text-secondary">
                 Bienvenido
               </p>
@@ -130,12 +135,15 @@ export const Login = () => {
               >
                 {isSubmitting ? "Ingresando..." : "Entrar"}
               </button>
-              <button
-                onClick={() => setMode(!Mode)}
-                className="w-full rounded-2xl bg-primary px-4 py-3 text-white font-medium transition hover:bg-primary-hover disabled:opacity-70"
-              >
-                {isSubmitting ? "Ingresando..." : "Crear una cuenta"}
-              </button>
+             <div className="flex items-center justify-center space-x-2">
+                <p>¿No tienes una cuenta?</p>
+                <button
+                  onClick={() => setMode(!Mode)}
+                  className="text-primary cursor-pointer"
+                >
+                {isSubmitting ? "Ingresando..." : "Crear Cuenta"}
+                </button>
+              </div>
             </form>
           </div>
         </section>

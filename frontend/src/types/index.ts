@@ -101,6 +101,7 @@ export interface Shift {
 
 export interface Payroll {
   profile_id: string;
+  ids: string[];
   cbu: string | null;
   mercado_pago_alias: string | null;
   hourly_rate: number | null;

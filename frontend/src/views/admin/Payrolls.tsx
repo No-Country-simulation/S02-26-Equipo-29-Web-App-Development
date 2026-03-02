@@ -4,11 +4,24 @@ import { getStatusColor, translateStatus } from "../../utils/status";
 import { takeFirstLetters } from "../../utils/firstLetters";
 import { ChevronLeft, ChevronRight, Calculator, Landmark } from "lucide-react";
 import type { Payroll } from "../../types";
+import { PaymentModal } from "../../components";
 
 export function Payrolls() {
+  const [selectedPayroll, setSelectedPayroll] = useState<Payroll | null>(null);
+  const [showModal, setShowModal] = useState(false);
   const [page, setPage] = useState(1);
   const limit = 10;
   const { data, isLoading } = usePayrolls(page, limit);
+
+  const handleSelectPayroll = (payroll: Payroll) => {
+    setSelectedPayroll(payroll);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedPayroll(null);
+    setShowModal(false);
+  };
 
   if (isLoading) {
     return (
@@ -52,6 +65,7 @@ export function Payrolls() {
               </thead>
               <tbody className="divide-y divide-border whitespace-nowrap">
                 {payrolls.length > 0 ? (
+
                   payrolls.map((payroll: Payroll) => (
                     <tr
                       key={`${payroll.profile_id}-${payroll.status}`}
@@ -105,7 +119,9 @@ export function Payrolls() {
                         </span>
                       </td>
                       <td className="px-6 py-5 text-right">
-                        <button className="relative overflow-hidden cursor-pointer bg-surface hover:bg-primary hover:text-white border-2 border-border hover:border-primary rounded-2xl px-8 py-2.5 text-xs font-black uppercase tracking-widest transition-all hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] active:scale-95 group">
+                        <button 
+                        onClick={() => handleSelectPayroll(payroll)}
+                        className="relative overflow-hidden cursor-pointer bg-surface hover:bg-primary hover:text-white border-2 border-border hover:border-primary rounded-2xl px-8 py-2.5 text-xs font-black uppercase tracking-widest transition-all hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] active:scale-95 group">
                           <span className="relative z-10 transition-colors">Liquidar</span>
                         </button>
                       </td>
@@ -146,6 +162,17 @@ export function Payrolls() {
               </div>
             </div>
           )}
+          {showModal && (
+            <PaymentModal
+              caregiverName={selectedPayroll?.full_name || ""}
+              amount={selectedPayroll?.totalAmount || 0}
+              cbu={selectedPayroll?.cbu || "No ingresado"}
+              ids={selectedPayroll?.ids || []}
+              mercadoPagoAlias={selectedPayroll?.mercado_pago_alias || "No ingresado"}
+              onClose={handleCloseModal}
+            />
+          )}
+         
         </div>
       </section>
     </div>
