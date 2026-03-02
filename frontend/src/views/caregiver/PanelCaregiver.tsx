@@ -1,7 +1,7 @@
 
 import { useCaregiverShifts } from "../../hooks/caregiver/useCaregiver";
 import type { User } from "../../types";
-import { formatDate, formatDateSafe, formatTime } from "../../utils/formatDate";
+import { formatDateSafe, formatTime } from "../../utils/formatDate";
 import { Agenda } from "./AgendaCaregiver";
 import { CaregiverInfo } from "./CaregiverInfo";
 
@@ -9,10 +9,10 @@ import { CaregiverInfo } from "./CaregiverInfo";
 export const PanelCaregiver = ({user}: {user: User}) => {
   const { data: shifts } = useCaregiverShifts();
 
-  console.log(shifts)
+  
   return (
-    <main className="min-h-screen bg-background p-8 text-text-primary w-auto flex-1">
-      <section className="mx-auto max-w-5xl space-y-8">
+    <main className="min-h-screen flex-1 bg-background px-4 py-8 text-text-primary lg:px-8">
+      <section className="mx-auto w-full max-w-5xl space-y-8">
         <header className="rounded-3xl border border-border bg-surface p-6 shadow-lg">
           <p className="text-xs uppercase tracking-[0.4em] text-text-secondary">
             Panel cuidador
@@ -43,9 +43,11 @@ export const PanelCaregiver = ({user}: {user: User}) => {
           </p>
         </header>
 
-        <Agenda />
+        <div className="w-full">
+          <Agenda />
+        </div>
         
-        <section className="mx-auto max-w-5xl space-y-8 mt-8">
+        <section className="mt-8 w-full space-y-8">
             <CaregiverInfo />
         </section>
 

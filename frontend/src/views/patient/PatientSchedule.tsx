@@ -1,6 +1,6 @@
 import React from "react";
 import { MessagesSquare, SquareCheckBig, Star, XIcon, ZoomIn } from "lucide-react";
-import { useState, useRef, useEffect, type ChangeEvent } from "react";
+import { useState, useEffect, type ChangeEvent } from "react";
 import { Patient } from "../../components/patient/patient";
 import { useUser } from "../../hooks";
 import { useShifts, useFinalizeShift } from "../../hooks/patient/useShifts";
@@ -8,6 +8,7 @@ import { formatDayMonth, formatTime } from "../../utils/formatDate";
 import { toast } from "sonner";
 import { ReporteDialog } from "../../components/caregiver/Reporte";
 import { ShiftCardDialog } from "../../components/shifts/summaryShift";
+import { Calendar } from "../../components/UI/Calendar";
 
 export const PatientSchedule = () => {
   const { data: user } = useUser();
@@ -26,7 +27,6 @@ export const PatientSchedule = () => {
       medicacion: "",
       observaciones: "",
     });
-  const [calendarOpen, setCalendarOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [assignedPatients, ] = useState<
@@ -40,8 +40,6 @@ export const PatientSchedule = () => {
     }[]
   >([]);
 
-
-  const calendarRef = useRef<HTMLElement & { value?: string }>(null);
   const totalPages = Math.max(1, Math.ceil(assignedPatients.length / pageSize));
   const paginatedPatients = assignedPatients.slice(
     (currentPage - 1) * pageSize,
@@ -57,20 +55,6 @@ export const PatientSchedule = () => {
     });
     setReportDialogOpen(true);
   };
-
-  // useEffect(() => {
-  //   if (!calendarOpen || !calendarRef.current) return;
-
-  //   const calendar = calendarRef.current;
-  //   const handleChange = (event: Event) => {
-  //     const value = (event.currentTarget as typeof calendar).value ?? "";
-  //     const [start = "", end = ""] = value.split("/");
-  //     // setRange(start && end ? { start, end } : null);
-  //   };
-
-  //   calendar.addEventListener("change", handleChange);
-  //   return () => calendar.removeEventListener("change", handleChange);
-  // }, [calendarOpen]);
 
   useEffect(() => {
     setCurrentPage((prev) => Math.min(prev, totalPages));
@@ -124,10 +108,6 @@ export const PatientSchedule = () => {
     return Number(((endDate - startDate) / (1000 * 60 * 60)).toFixed(2));
   };
 
-  console.log("Shifts del hook:", hookShifts);
-
-  // const rangeValue = range ? `${range.start}/${range.end}` : "";
-
   return (
     <>
       <section className="m-10 rounded-3xl border border-border bg-surface p-6 shadow-lg">
@@ -155,12 +135,9 @@ export const PatientSchedule = () => {
                 </option>
               ))}
             </select>
-            <button
-              onClick={() => setCalendarOpen(true)}
-              className="rounded-2xl bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-hover"
-            >
-              Ver calendario completo
-            </button>
+
+           <Calendar />                      
+
           </div>
         </div>
 
@@ -275,9 +252,23 @@ export const PatientSchedule = () => {
           <Patient
             open={patientDialogOpen}
             onClose={() => setPatientDialogOpen(false)}
-            patient={selectedPatient}
-            user={user}
-            shift={hookShifts.find((shift) => shift.patient?.profile_id === selectedPatient.id) || undefined}
+            patient={selectedPatient as any}
+            user={user as any}
+            shift={(() => {
+              const foundShift = hookShifts.find((shift) => shift.patient?.profile_id === selectedPatient.id);
+              return foundShift && foundShift.startTime && foundShift.endTime ? {
+                id: foundShift.id,
+                caregiver_id: foundShift.caregiver?.profile_id || "",
+                patient_id: foundShift.patient?.profile_id || "",
+                startTime: foundShift.startTime,
+                endTime: foundShift.endTime,
+                location: foundShift.location || "",
+                caregiver: foundShift.caregiver ? {
+                  full_name: foundShift.caregiver.full_name || "",
+                  phone: foundShift.caregiver.phone || "",
+                } : undefined,
+              } : undefined;
+            })()}
           />
         )}
 
@@ -413,7 +404,7 @@ export const PatientSchedule = () => {
                       },
                       startTime: shift.startTime,
                       endTime: shift.endTime,
-                      rating: shift.rating,
+                      rating: shift.rating || undefined,
                       status: shift.status,
                       patient: {
                         full_name: shift.patient?.profile?.full_name || "-",
