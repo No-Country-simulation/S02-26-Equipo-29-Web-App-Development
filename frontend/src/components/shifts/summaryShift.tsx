@@ -9,6 +9,7 @@ interface Shift {
     rating?: { number: number };
     status: string;
     // Add more fields as needed
+    patient?: { full_name: string };
     patientName?: string;
     location?: string;
     notes?: string;
@@ -69,7 +70,7 @@ export function ShiftCardDialog({ shift, isOpen, onOpenChange }: ShiftCardDialog
 
                     <div className="border-b border-border pb-4">
                         <p className="text-sm font-semibold text-text-secondary">Paciente</p>
-                        <p className="text-base text-text-primary">{shift.patient.full_name || "-"}</p>
+                        <p className="text-base text-text-primary">{shift.patient?.full_name || "-"}</p>
                     </div>
 
                     <div className="border-b border-border pb-4">

@@ -11,6 +11,7 @@ import {
   PatientSchedule,
   Payrolls,
   Registration,
+  PayrollsCaregiver,
 } from "../views";
 import { ProtectedRoute } from "../components/ProtectedRoute";
 import { MainDashboard } from "../components/dashboard/MainDashboard";
@@ -83,6 +84,10 @@ export const router = createBrowserRouter([
         path: "/patient/schedule",
         element: <PatientSchedule />,
       },
+      {
+        path: "/caregiver/payrolls",
+        element: <PayrollsCaregiver />,
+      }
     ],
   },
 ]);

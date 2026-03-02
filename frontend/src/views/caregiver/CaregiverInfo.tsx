@@ -28,8 +28,8 @@ export const CaregiverInfo: React.FC = () => {
 
 
     return (
-        <div className="h-auto bg-surface px-4 py-8 text-slate-900 border border-slate-200 rounded-3xl shadow-lg">
-            <div className="mx-auto max-w-5xl space-y-8">
+        <div className="h-auto w-full rounded-3xl border border-slate-200 bg-surface px-4 py-8 text-slate-900 shadow-lg">
+            <div className="space-y-8">
                 
 
                 <div className="flex flex-wrap gap-3">
