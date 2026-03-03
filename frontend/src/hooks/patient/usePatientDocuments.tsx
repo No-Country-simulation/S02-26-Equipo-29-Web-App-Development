@@ -1,25 +1,25 @@
 import { usePatient } from "../patient/usePatient";
+import { useUser } from "../user/useUser";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getPatientDocuments } from "../../api/patient/getPatientDocuments";
 import { api } from "../../lib/axios/api";
 
-
-export const usePatientDocuments=()=>{
-  const {data:patient}=usePatient();
+export const usePatientDocuments = () => {
+  const { data: patient } = usePatient();
+  const { data: user } = useUser();
 
   return useQuery({
-    queryKey:["patient-documents",patient?.profile_id],
-    queryFn:getPatientDocuments,
-    enabled:!!patient?.profile_id,
-    staleTime:1000*60*5,
-    gcTime:1000*60*10,
-    retry:1,
-    refetchOnWindowFocus:false,
-    refetchOnMount:false,
-    refetchOnReconnect:false,
-    
-  })  
-}
+    queryKey: ["patient-documents", patient?.profile_id],
+    queryFn: getPatientDocuments,
+    enabled: !!patient?.profile_id && user?.role === "PATIENT",
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+};
 
 export const useUploadPatientDocuments = () => {
   const queryClient = useQueryClient();
@@ -33,7 +33,9 @@ export const useUploadPatientDocuments = () => {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["patient-documents", patient?.profile_id] });
+      queryClient.invalidateQueries({
+        queryKey: ["patient-documents", patient?.profile_id],
+      });
     },
   });
 };
@@ -47,7 +49,9 @@ export const useDeletePatientDocument = () => {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["patient-documents", patient?.profile_id] });
+      queryClient.invalidateQueries({
+        queryKey: ["patient-documents", patient?.profile_id],
+      });
     },
   });
 };

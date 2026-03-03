@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MercadoPagoConfig, Preference } from 'mercadopago';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Payment } from './payment.entity';
@@ -12,27 +11,13 @@ import { PaymentStatus } from './enum/payment-status.enum';
 
 @Injectable()
 export class PaymentService {
-  private readonly client: MercadoPagoConfig;
-
   constructor(
-    private readonly config: ConfigService,
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
     @InjectRepository(Payroll)
     private readonly payrollRepository: Repository<Payroll>,
     private readonly cloudinaryService: CloudinaryService,
-  ) {
-    this.client = new MercadoPagoConfig({
-      accessToken: this.config.get('MP_ACCESS_TOKEN')!,
-    });
-  }
-
-  async createPreference(body: any) {
-    console.log('createPreference', body);
-    const preference = new Preference(this.client);
-    const response = await preference.create(body);
-    return response;
-  }
+  ) {}
 
   async createTransfer(body: CreateTransferDto, file: Express.Multer.File) {
     const { amount, ids } = body;
@@ -54,7 +39,7 @@ export class PaymentService {
     await this.payrollRepository.update(
       { id: In(payrollIds) },
       {
-        status: 'approved',
+        status: 'payed',
         payment: payment,
       },
     );

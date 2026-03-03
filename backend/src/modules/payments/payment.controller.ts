@@ -20,13 +20,6 @@ export class PaymentController {
 
   @UseGuards(JwtAuthGuard)
   @Roles(ProfileRole.ADMIN)
-  @Post('/preference')
-  createPreference(@Body() body: any) {
-    return this.paymentService.createPreference(body);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Roles(ProfileRole.ADMIN)
   @Post('/transfer')
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'transfer_receipt', maxCount: 1 }], {

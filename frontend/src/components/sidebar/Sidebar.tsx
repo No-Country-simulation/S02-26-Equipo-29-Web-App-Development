@@ -24,14 +24,13 @@ const navLinks: Record<
     { title: "Registro", href: "/registration", icon: UserPlusIcon },
     { title: "Pacientes", href: "/patients", icon: UserIcon },
     { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
-    { title: "Sueldos", href:"/payrolls", icon:DollarSign }
-
+    { title: "Sueldos", href: "/payrolls", icon: DollarSign },
   ],
   CAREGIVER: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
     { title: "Agenda", href: "/agenda", icon: CalendarIcon },
     { title: "Mi Información", href: "/caregiver_info", icon: UserPlusIcon },
-      { title: "Mis Sueldos", href: "/caregiver/payrolls", icon: DollarSign },
+    { title: "Mis Sueldos", href: "/caregiver/payrolls", icon: DollarSign },
   ],
   FAMILY: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
@@ -92,14 +91,12 @@ export function Sidebar() {
       </nav>
 
       <div className="p-2 border-t border-gray-100 flex-shrink-0 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-        {
-          user && (
-            <div className="flex flex-col items-center justify-center">
-              <p className="text-xs text-gray-500">{user?.full_name}</p>
-              <p className="text-xs text-gray-500">{user?.email}</p>
-            </div>
-          )
-        }
+        {user && (
+          <div className="flex flex-col items-center justify-center">
+            <p className="text-xs text-gray-500">{user?.full_name}</p>
+            <p className="text-xs text-gray-500">{user?.email}</p>
+          </div>
+        )}
       </div>
 
       {/* Logout */}

@@ -1,4 +1,3 @@
-
 import { MessagesSquare, ZoomIn } from "lucide-react";
 import { useState, type ChangeEvent } from "react";
 import { Patient } from "../../components/patient/patient";
@@ -16,18 +15,15 @@ export const Agenda = () => {
     ? hookShifts
     : hookShifts?.data || [];
 
+  const [selectedPatient, setSelectedPatient] = useState<{
+    id: string;
+    name: string;
+    day: string;
+    schedule: string;
+    notes: string;
+    phone: string;
+  } | null>(null);
 
-  const [selectedPatient, setSelectedPatient] = useState<
-    {
-      id: string;
-      name: string;
-      start_time: string;
-      end_time: string;
-      notes: string;
-      phone: string;
-    } | null
-  >(null);
-  
   const [selectedShift, setSelectedShift] = useState<any | null>(null);
   const [patientDialogOpen, setPatientDialogOpen] = useState(false);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
@@ -65,7 +61,6 @@ export const Agenda = () => {
     });
     setReportDialogOpen(true);
   };
-  
 
   return (
     <>
@@ -94,13 +89,11 @@ export const Agenda = () => {
                 </option>
               ))}
             </select>
+          </div>
 
-          </div>
-          
           <div className="grid grid-cols-2 gap-4">
-            <Calendar />                      
+            <Calendar />
           </div>
-            
         </div>
 
         <div className="mt-6 overflow-hidden rounded-2xl border border-border">
@@ -126,18 +119,35 @@ export const Agenda = () => {
                           setSelectedShift(shift);
                           setSelectedPatient({
                             id: shift.patient?.profile?.profile_id || shift.id,
-                            name: shift.patient?.profile?.full_name || "Sin nombre",
-                            start_time: shift.start_time || shift.startTime || "",
-                            end_time: shift.end_time || shift.endTime || "",
+                            name:
+                              shift.patient?.profile?.full_name || "Sin nombre",
+                            day:
+                              shift.start_time || shift.startTime
+                                ? formatDayMonth(
+                                    shift.start_time || shift.startTime,
+                                  )
+                                : "",
+                            schedule:
+                              (shift.start_time || shift.startTime) &&
+                              (shift.end_time || shift.endTime)
+                                ? `${formatTime(
+                                    shift.start_time || shift.startTime,
+                                  )} - ${formatTime(
+                                    shift.end_time || shift.endTime,
+                                  )}`
+                                : "",
                             notes: shift.report || "Sin notas disponibles",
-                            phone: shift.patient?.profile?.phone || "Sin teléfono disponible",
+                            phone:
+                              shift.patient?.profile?.phone ||
+                              "Sin teléfono disponible",
                           });
                           setPatientDialogOpen(true);
                         }}
                         className="text-left w-full px-2 py-1 transition"
                       >
-                        <p className="font-medium">{shift.patient?.profile?.full_name || "Sin nombre"}</p>
-                       
+                        <p className="font-medium">
+                          {shift.patient?.profile?.full_name || "Sin nombre"}
+                        </p>
                       </button>
                     </td>
                     <td className="px-4 py-4">
@@ -147,7 +157,9 @@ export const Agenda = () => {
                     </td>
                     <td className="px-4 py-4">
                       {shift.start_time || shift.startTime
-                        ? `${formatTime(shift.start_time || shift.startTime)} - ${formatTime(shift.end_time || shift.endTime)}`
+                        ? `${formatTime(
+                            shift.start_time || shift.startTime,
+                          )} - ${formatTime(shift.end_time || shift.endTime)}`
                         : "--"}
                     </td>
                     <td className="px-4 py-4 text-text-secondary">
@@ -163,7 +175,9 @@ export const Agenda = () => {
                         >
                           <ZoomIn className="text-text-primary" />
                         </button>
-                      ) : ("Sin reporte disponible")}
+                      ) : (
+                        "Sin reporte disponible"
+                      )}
                     </td>
 
                     <td className="px-4 py-4">
@@ -173,7 +187,11 @@ export const Agenda = () => {
                     <td className="px-4 py-4">
                       <button
                         onClick={() => {
-                          alert(`Llamando a ${shift.patient?.profile?.phone || "sin teléfono"}`);
+                          alert(
+                            `Llamando a ${
+                              shift.patient?.profile?.phone || "sin teléfono"
+                            }`,
+                          );
                         }}
                         className="rounded-2xl bg-green-500 px-3 py-2 text-xs font-medium text-white transition hover:bg-green-600"
                       >

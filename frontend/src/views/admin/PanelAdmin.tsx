@@ -1,16 +1,23 @@
-import { ArrowRight, Clock, PersonStanding, Star, TrendingDown, TrendingUp, Users2} from "lucide-react";
+import {
+  ArrowRight,
+  Clock,
+  PersonStanding,
+  Star,
+  TrendingDown,
+  TrendingUp,
+  Users2,
+} from "lucide-react";
 import { useDashboard } from "../../hooks";
 import { formatDateSafe, formatTime } from "../../utils/formatDate";
 import { getStatusColorShift, translateStatusShift } from "../../utils/status";
 import { Link } from "react-router-dom";
 import type { Shift } from "../../types";
+import { takeFirstLetters } from "../../utils/firstLetters";
 
 export function PanelAdmin() {
+  const { data: dashboard, isLoading, error } = useDashboard();
 
-
-  const {data: dashboard, isLoading, error} = useDashboard()
-
-    const cards = [
+  const cards = [
     {
       title: "Total de pacientes",
       value: dashboard?.patients.total || 0,
@@ -52,7 +59,10 @@ export function PanelAdmin() {
         {/* Skeleton cards */}
         <section className="flex gap-4 my-5">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-3xl border border-border bg-surface p-6 shadow-lg w-62.5 flex-1">
+            <div
+              key={i}
+              className="rounded-3xl border border-border bg-surface p-6 shadow-lg w-62.5 flex-1"
+            >
               <div className="h-10 w-10 rounded-2xl bg-border mb-4" />
               <div className="h-4 w-32 rounded-xl bg-border mb-2" />
               <div className="h-7 w-16 rounded-xl bg-border" />
@@ -70,7 +80,10 @@ export function PanelAdmin() {
               ))}
             </div>
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="flex gap-8 px-4 py-4 border-t border-border">
+              <div
+                key={i}
+                className="flex gap-8 px-4 py-4 border-t border-border"
+              >
                 <div className="flex flex-col gap-1 flex-1">
                   <div className="h-4 w-32 rounded-xl bg-border" />
                   <div className="h-3 w-16 rounded-xl bg-border" />
@@ -96,7 +109,6 @@ export function PanelAdmin() {
   return (
     <div className="bg-background pt-5 px-5">
       <header className="rounded-3xl border border-border bg-surface p-8 shadow-xl relative overflow-hidden group">
-
         <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-primary/60">
           Panel Administrativo
         </h1>
@@ -145,7 +157,10 @@ export function PanelAdmin() {
             <Clock className="h-6 w-6 text-primary" /> Horas pendientes de
             aprobación
           </h2>
-          <Link to="/appointments" className="cursor-pointer hover:bg-primary/80 hover:text-white rounded-2xl border border-border bg-background px-4 py-2 text-sm flex items-center gap-2">
+          <Link
+            to="/appointments"
+            className="cursor-pointer hover:bg-primary/80 hover:text-white rounded-2xl border border-border bg-background px-4 py-2 text-sm flex items-center gap-2"
+          >
             <span className="whitespace-nowrap">Gestionar horas</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
@@ -156,48 +171,66 @@ export function PanelAdmin() {
             <table className="min-w-full divide-y divide-border text-sm">
               <thead className="bg-background text-left text-text-secondary">
                 <tr>
-                  <th className="px-4 py-3 font-medium">Paciente</th>
-                  <th className="px-4 py-3 font-medium">Día</th>
-                  <th className="px-4 py-3 font-medium">Horario</th>
-                  <th className="px-4 py-3 font-medium">Servicio</th>
-                  <th className="px-4 py-3 font-medium">Cuidador</th> 
-                  <th className="px-4 py-3 font-medium">Estado</th>
-                
-                
+                  <th className="px-4 py-3 font-medium text-center">
+                    Paciente
+                  </th>
+                  <th className="px-4 py-3 font-medium text-center">Día</th>
+                  <th className="px-4 py-3 font-medium text-center">Horario</th>
+                  <th className="px-4 py-3 font-medium text-center">
+                    Servicio
+                  </th>
+                  <th className="px-4 py-3 font-medium text-center">
+                    Cuidador
+                  </th>
+                  <th className="px-4 py-3 font-medium text-center">Estado</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border bg-surface">
-              {dashboard?.shifts.map((shift: Shift) => (
-                <tr key={shift.id} className="transition-colors hover:bg-white/5">
-                  <td className="px-6 py-5">
-                    <div className="flex items-center">
-                      <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold mr-3">
-                        {shift.patient.profile?.full_name.charAt(0) || "U"}
+                {dashboard?.shifts.map((shift: Shift) => (
+                  <tr
+                    key={shift.id}
+                    className="transition-colors hover:bg-white/5"
+                  >
+                    <td className="px-6 py-5 text-center">
+                      <div className="flex items-center">
+                        <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold mr-3">
+                          {takeFirstLetters(
+                            shift?.patient?.profile?.full_name as string,
+                          )}
+                        </div>
+                        <p className="font-semibold text-text-primary">
+                          {shift.patient.profile?.full_name || "N/A"}
+                        </p>
                       </div>
-                      <p className="font-semibold text-text-primary">{shift.patient.profile?.full_name || "N/A"}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <p className="text-text-secondary">{formatDateSafe(shift.start_time || "")}</p>
-                  </td>
-                  <td className="px-6 py-5 text-text-secondary">
-                    {formatTime(shift.start_time || "")} - {formatTime(shift.end_time || "")}
-                  </td>
-                  <td className="px-6 py-5">
-                    <span className="text-text-primary">{shift.service || "General"}</span>
-                  </td>
-                <td className="px-6 py-5">
-                    <span className="text-text-primary">Sin asignar</span>
-                  </td>
-                  <td className="px-6 py-5">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ring-1 ring-inset ${getStatusColorShift(shift.status)}`}>
-                      {translateStatusShift(shift.status)}
-                    </span>
-                  </td>
-                
-                </tr>
-              ))
-            }
+                    </td>
+                    <td className="px-6 py-5 text-center">
+                      <p className="text-text-secondary">
+                        {formatDateSafe(shift.start_time || "")}
+                      </p>
+                    </td>
+                    <td className="px-6 py-5 text-center text-text-secondary">
+                      {formatTime(shift.start_time || "")} -{" "}
+                      {formatTime(shift.end_time || "")}
+                    </td>
+                    <td className="px-6 py-5 text-center">
+                      <span className="text-text-primary">
+                        {shift.service || "General"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-5 text-center">
+                      <span className="text-text-primary">Sin asignar</span>
+                    </td>
+                    <td className="px-6 py-5 text-center">
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ring-1 ring-inset ${getStatusColorShift(
+                          shift.status,
+                        )}`}
+                      >
+                        {translateStatusShift(shift.status)}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

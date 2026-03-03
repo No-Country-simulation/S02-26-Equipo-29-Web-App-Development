@@ -1,77 +1,86 @@
 import { usePatients } from "../../hooks";
 import { formatDate } from "../../utils/formatDate";
 import { getStatusColor, translateStatus } from "../../utils/status";
+import { takeFirstLetters } from "../../utils/firstLetters";
 
 export function Patients() {
   const { data: patients, isLoading } = usePatients();
 
   if (isLoading) {
-    return <div className="p-5">Cargando pacientes...</div>;
+    return (
+      <div className="p-10 flex flex-col items-center justify-center gap-4 text-text-secondary min-h-100">
+        <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
+        <p className="font-medium animate-pulse">Cargando pacientes...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="p-5 bg-background">
-       <header className="rounded-3xl border border-border bg-surface p-8 shadow-xl relative overflow-hidden group">
-
+    <div className="p-5 bg-background space-y-6">
+      <header className="rounded-3xl border border-border bg-surface p-8 shadow-xl relative overflow-hidden group">
         <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-primary/60">
-         Administrar Pacientes
+          Administrar Pacientes
         </h1>
         <p className="text-text-secondary mt-2 max-w-2xl">
           Gestionar los pacientes registrados en el sistema
         </p>
       </header>
 
-      <section>
-        <div className="mt-6 overflow-hidden rounded-2xl border border-border w-auto flex-1 col-span-3 md:col-span-3 lg:col-span-2 overflow-x-scroll ">
-          <table className="min-w-full divide-y divide-border text-sm ">
-            <thead className="bg-background text-left text-text-secondary whitespace-nowrap">
-              <tr>
-                <th className="px-4 py-3 font-medium">Paciente</th>
-                <th className="px-4 py-3 font-medium">Credenciales</th>
-                <th className="px-4 py-3 font-medium">Fecha de Registro</th>
-                <th className="px-4 py-3 font-medium">Estado</th>
-                <th className="px-4 py-3 font-medium">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border bg-surface whitespace-nowrap">
-              {patients?.map((patient) => (
-                <tr
-                  key={patient.id}
-                  className="hover:bg-background hover:cursor-pointer"
-                >
-                  <td className="px-4 py-4 flex items-center gap-2">
-                    <img
-                      src="https://images.unsplash.com/photo-1559839734-2b71f1e3c770?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
-                      alt=""
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                    <div className="flex flex-col">
-                      <p className="font-medium">{patient.profile?.full_name || "N/A"}</p>
-                      <p className="text-xs text-text-secondary">
-                        {patient.profile?.id || "N/A"}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4">{patient.profile?.phone || "N/A"}</td>
-                  <td className="px-4 py-4">{formatDate(patient.profile?.created_at || "")}</td>
-                  <td className="px-4 py-4">
-                    <span
-                      className={`px-2 py-1 rounded-full ${getStatusColor(
-                        patient.status || "",
-                      )}`}
-                    >
-                      {translateStatus(patient.status || "")}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4">
-                    <button className="cursor-pointer hover:bg-primary/80 hover:text-white rounded-2xl border border-border bg-background px-4 py-2 text-sm flex items-center gap-2">
-                      Revisar
-                    </button>
-                  </td>
+      <section className="space-y-4">
+        <div className="overflow-hidden rounded-3xl border border-border bg-surface shadow-inner">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-border text-sm">
+              <thead className="bg-background/50 text-left text-text-secondary uppercase tracking-widest text-[10px] font-bold whitespace-nowrap">
+                <tr>
+                  <th className="px-6 py-4">Paciente</th>
+                  <th className="px-6 py-4">Fecha de Registro</th>
+                  <th className="px-6 py-4">Estado</th>
+                  <th className="px-6 py-4 text-right">ACCIONES</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-border whitespace-nowrap">
+                {patients?.map((patient) => (
+                  <tr
+                    key={patient.id}
+                    className="hover:bg-primary/5 transition-all group"
+                  >
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-primary to-primary/40 flex items-center justify-center text-white font-bold shadow-lg ring-2 ring-primary/10 group-hover:scale-105 transition-transform">
+                          {takeFirstLetters(patient.profile?.full_name || "")}
+                        </div>
+                        <div className="flex flex-col">
+                          <p className="font-bold text-base group-hover:text-primary transition-colors italic">
+                            {patient.profile?.full_name || "N/A"}
+                          </p>
+                          <p className="text-[10px] font-mono tracking-tighter opacity-50">
+                            {patient.profile?.id || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5 text-text-secondary font-medium">
+                      {formatDate(patient.profile?.created_at || "")}
+                    </td>
+                    <td className="px-6 py-5">
+                      <span
+                        className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm ${getStatusColor(
+                          patient.status || "",
+                        )}`}
+                      >
+                        {translateStatus(patient.status || "")}
+                      </span>
+                    </td>
+                    <td className="px-6 py-5 text-right">
+                      <button className="bg-surface hover:bg-primary hover:text-white border-2 border-border hover:border-primary rounded-2xl px-6 py-2 text-xs font-black uppercase tracking-widest transition-all hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] active:scale-90 shadow-sm cursor-pointer whitespace-nowrap">
+                        Revisar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
     </div>

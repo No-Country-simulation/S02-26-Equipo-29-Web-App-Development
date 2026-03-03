@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import {
   BadRequestException,
   Injectable,
@@ -56,8 +55,9 @@ export class PatientService {
   async update(id: string, updateData: UpdatePatientDto) {
     // Verificar que el paciente existe
     const patient = await this.findOne(id);
-    console.log('🔍 Paciente antes de actualizar:', patient);
-
+    if (!patient) {
+      throw new NotFoundException(`Paciente con ID ${id} no encontrado`);
+    }
     const { phone, ...patientData } = updateData;
 
     // Actualizar usando el método update de TypeORM
@@ -70,8 +70,6 @@ export class PatientService {
       await this.profileRepo.update({ id }, { phone });
     }
 
-    console.log('🔍 Resultado de la actualización:', result);
-
     // Retornar el paciente actualizado
     const updatedPatient = await this.findOne(id);
 
@@ -79,9 +77,10 @@ export class PatientService {
   }
 
   async getDocuments(profileId: string) {
-    return this.documentRepo.find({
+    const documents = await this.documentRepo.find({
       where: { patient: { profile_id: profileId } },
     });
+    return documents;
   }
 
   async uploadDocument(

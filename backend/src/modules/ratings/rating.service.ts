@@ -62,8 +62,6 @@ export class RatingsService {
       );
     }
 
-    console.log(shift);
-
     if (shift.status !== ShiftStatus.COMPLETED) {
       shift.status = ShiftStatus.COMPLETED;
       await this.shiftRepository.save(shift);

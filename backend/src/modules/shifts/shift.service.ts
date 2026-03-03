@@ -6,7 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, Repository } from 'typeorm';
+import { Between, MoreThan, Repository } from 'typeorm';
 import { Shift } from './shift.entity';
 import { Caregiver } from '../caregivers/caregiver.entity';
 import { Patient } from '../patients/patient.entity';
@@ -35,6 +35,31 @@ export class ShiftsService {
     private readonly profileRepository: Repository<Profile>,
     @InjectQueue('shifts') private queue: Queue,
   ) {}
+
+  async findNext(patientId: string): Promise<Shift> {
+    const shift = await this.shiftRepository.findOne({
+      where: {
+        patient: { profile_id: patientId },
+        start_time: MoreThan(new Date()),
+        status: ShiftStatus.ASSIGNED,
+      },
+      relations: [
+        'caregiver',
+        'caregiver.profile',
+        'caregiver.profile.user',
+        'patient',
+        'patient.profile',
+        'patient.profile.user',
+        'approved_by',
+        'approved_by.user',
+      ],
+      order: { start_time: 'ASC' },
+    });
+    if (!shift) {
+      throw new NotFoundException('No se encontro el turno');
+    }
+    return shift;
+  }
 
   async updateStatus(id: string, dto: UpdateStatusDto): Promise<Shift> {
     const shift = await this.findOne(id);
@@ -129,10 +154,16 @@ export class ShiftsService {
   }
 
   // 📄 FIND ALL
-  async findAll(page: number = 1, limit: number = 10) {
+  async findAll(page: number = 1, limit: number = 10, status?: string) {
     const skip = (page - 1) * limit;
 
+    const where: any = {};
+    if (status && status !== 'ALL') {
+      where.status = status;
+    }
+
     const [data, total] = await this.shiftRepository.findAndCount({
+      where,
       relations: ['caregiver', 'patient', 'patient.profile', 'approved_by'],
       order: { start_time: 'ASC' },
       take: limit,

@@ -1,6 +1,12 @@
 import React from "react";
-import { MessagesSquare, SquareCheckBig, Star, XIcon, ZoomIn } from "lucide-react";
-import { useState, useEffect, type ChangeEvent } from "react";
+import {
+  MessagesSquare,
+  SquareCheckBig,
+  Star,
+  XIcon,
+  ZoomIn,
+} from "lucide-react";
+import { useState, type ChangeEvent } from "react";
 import { Patient } from "../../components/patient/patient";
 import { useUser } from "../../hooks";
 import { useShifts, useFinalizeShift } from "../../hooks/patient/useShifts";
@@ -11,7 +17,7 @@ import { ShiftCardDialog } from "../../components/shifts/summaryShift";
 import { Calendar } from "../../components/UI/Calendar";
 
 export const PatientSchedule = () => {
-  const { data: user } = useUser();
+  useUser();
   const { shifts: hookShifts } = useShifts();
   const [selectedPatient, setSelectedPatient] = useState<
     (typeof assignedPatients)[number] | null
@@ -23,13 +29,13 @@ export const PatientSchedule = () => {
   const [report, setReport] = useState("");
   const [selectedShiftId, setSelectedShiftId] = useState<string | null>(null);
   const [selectedReport, setSelectedReport] = useState({
-      comportamiento: "",
-      medicacion: "",
-      observaciones: "",
-    });
+    comportamiento: "",
+    medicacion: "",
+    observaciones: "",
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [assignedPatients, ] = useState<
+  const [assignedPatients] = useState<
     {
       id: string;
       name: string;
@@ -46,7 +52,9 @@ export const PatientSchedule = () => {
     currentPage * pageSize,
   );
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
-  const [openSummaryShiftId, setOpenSummaryShiftId] = useState<string | null>(null);
+  const [openSummaryShiftId, setOpenSummaryShiftId] = useState<string | null>(
+    null,
+  );
   const handleOpenReportDialog = (report: string) => {
     setSelectedReport({
       comportamiento: report,
@@ -55,10 +63,6 @@ export const PatientSchedule = () => {
     });
     setReportDialogOpen(true);
   };
-
-  useEffect(() => {
-    setCurrentPage((prev) => Math.min(prev, totalPages));
-  }, [totalPages]);
 
   const handlePageSizeChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setPageSize(Number(event.target.value));
@@ -76,19 +80,21 @@ export const PatientSchedule = () => {
 
   const finalizeShiftMutation = useFinalizeShift();
 
-  const handleFinalizeShift = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleFinalizeShift = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
     const payload = {
       shiftId: selectedShiftId as string,
       number: rating,
-      notes: report
+      notes: report,
     };
 
     try {
       await finalizeShiftMutation.mutateAsync(payload);
       toast.success("Guardia finalizada correctamente");
-    } catch (error) {
+    } catch {
       toast.error("Error al finalizar la guardia");
     }
 
@@ -102,7 +108,11 @@ export const PatientSchedule = () => {
     if (!start || !end) return undefined;
     const startDate = new Date(start).getTime();
     const endDate = new Date(end).getTime();
-    if (Number.isNaN(startDate) || Number.isNaN(endDate) || endDate <= startDate) {
+    if (
+      Number.isNaN(startDate) ||
+      Number.isNaN(endDate) ||
+      endDate <= startDate
+    ) {
       return undefined;
     }
     return Number(((endDate - startDate) / (1000 * 60 * 60)).toFixed(2));
@@ -136,8 +146,7 @@ export const PatientSchedule = () => {
               ))}
             </select>
 
-           <Calendar />                      
-
+            <Calendar />
           </div>
         </div>
 
@@ -158,68 +167,100 @@ export const PatientSchedule = () => {
               {hookShifts
                 .filter((shift) => shift.status !== "COMPLETED")
                 .map((shift) => (
-                <>
-                  <tr key={shift.patient?.profile_id || shift.id} className="hover:bg-white/5">
-                    <td className="px-4 py-4 hover:bg-accent/20 rounded-lg">
-                      <button
-                        onClick={() => {
-                          setSelectedPatient({
-                            id: shift.patient?.profile_id || "",
-                            name: shift.patient?.full_name || "Sin nombre",
-                            day: shift.startTime ? formatDayMonth(shift.startTime) : "",
-                            schedule: shift.startTime && shift.endTime ? `${formatTime(shift.startTime)} - ${formatTime(shift.endTime)}` : "",
-                            notes: shift.report || "Sin notas disponibles",
-                            phone: shift.patient?.phone || "Sin teléfono disponible",
-                          });
-                          setPatientDialogOpen(true);
-                        }}
-                        className="text-left w-full px-2 py-1 transition"
-                      >
-                        
-                        <p className="text-xs font-bold text-text-secondary">
-                         {shift.caregiver?.full_name || "Sin cuidador asignado"}
-                        </p>
-                      </button>
-                    </td>
-                    <td className="px-4 py-4 text-xs text-text-secondary"> {shift.startTime ? formatDayMonth(shift.startTime) : ""} </td>
-                    <td className="px-4 py-4 text-xs text-text-secondary"> {shift.startTime && shift.endTime ? `${formatTime(shift.startTime)} - ${formatTime(shift.endTime)}` : "--"} </td>
-                    <td className="px-4 py-4 text-xs text-text-secondary">
-                      {shift.report || "Sin notas disponibles"}
-                    </td>
-                    <td className="px-4 py-4 text-xs text-text-secondary">
-                      {shift.report ? (
+                  <>
+                    <tr
+                      key={shift.patient?.profile_id || shift.id}
+                      className="hover:bg-white/5"
+                    >
+                      <td className="px-4 py-4 hover:bg-accent/20 rounded-lg">
                         <button
-                          type="button"
-                          onClick={() => handleOpenReportDialog(shift.report || "")}
-                          className="rounded-2xl border border-border px-3 py-2 text-xs font-medium text-text-primary transition hover:bg-accent/20"
+                          onClick={() => {
+                            setSelectedPatient({
+                              id: shift.patient?.profile_id || "",
+                              name: shift.patient?.full_name || "Sin nombre",
+                              day: shift.startTime
+                                ? formatDayMonth(shift.startTime)
+                                : "",
+                              schedule:
+                                shift.startTime && shift.endTime
+                                  ? `${formatTime(
+                                      shift.startTime,
+                                    )} - ${formatTime(shift.endTime)}`
+                                  : "",
+                              notes: shift.report || "Sin notas disponibles",
+                              phone:
+                                shift.patient?.phone ||
+                                "Sin teléfono disponible",
+                            });
+                            setPatientDialogOpen(true);
+                          }}
+                          className="text-left w-full px-2 py-1 transition"
                         >
-                          <ZoomIn className="text-text-primary" />
+                          <p className="text-xs font-bold text-text-secondary">
+                            {shift.caregiver?.full_name ||
+                              "Sin cuidador asignado"}
+                          </p>
                         </button>
-                      ) : ("Sin reporte disponible")}
-                    </td>
-                    <td className="px-4 py-4">
-                      <button
-                        onClick={() => {
-                          handleOpenEndShiftDialog(shift.id);
-                        }}
-                        className="rounded-2xl bg-primary/50 px-3 py-2 text-xs font-medium text-white transition hover:bg-primary/90"
-                      >
-                        <SquareCheckBig className="hover:text-background/95"/>
-                      </button>
-                    </td>
-                    <td className="px-4 py-4">
-                      <button
-                        onClick={() => {
-                          alert(`Llamando a ${shift.caregiver?.phone || "Número no disponible"}`);
-                        }}
-                        className="rounded-2xl bg-green-500 px-3 py-2 text-xs font-medium text-white transition hover:bg-green-600"
-                      >
-                        <MessagesSquare className="text-white" />
-                      </button>
-                    </td>
-                  </tr>
-                </>
-              ))}
+                      </td>
+                      <td className="px-4 py-4 text-xs text-text-secondary">
+                        {" "}
+                        {shift.startTime
+                          ? formatDayMonth(shift.startTime)
+                          : ""}{" "}
+                      </td>
+                      <td className="px-4 py-4 text-xs text-text-secondary">
+                        {" "}
+                        {shift.startTime && shift.endTime
+                          ? `${formatTime(shift.startTime)} - ${formatTime(
+                              shift.endTime,
+                            )}`
+                          : "--"}{" "}
+                      </td>
+                      <td className="px-4 py-4 text-xs text-text-secondary">
+                        {shift.report || "Sin notas disponibles"}
+                      </td>
+                      <td className="px-4 py-4 text-xs text-text-secondary">
+                        {shift.report ? (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleOpenReportDialog(shift.report || "")
+                            }
+                            className="rounded-2xl border border-border px-3 py-2 text-xs font-medium text-text-primary transition hover:bg-accent/20"
+                          >
+                            <ZoomIn className="text-text-primary" />
+                          </button>
+                        ) : (
+                          "Sin reporte disponible"
+                        )}
+                      </td>
+                      <td className="px-4 py-4">
+                        <button
+                          onClick={() => {
+                            handleOpenEndShiftDialog(shift.id);
+                          }}
+                          className="rounded-2xl bg-primary/50 px-3 py-2 text-xs font-medium text-white transition hover:bg-primary/90"
+                        >
+                          <SquareCheckBig className="hover:text-background/95" />
+                        </button>
+                      </td>
+                      <td className="px-4 py-4">
+                        <button
+                          onClick={() => {
+                            alert(
+                              `Llamando a ${
+                                shift.caregiver?.phone || "Número no disponible"
+                              }`,
+                            );
+                          }}
+                          className="rounded-2xl bg-green-500 px-3 py-2 text-xs font-medium text-white transition hover:bg-green-600"
+                        >
+                          <MessagesSquare className="text-white" />
+                        </button>
+                      </td>
+                    </tr>
+                  </>
+                ))}
             </tbody>
           </table>
           <div className="flex flex-col gap-3 border-t border-border px-4 py-4 text-sm text-text-secondary sm:flex-row sm:items-center sm:justify-between">
@@ -252,22 +293,27 @@ export const PatientSchedule = () => {
           <Patient
             open={patientDialogOpen}
             onClose={() => setPatientDialogOpen(false)}
-            patient={selectedPatient as any}
-            user={user as any}
+            patient={selectedPatient}
             shift={(() => {
-              const foundShift = hookShifts.find((shift) => shift.patient?.profile_id === selectedPatient.id);
-              return foundShift && foundShift.startTime && foundShift.endTime ? {
-                id: foundShift.id,
-                caregiver_id: foundShift.caregiver?.profile_id || "",
-                patient_id: foundShift.patient?.profile_id || "",
-                startTime: foundShift.startTime,
-                endTime: foundShift.endTime,
-                location: foundShift.location || "",
-                caregiver: foundShift.caregiver ? {
-                  full_name: foundShift.caregiver.full_name || "",
-                  phone: foundShift.caregiver.phone || "",
-                } : undefined,
-              } : undefined;
+              const foundShift = hookShifts.find(
+                (shift) => shift.patient?.profile_id === selectedPatient.id,
+              );
+              return foundShift && foundShift.startTime && foundShift.endTime
+                ? {
+                    id: foundShift.id,
+                    caregiver_id: foundShift.caregiver?.profile_id || "",
+                    patient_id: foundShift.patient?.profile_id || "",
+                    startTime: foundShift.startTime,
+                    endTime: foundShift.endTime,
+                    location: foundShift.location || "",
+                    caregiver: foundShift.caregiver
+                      ? {
+                          full_name: foundShift.caregiver.full_name || "",
+                          phone: foundShift.caregiver.phone || "",
+                        }
+                      : undefined,
+                  }
+                : undefined;
             })()}
           />
         )}
@@ -363,7 +409,6 @@ export const PatientSchedule = () => {
                 >
                   Finalizar
                 </button>
-                
               </form>
             </div>
           </div>
@@ -373,13 +418,15 @@ export const PatientSchedule = () => {
       {
         <section className="m-10 rounded-3xl border border-border bg-surface p-6 shadow-lg">
           <h2 className="text-xl font-semibold mb-4">Calendario Completo</h2>
-          <p className="text-sm text-text-secondary mb-4">
-            Turnos Finalizados
-          </p>
+          <p className="text-sm text-text-secondary mb-4">Turnos Finalizados</p>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {
-              hookShifts.filter(shift => shift.status === "COMPLETED").map(shift => (
-                <div key={shift.id} className="flex items-center gap-2 rounded-2xl border border-border px-3 py-2 hover:bg-accent/20 transition">
+            {hookShifts
+              .filter((shift) => shift.status === "COMPLETED")
+              .map((shift) => (
+                <div
+                  key={shift.id}
+                  className="flex items-center gap-2 rounded-2xl border border-border px-3 py-2 hover:bg-accent/20 transition"
+                >
                   <button
                     type="button"
                     onClick={() => setOpenSummaryShiftId(shift.id)}
@@ -391,21 +438,24 @@ export const PatientSchedule = () => {
                     <p className="text-xs text-text-secondary">
                       {shift.startTime ? formatDayMonth(shift.startTime) : ""}
                       {shift.startTime && shift.endTime
-                        ? ` - ${formatTime(shift.startTime)} a ${formatTime(shift.endTime)}    -`
+                        ? ` - ${formatTime(shift.startTime)} a ${formatTime(
+                            shift.endTime,
+                          )}    -`
                         : ""}
-                             ⭐{shift.rating?.number || "-"}
+                      ⭐{shift.rating?.number || "-"}
                     </p>
                   </button>
                   <ShiftCardDialog
                     shift={{
                       id: shift.id,
                       caregiver: {
-                        full_name: shift.caregiver?.full_name || "Sin cuidador asignado",
+                        full_name:
+                          shift.caregiver?.full_name || "Sin cuidador asignado",
                       },
                       startTime: shift.startTime,
                       endTime: shift.endTime,
                       rating: shift.rating || undefined,
-                      status: shift.status,
+                      status: shift.status || "PENDING",
                       patient: {
                         full_name: shift.patient?.profile?.full_name || "-",
                       },
@@ -414,14 +464,14 @@ export const PatientSchedule = () => {
                       totalHours: getTotalHours(shift.startTime, shift.endTime),
                     }}
                     isOpen={openSummaryShiftId === shift.id}
-                    onOpenChange={(open) => setOpenSummaryShiftId(open ? shift.id : null)}
+                    onOpenChange={(open) =>
+                      setOpenSummaryShiftId(open ? shift.id : null)
+                    }
                   />
                 </div>
-              ))
-            }
+              ))}
           </div>
-          </section>
-            
+        </section>
       }
 
       <ReporteDialog

@@ -42,14 +42,24 @@ export class ShiftsController {
   // 👀 ADMIN y STAFF pueden ver todas
   @Get()
   @Roles(ProfileRole.ADMIN, ProfileRole.STAFF)
-  findAll(@Query('page') page?: number, @Query('limit') limit?: number) {
-    return this.shiftsService.findAll(page, limit);
+  findAll(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('status') status?: string,
+  ) {
+    return this.shiftsService.findAll(page, limit, status);
   }
 
   @Get(':id')
   @Roles(ProfileRole.ADMIN, ProfileRole.STAFF)
   findOne(@Param('id') id: string) {
     return this.shiftsService.findOne(id);
+  }
+
+  @Get('patient/:patientId/next')
+  @Roles(ProfileRole.PATIENT)
+  findNext(@Param('patientId') patientId: string) {
+    return this.shiftsService.findNext(patientId);
   }
 
   @Get('patient/:patientId')
