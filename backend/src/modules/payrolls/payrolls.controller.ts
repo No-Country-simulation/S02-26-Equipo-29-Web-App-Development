@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { PayrollsService } from './payrolls.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -11,7 +11,28 @@ export class PayrollsController {
   @UseGuards(JwtAuthGuard)
   @Roles(ProfileRole.ADMIN)
   @Get()
-  findAll(@Query('page') page?: number, @Query('limit') limit?: number) {
-    return this.payrollsService.findAll(page, limit);
+  findAll(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('status') status?: string,
+  ) {
+    return this.payrollsService.findAll(page, limit, status || 'pending');
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Roles(ProfileRole.CAREGIVER)
+  @Get('caregiver/:id')
+  findAllByCaregiver(
+    @Param('id') id: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('status') status?: string,
+  ) {
+    return this.payrollsService.findAllByCaregiver(
+      id,
+      page,
+      limit,
+      status || 'pending',
+    );
   }
 }

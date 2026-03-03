@@ -45,12 +45,12 @@ export const SignUp = () => {
       const response = await api.post("/auth/register", newUser);
       if (response.status === 201 || response.status === 200) {
         setMode(true);
-        toast.success("Usuario creado exitosamente")
+        toast.success("Usuario creado exitosamente");
         navigate("/login");
       }
     } catch (error) {
-      if(error instanceof AxiosError && error.response?.status === 400){
-        toast.error("No se pudo crear la cuenta, intenta de nuevo")
+      if (error instanceof AxiosError && error.response?.status === 400) {
+        toast.error("No se pudo crear la cuenta, intenta de nuevo");
       }
     }
   });
@@ -64,7 +64,7 @@ export const SignUp = () => {
           <div className="w-full max-w-md rounded-3xl border border-border bg-surface shadow-xl p-8">
             <div className=" text-center mb-8 flex flex-col items-center">
               <div className="flex items-center justify-center w-[100px] h-[100px]">
-              <img src="/logo.png" alt="logo" />
+                <img src="/logo.png" alt="logo" />
               </div>
               <p className="text-sm uppercase tracking-[0.25em] text-text-secondary">
                 Bienvenido
@@ -78,7 +78,7 @@ export const SignUp = () => {
             </div>
 
             <form onSubmit={onSubmit} className="space-y-2">
-              <div >
+              <div>
                 <label
                   className="text-sm font-medium text-text-primary"
                   htmlFor="email"
@@ -186,7 +186,7 @@ export const SignUp = () => {
                   htmlFor="role"
                 >
                   Rol
-                </label>        
+                </label>
                 <InputOptions
                   id="role"
                   options={[
@@ -209,14 +209,14 @@ export const SignUp = () => {
               >
                 {isSubmitting ? "Ingresando..." : "Crear Cuenta"}
               </button>
-              
+
               <div className="flex items-center justify-center space-x-2">
                 <p>¿Ya tienes una cuenta?</p>
                 <button
                   onClick={() => setMode(!Mode)}
                   className="text-primary cursor-pointer"
                 >
-                {isSubmitting ? "Ingresando..." : "Iniciar Sesión"}
+                  {isSubmitting ? "Ingresando..." : "Iniciar Sesión"}
                 </button>
               </div>
             </form>

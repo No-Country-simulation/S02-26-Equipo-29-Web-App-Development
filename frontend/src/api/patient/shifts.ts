@@ -3,7 +3,6 @@ import type { Shift } from "../../types";
 
 export interface CreateShiftRequest {
   patientId: string;
-  caregiverId: string;
   start_time: string;
   end_time: string;
   report?: string;
@@ -67,24 +66,23 @@ type PaginatedShiftsResponse = {
 
 const mapShift = (shift: ShiftApiResponse): Shift => ({
   id: shift.id,
-  created_by:
-    shift.created_by
-      ? {
-          id: shift.created_by.id,
-          full_name: shift.created_by.full_name,
-          phone: shift.created_by.phone ?? null,
-          role: shift.created_by.role,
-          is_active: shift.created_by.is_active,
-          created_at: shift.created_by.created_at,
-        }
-      : {
-          id: shift.profile?.id || "",
-          full_name: shift.profile?.full_name || "Sin nombre",
-          phone: shift.profile?.phone ?? null,
-          role: shift.profile?.role || "",
-          is_active: shift.profile?.is_active ?? true,
-          created_at: shift.profile?.created_at || "",
-        },
+  created_by: shift.created_by
+    ? {
+        id: shift.created_by.id,
+        full_name: shift.created_by.full_name,
+        phone: shift.created_by.phone ?? null,
+        role: shift.created_by.role,
+        is_active: shift.created_by.is_active,
+        created_at: shift.created_by.created_at,
+      }
+    : {
+        id: shift.profile?.id || "",
+        full_name: shift.profile?.full_name || "Sin nombre",
+        phone: shift.profile?.phone ?? null,
+        role: shift.profile?.role || "",
+        is_active: shift.profile?.is_active ?? true,
+        created_at: shift.profile?.created_at || "",
+      },
   caregiver: shift.caregiver
     ? {
         profile_id: shift.caregiver.profile_id,
@@ -102,7 +100,7 @@ const mapShift = (shift: ShiftApiResponse): Shift => ({
   endTime: shift.end_time,
   report: shift.report ?? undefined,
   location: shift.location ?? undefined,
-  status: shift.status,
+  status: shift.status || "PENDING",
   hours: shift.hours,
   rating: shift.rating
     ? {
@@ -113,16 +111,15 @@ const mapShift = (shift: ShiftApiResponse): Shift => ({
 });
 
 export const getPatientShifts = async (patientId: string): Promise<Shift[]> => {
-  const response = await api.get<PaginatedShiftsResponse>(`/shifts/patient/${patientId}`);
+  const response = await api.get<PaginatedShiftsResponse>(
+    `/shifts/patient/${patientId}`,
+  );
   return response.data.data.map(mapShift);
 };
 
-export const createShift = async (
-  data: CreateShiftRequest
-): Promise<Shift> => {
+export const createShift = async (data: CreateShiftRequest): Promise<Shift> => {
   const response = await api.post<ShiftApiResponse>(`/shifts`, {
     patientId: data.patientId,
-    caregiverId: data.caregiverId,
     start_time: data.start_time,
     end_time: data.end_time,
     service: "Cuidado general",
