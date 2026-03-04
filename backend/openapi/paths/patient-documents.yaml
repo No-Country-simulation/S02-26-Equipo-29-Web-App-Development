@@ -1,0 +1,76 @@
+patientDocuments:
+  get:
+    tags: [PatientDocuments]
+    summary: Listar documentos de pacientes
+    responses:
+      "200":
+        description: Lista de documentos
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "../schemas/patient-documents.yaml#/PatientDocument"
+
+  post:
+    tags: [PatientDocuments]
+    summary: Crear documento de paciente
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/patient-documents.yaml#/PatientDocumentCreateRequest"
+    responses:
+      "201":
+        description: Documento creado
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/patient-documents.yaml#/PatientDocument"
+
+patientDocumentById:
+  get:
+    tags: [PatientDocuments]
+    summary: Obtener documento
+    parameters:
+      - name: documentId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      "200":
+        description: Documento encontrado
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/patient-documents.yaml#/PatientDocument"
+
+  patch:
+    tags: [PatientDocuments]
+    summary: Actualizar documento
+    parameters:
+      - name: documentId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/patient-documents.yaml#/PatientDocumentUpdateRequest"
+
+  delete:
+    tags: [PatientDocuments]
+    summary: Eliminar documento
+    parameters:
+      - name: documentId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      "204":
+        description: Documento eliminado

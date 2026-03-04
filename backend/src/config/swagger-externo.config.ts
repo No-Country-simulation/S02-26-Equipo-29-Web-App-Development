@@ -8,10 +8,14 @@ function resolveOpenapiDir(): string {
   const cwd = process.cwd();
 
   const distOpenapi = join(cwd, 'dist', 'openapi');
-  if (existsSync(join(distOpenapi, 'openapi.yaml'))) return distOpenapi;
+  if (existsSync(join(distOpenapi, 'openapi.yaml'))) {
+    return distOpenapi;
+  }
 
   const rootOpenapi = join(cwd, 'openapi');
-  if (existsSync(join(rootOpenapi, 'openapi.yaml'))) return rootOpenapi;
+  if (existsSync(join(rootOpenapi, 'openapi.yaml'))) {
+    return rootOpenapi;
+  }
 
   return rootOpenapi;
 }
@@ -19,21 +23,22 @@ function resolveOpenapiDir(): string {
 export function setupExternalSwagger(app: NestExpressApplication) {
   const openapiDir = resolveOpenapiDir();
 
-  // ✅ sirve /openapi sin importar express.static manualmente
+  // Servir archivos openapi
   app.useStaticAssets(openapiDir, { prefix: '/openapi' });
 
+  // Swagger UI
   app.use(
     '/docs',
     swaggerUi.serve,
     swaggerUi.setup(undefined, {
-      swaggerOptions: { url: '/openapi/openapi.yaml' },
+      swaggerOptions: {
+        url: '/openapi/openapi.yaml',
+      },
     }),
   );
 
-  // ✅ health tipado (evita unsafe any)
-  app
-    .getHttpAdapter()
-    .get('/health', (_req: Request, res: Response) =>
-      res.status(200).json({ ok: true }),
-    );
+  // Health check
+  app.getHttpAdapter().get('/health', (_req: Request, res: Response) => {
+    res.status(200).json({ ok: true });
+  });
 }

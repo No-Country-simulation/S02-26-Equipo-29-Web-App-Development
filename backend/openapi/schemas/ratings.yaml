@@ -1,0 +1,41 @@
+Rating:
+  type: object
+  properties:
+    id:
+      type: string
+    number:
+      type: integer
+      minimum: 1
+      maximum: 5
+    notes:
+      type: string
+    createdAt:
+      type: string
+      format: date-time
+    shift_id:
+      type: string
+
+RatingCreateRequest:
+  type: object
+  required:
+    - number
+    - shift_id
+  properties:
+    number:
+      type: integer
+      minimum: 1
+      maximum: 5
+    notes:
+      type: string
+    shift_id:
+      type: string
+
+RatingUpdateRequest:
+  type: object
+  properties:
+    number:
+      type: integer
+      minimum: 1
+      maximum: 5
+    notes:
+      type: string

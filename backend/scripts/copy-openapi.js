@@ -24,4 +24,4 @@ const srcOpenapi = path.join(cwd, 'openapi');
 const destOpenapi = path.join(cwd, 'dist', 'openapi');
 
 copyDir(srcOpenapi, destOpenapi);
-console.log(`[copy-openapi] copied ${srcOpenapi} -> ${destOpenapi}`);
+console.log('✅ OpenAPI files copied to dist/openapi');

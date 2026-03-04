@@ -1,209 +1,580 @@
-openapi: 3.0.3
-info:
-  title: Caregiving PYME API (Lean + Docs)
-  version: 0.2.0
-  description: >
-    MVP liviano alineado al Mermaid "Lean + Documents".
-    Tablas: AUTH_USERS, PROFILES, PATIENTS, FAMILY_PATIENTS, CAREGIVERS,
-    CAREGIVER_DOCUMENTS, SHIFTS (incluye report + aprobación), PAYROLLS, PAYMENTS (registro manual).
-servers:
-  - url: https://api.example.com
-
-tags:
-  - name: Auth
-    description: Registro, login, sesión
-  - name: Profiles
-    description: Perfiles de usuario (admin/family/caregiver)
-  - name: Patients
-    description: Gestión de pacientes
-  - name: FamilyPatients
-    description: Vínculo familia–paciente
-  - name: Caregivers
-    description: Datos del cuidador
-  - name: CaregiverDocuments
-    description: Documentos del cuidador
-  - name: Shifts
-    description: Turnos (report + submit + approve)
-  - name: Payrolls
-    description: Liquidaciones por período
-  - name: Payments
-    description: Pagos (registro manual MVP)
-  - name: Uploads
-    description: Presign para subir archivos (opcional)
-
-
+openapi: 3.0.0
 paths:
-  /health:
-    $ref: "./paths/health.yaml#/health"
-
-  /auth/register:
-    $ref: "./paths/auth.yaml#/authRegister"
+  /:
+    get:
+      operationId: HealthController_check
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Health
+  /admin/available-caregivers:
+    get:
+      operationId: AdminController_getAvailableCaregivers
+      parameters:
+        - name: start
+          required: true
+          in: query
+          schema:
+            type: string
+        - name: end
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Admin
+  /admin/dashboard:
+    get:
+      operationId: AdminController_getDashboard
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Admin
+  /admin/registrations:
+    get:
+      operationId: AdminController_getRegistrations
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Admin
   /auth/login:
-    $ref: "./paths/auth.yaml#/authLogin"
+    post:
+      operationId: AuthController_login
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDto'
+      responses:
+        '201':
+          description: ''
+      tags:
+        - Auth
   /auth/me:
-    $ref: "./paths/auth.yaml#/authMe"
-
-  /profiles:
-    $ref: "./paths/profiles.yaml#/profiles"
-  /profiles/{profileId}:
-    $ref: "./paths/profiles.yaml#/profileById"
-
-  /patients:
-    $ref: "./paths/patients.yaml#/patients"
-  /patients/{patientId}:
-    $ref: "./paths/patients.yaml#/patientById"
-  /patients/{patientId}/family-patients:
-    $ref: "./paths/family-patients.yaml#/familyPatientsByPatient"
-  /family-patients/{familyPatientId}:
-    $ref: "./paths/family-patients.yaml#/familyPatientById"
-  /patients/{patientId}/shifts:
-    $ref: "./paths/shifts.yaml#/shiftsByPatient"
-
+    get:
+      operationId: AuthController_me
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Auth
+  /auth/register:
+    post:
+      operationId: AuthController_register
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterDto'
+      responses:
+        '201':
+          description: ''
+      tags:
+        - Auth
   /caregivers:
-    $ref: "./paths/caregivers.yaml#/caregivers"
-  /caregivers/{caregiverId}:
-    $ref: "./paths/caregivers.yaml#/caregiverById"
-  /caregivers/{caregiverId}/documents:
-    $ref: "./paths/caregiver-documents.yaml#/documentsByCaregiver"
-  /caregiver-documents/{documentId}:
-    $ref: "./paths/caregiver-documents.yaml#/documentById"
-
-  /shifts:
-    $ref: "./paths/shifts.yaml#/shifts"
-  /shifts/mine:
-    $ref: "./paths/shifts.yaml#/shiftsMine"
-  /shifts/{shiftId}:
-    $ref: "./paths/shifts.yaml#/shiftById"
-  /shifts/{shiftId}/submit:
-    $ref: "./paths/shifts.yaml#/shiftSubmit"
-  /shifts/{shiftId}/approve:
-    $ref: "./paths/shifts.yaml#/shiftApprove"
-
+    get:
+      operationId: CaregiverController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Caregiver
+  /caregivers/documents:
+    post:
+      operationId: CaregiverController_uploadDocuments
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags:
+        - Caregiver
+  '/caregivers/documents/{id}':
+    delete:
+      operationId: CaregiverController_deleteDocument
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Caregiver
+  /caregivers/my_documents:
+    get:
+      operationId: CaregiverController_getDocuments
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Caregiver
+  '/caregivers/{caregiverId}':
+    get:
+      operationId: CaregiverController_caregiverByIdParam
+      parameters:
+        - name: caregiverId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Caregiver
+    put:
+      operationId: CaregiverController_updateCaregiver
+      parameters:
+        - name: caregiverId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCaregiverDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Caregiver
+  /patients:
+    get:
+      operationId: PatientController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Patient
+    post:
+      operationId: PatientController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePatientDto'
+      responses:
+        '201':
+          description: ''
+      tags:
+        - Patient
+  /patients/documents:
+    post:
+      operationId: PatientController_uploadDocuments
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags:
+        - Patient
+  '/patients/documents/{id}':
+    delete:
+      operationId: PatientController_deleteDocument
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Patient
+  /patients/my_documents:
+    get:
+      operationId: PatientController_getDocuments
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Patient
+  '/patients/{id}':
+    get:
+      operationId: PatientController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Patient
+    patch:
+      operationId: PatientController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePatientDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Patient
+  /payments/transfer:
+    post:
+      operationId: PaymentController_createTransfer
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTransferDto'
+      responses:
+        '201':
+          description: ''
+      tags:
+        - Payment
+  '/payments/{id}':
+    get:
+      operationId: PaymentController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Payment
   /payrolls:
-    $ref: "./paths/payrolls.yaml#/payrolls"
-  /payrolls/mine:
-    $ref: "./paths/payrolls.yaml#/payrollsMine"
-  /payrolls/{payrollId}:
-    $ref: "./paths/payrolls.yaml#/payrollById"
-  /payrolls/{payrollId}/approve:
-    $ref: "./paths/payrolls.yaml#/payrollApprove"
-  /payrolls/{payrollId}/export:
-    $ref: "./paths/payrolls.yaml#/payrollExport"
-  /payrolls/{payrollId}/payments:
-    $ref: "./paths/payments.yaml#/paymentsByPayroll"
-  /payments/{paymentId}:
-    $ref: "./paths/payments.yaml#/paymentById"
-
-  /uploads/presign:
-    $ref: "./paths/uploads.yaml#/uploadsPresign"
-
+    get:
+      operationId: PayrollsController_findAll
+      parameters:
+        - name: page
+          required: true
+          in: query
+          schema:
+            type: number
+        - name: limit
+          required: true
+          in: query
+          schema:
+            type: number
+        - name: status
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Payrolls
+  '/payrolls/caregiver/{id}':
+    get:
+      operationId: PayrollsController_findAllByCaregiver
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: page
+          required: true
+          in: query
+          schema:
+            type: number
+        - name: limit
+          required: true
+          in: query
+          schema:
+            type: number
+        - name: status
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Payrolls
+  /ratings:
+    post:
+      operationId: RatingsController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRatingDto'
+      responses:
+        '201':
+          description: ''
+      tags:
+        - Ratings
+  '/ratings/{shiftId}':
+    get:
+      operationId: RatingsController_findByShift
+      parameters:
+        - name: shiftId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Ratings
+  /shifts:
+    get:
+      operationId: ShiftsController_findAll
+      parameters:
+        - name: page
+          required: true
+          in: query
+          schema:
+            type: number
+        - name: limit
+          required: true
+          in: query
+          schema:
+            type: number
+        - name: status
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Shifts
+    post:
+      operationId: ShiftsController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateShiftDto'
+      responses:
+        '201':
+          description: ''
+      tags:
+        - Shifts
+  '/shifts/caregiver/{caregiverProfileId}':
+    get:
+      operationId: ShiftsController_findByCaregiver
+      parameters:
+        - name: caregiverProfileId
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: page
+          required: true
+          in: query
+          schema:
+            type: number
+        - name: limit
+          required: true
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Shifts
+  '/shifts/patient/{patientId}':
+    get:
+      operationId: ShiftsController_findByPatient
+      parameters:
+        - name: patientId
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: page
+          required: true
+          in: query
+          schema:
+            type: number
+        - name: limit
+          required: true
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Shifts
+  '/shifts/patient/{patientId}/next':
+    get:
+      operationId: ShiftsController_findNext
+      parameters:
+        - name: patientId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Shifts
+  '/shifts/{id}':
+    delete:
+      operationId: ShiftsController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Shifts
+    get:
+      operationId: ShiftsController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Shifts
+    patch:
+      operationId: ShiftsController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateShiftDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Shifts
+  '/shifts/{id}/status':
+    patch:
+      operationId: ShiftsController_updateStatus
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStatusDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Shifts
+info:
+  title: Caregiving API
+  description: Caregiving PYME API
+  version: '1.0'
+  contact: {}
+tags: []
+servers: []
 components:
-  parameters:
-    $ref: "./components/parameters.yaml"
-  responses:
-    $ref: "./components/responses.yaml"
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
   schemas:
-    # common (enums)
-    ProfileRole:
-      $ref: "./schemas/common.yaml#/ProfileRole"
-    CaregiverDocumentStatus:
-      $ref: "./schemas/common.yaml#/CaregiverDocumentStatus"
-    ShiftStatus:
-      $ref: "./schemas/common.yaml#/ShiftStatus"
-    PayrollStatus:
-      $ref: "./schemas/common.yaml#/PayrollStatus"
-    PaymentStatus:
-      $ref: "./schemas/common.yaml#/PaymentStatus"
-    PaymentMethod:
-      $ref: "./schemas/common.yaml#/PaymentMethod"
-
-    # auth
-    AuthRegisterRequest:
-      $ref: "./schemas/auth.yaml#/AuthRegisterRequest"
-    AuthRegisterResponse:
-      $ref: "./schemas/auth.yaml#/AuthRegisterResponse"
-    AuthLoginRequest:
-      $ref: "./schemas/auth.yaml#/AuthLoginRequest"
-    AuthLoginResponse:
-      $ref: "./schemas/auth.yaml#/AuthLoginResponse"
-    MeResponse:
-      $ref: "./schemas/auth.yaml#/MeResponse"
-
-    # profiles
-    Profile:
-      $ref: "./schemas/profiles.yaml#/Profile"
-    ProfileUpdateRequest:
-      $ref: "./schemas/profiles.yaml#/ProfileUpdateRequest"
-    PagedProfiles:
-      $ref: "./schemas/profiles.yaml#/PagedProfiles"
-
-    # patients
-    Patient:
-      $ref: "./schemas/patients.yaml#/Patient"
-    PatientCreateRequest:
-      $ref: "./schemas/patients.yaml#/PatientCreateRequest"
-    PatientUpdateRequest:
-      $ref: "./schemas/patients.yaml#/PatientUpdateRequest"
-    PagedPatients:
-      $ref: "./schemas/patients.yaml#/PagedPatients"
-
-    # family-patients
-    FamilyPatient:
-      $ref: "./schemas/family-patients.yaml#/FamilyPatient"
-    FamilyPatientCreateRequest:
-      $ref: "./schemas/family-patients.yaml#/FamilyPatientCreateRequest"
-    FamilyPatientUpdateRequest:
-      $ref: "./schemas/family-patients.yaml#/FamilyPatientUpdateRequest"
-
-    # caregivers
-    Caregiver:
-      $ref: "./schemas/caregivers.yaml#/Caregiver"
-    CaregiverUpdateRequest:
-      $ref: "./schemas/caregivers.yaml#/CaregiverUpdateRequest"
-    PagedCaregivers:
-      $ref: "./schemas/caregivers.yaml#/PagedCaregivers"
-
-    # caregiver-documents
-    CaregiverDocument:
-      $ref: "./schemas/caregiver-documents.yaml#/CaregiverDocument"
-    CaregiverDocumentCreateRequest:
-      $ref: "./schemas/caregiver-documents.yaml#/CaregiverDocumentCreateRequest"
-    CaregiverDocumentUpdateRequest:
-      $ref: "./schemas/caregiver-documents.yaml#/CaregiverDocumentUpdateRequest"
-
-    # shifts
-    Shift:
-      $ref: "./schemas/shifts.yaml#/Shift"
-    ShiftCreateRequest:
-      $ref: "./schemas/shifts.yaml#/ShiftCreateRequest"
-    ShiftUpdateRequest:
-      $ref: "./schemas/shifts.yaml#/ShiftUpdateRequest"
-    ShiftApproveRequest:
-      $ref: "./schemas/shifts.yaml#/ShiftApproveRequest"
-    PagedShifts:
-      $ref: "./schemas/shifts.yaml#/PagedShifts"
-
-    # payrolls
-    Payroll:
-      $ref: "./schemas/payrolls.yaml#/Payroll"
-    PayrollCalculateRequest:
-      $ref: "./schemas/payrolls.yaml#/PayrollCalculateRequest"
-    PayrollCalculateResponse:
-      $ref: "./schemas/payrolls.yaml#/PayrollCalculateResponse"
-    PagedPayrolls:
-      $ref: "./schemas/payrolls.yaml#/PagedPayrolls"
-
-    # payments
-    Payment:
-      $ref: "./schemas/payments.yaml#/Payment"
-    PaymentCreateRequest:
-      $ref: "./schemas/payments.yaml#/PaymentCreateRequest"
-    PaymentUpdateRequest:
-      $ref: "./schemas/payments.yaml#/PaymentUpdateRequest"
-
-    # uploads
-    UploadPresignRequest:
-      $ref: "./schemas/uploads.yaml#/UploadPresignRequest"
-    UploadPresignResponse:
-      $ref: "./schemas/uploads.yaml#/UploadPresignResponse"
-
+    CreatePatientDto:
+      type: object
+      properties: {}
+      example: {}
+    CreateRatingDto:
+      type: object
+      properties: {}
+      example: {}
+    CreateShiftDto:
+      type: object
+      properties: {}
+      example: {}
+    CreateTransferDto:
+      type: object
+      properties: {}
+      example: {}
+    LoginDto:
+      type: object
+      properties: {}
+      example: {}
+    RegisterDto:
+      type: object
+      properties: {}
+      example: {}
+    UpdateCaregiverDto:
+      type: object
+      properties: {}
+      example: {}
+    UpdatePatientDto:
+      type: object
+      properties: {}
+      example: {}
+    UpdateShiftDto:
+      type: object
+      properties: {}
+      example: {}
+    UpdateStatusDto:
+      type: object
+      properties: {}
+      example: {}
