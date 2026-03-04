@@ -8,9 +8,7 @@ import { ReporteDialog } from "../../components/caregiver/Reporte";
 import { Calendar } from "../../components/UI/Calendar";
 
 export const Agenda = () => {
-  // const { data: user } = useUser();
   const { data: hookShifts } = useCaregiverShifts();
-  // const { data: caregivers = [] } = useCaregivers();
   const caregiverShifts = Array.isArray(hookShifts)
     ? hookShifts
     : hookShifts?.data || [];

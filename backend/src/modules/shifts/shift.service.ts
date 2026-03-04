@@ -6,7 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, MoreThan, Repository } from 'typeorm';
+import { Between, LessThan, MoreThan, Repository } from 'typeorm';
 import { Shift } from './shift.entity';
 import { Caregiver } from '../caregivers/caregiver.entity';
 import { Patient } from '../patients/patient.entity';
@@ -100,7 +100,7 @@ export class ShiftsService {
     });
 
     if (!patient) {
-      throw new NotFoundException('Patient not found');
+      throw new NotFoundException('No se encontro el paciente');
     }
 
     const start = new Date(dto.start_time);
@@ -110,7 +110,9 @@ export class ShiftsService {
     const location = dto.location ? dto.location : null;
 
     if (end <= start) {
-      throw new BadRequestException('end_time must be greater than start_time');
+      throw new BadRequestException(
+        'La fecha de finalización debe ser mayor a la de inicio',
+      );
     }
 
     const alreadyExists = await this.allReadyExists(
@@ -119,7 +121,7 @@ export class ShiftsService {
       dto.patientId,
     );
     if (alreadyExists) {
-      throw new BadRequestException('Shift already exists');
+      throw new BadRequestException('Ya existe una guardia en ese horario');
     }
     const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
 
@@ -143,11 +145,14 @@ export class ShiftsService {
   ): Promise<boolean> {
     const start = new Date(start_time);
     const end = new Date(end_time);
-    const shift = await this.shiftRepository.findOneBy({
-      start_time: Between(start, end),
-      end_time: Between(start, end),
-      patient: {
-        profile_id: patientId,
+
+    // Logic for any overlap:
+    // (ExistingStart < NewEnd) AND (ExistingEnd > NewStart)
+    const shift = await this.shiftRepository.findOne({
+      where: {
+        patient: { profile_id: patientId },
+        start_time: LessThan(end),
+        end_time: MoreThan(start),
       },
     });
     return !!shift;
@@ -157,9 +162,9 @@ export class ShiftsService {
   async findAll(page: number = 1, limit: number = 10, status?: string) {
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Record<string, string> = {};
     if (status && status !== 'ALL') {
-      where.status = status;
+      where.status = status as ShiftStatus.PENDING;
     }
 
     const [data, total] = await this.shiftRepository.findAndCount({

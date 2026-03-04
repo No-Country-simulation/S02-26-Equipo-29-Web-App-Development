@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import { api } from "../../lib/axios/api";
 import type { Shift } from "../../types";
 
@@ -118,13 +119,20 @@ export const getPatientShifts = async (patientId: string): Promise<Shift[]> => {
 };
 
 export const createShift = async (data: CreateShiftRequest): Promise<Shift> => {
-  const response = await api.post<ShiftApiResponse>(`/shifts`, {
+   try {
+    const response = await api.post<ShiftApiResponse>(`/shifts`, {
     patientId: data.patientId,
     start_time: data.start_time,
     end_time: data.end_time,
     service: "Cuidado general",
     report: data.report || undefined,
     location: data.location || undefined,
-  });
+  })
   return mapShift(response.data);
+} catch (error) {
+    if (error instanceof AxiosError) {
+        throw new Error(error.response?.data.message || "Error al crear la guardia");
+    }
+    throw new Error("Error al crear la guardia");
+}
 };

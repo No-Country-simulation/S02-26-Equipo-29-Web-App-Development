@@ -13,6 +13,11 @@ import { getStatusColorShift, translateStatusShift } from "../../utils/status";
 import { Link } from "react-router-dom";
 import type { Shift } from "../../types";
 import { takeFirstLetters } from "../../utils/firstLetters";
+import {
+  AdminCardsSkeleton,
+  AdminHeaderSkeleton,
+  AdminTableSkeleton,
+} from "../../components/UI/Skeleton";
 
 export function PanelAdmin() {
   const { data: dashboard, isLoading, error } = useDashboard();
@@ -50,54 +55,12 @@ export function PanelAdmin() {
 
   if (isLoading) {
     return (
-      <div className="bg-background pt-5 px-5 animate-pulse">
-        <header className="rounded-3xl border border-border bg-surface p-6 shadow-lg">
-          <div className="h-7 w-56 rounded-xl bg-border mb-2" />
-          <div className="h-4 w-40 rounded-xl bg-border" />
-        </header>
-
-        {/* Skeleton cards */}
-        <section className="flex gap-4 my-5">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="rounded-3xl border border-border bg-surface p-6 shadow-lg w-62.5 flex-1"
-            >
-              <div className="h-10 w-10 rounded-2xl bg-border mb-4" />
-              <div className="h-4 w-32 rounded-xl bg-border mb-2" />
-              <div className="h-7 w-16 rounded-xl bg-border" />
-            </div>
-          ))}
-        </section>
-
-        {/* Skeleton table */}
-        <div className="rounded-3xl border border-border bg-surface p-6 shadow-lg w-full">
-          <div className="h-6 w-64 rounded-xl bg-border mb-6" />
-          <div className="rounded-2xl border border-border overflow-hidden">
-            <div className="bg-background px-4 py-3 flex gap-8">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="h-4 w-20 rounded-xl bg-border" />
-              ))}
-            </div>
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div
-                key={i}
-                className="flex gap-8 px-4 py-4 border-t border-border"
-              >
-                <div className="flex flex-col gap-1 flex-1">
-                  <div className="h-4 w-32 rounded-xl bg-border" />
-                  <div className="h-3 w-16 rounded-xl bg-border" />
-                </div>
-                <div className="h-4 w-24 rounded-xl bg-border flex-1" />
-                <div className="h-4 w-24 rounded-xl bg-border flex-1" />
-                <div className="h-4 w-24 rounded-xl bg-border flex-1" />
-                <div className="flex gap-2 flex-1">
-                  <div className="h-8 w-20 rounded-2xl bg-border" />
-                  <div className="h-8 w-20 rounded-2xl bg-border" />
-                </div>
-              </div>
-            ))}
-          </div>
+      <div className="bg-background pt-5 px-5 space-y-5">
+        <AdminHeaderSkeleton titleWidth="w-72" subtitleWidth="w-80" />
+        <AdminCardsSkeleton />
+        <div className="p-6 rounded-3xl border border-border bg-surface shadow-lg">
+          <div className="h-7 w-64 rounded-xl bg-border mb-6" />
+          <AdminTableSkeleton columns={6} rows={5} />
         </div>
       </div>
     );

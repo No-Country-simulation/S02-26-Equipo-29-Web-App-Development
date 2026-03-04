@@ -58,16 +58,20 @@ export class PatientService {
     if (!patient) {
       throw new NotFoundException(`Paciente con ID ${id} no encontrado`);
     }
-    const { phone, ...patientData } = updateData;
+    const { full_name, ...patientData } = updateData;
 
     // Actualizar usando el método update de TypeORM
-    const result = await this.patientRepo.update(
-      { profile_id: id },
-      patientData,
-    );
+    if (Object.keys(patientData).length > 0) {
+      await this.patientRepo.update({ profile_id: id }, patientData);
+    }
 
-    if (typeof phone !== 'undefined') {
-      await this.profileRepo.update({ id }, { phone });
+    const profileUpdates: Record<string, string> = {};
+    if (typeof updateData.phone !== 'undefined')
+      profileUpdates.phone = updateData.phone;
+    if (typeof full_name !== 'undefined') profileUpdates.full_name = full_name;
+
+    if (Object.keys(profileUpdates).length > 0) {
+      await this.profileRepo.update({ id }, profileUpdates);
     }
 
     // Retornar el paciente actualizado

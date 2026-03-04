@@ -8,6 +8,7 @@ import {
 } from "../../api/patient/shifts";
 import { api } from "../../lib/axios/api";
 import { getNextShift } from "../../api/patient/getNextShift";
+import { toast } from "sonner";
 
 export const useShifts = () => {
   const { data: patient } = usePatient();
@@ -34,7 +35,6 @@ export const useShifts = () => {
         throw new Error("No se pudo identificar el paciente autenticado");
       }
 
-      // Convertir datetime-local a ISO string si es necesario
       const startTime = data.start_time.includes("T")
         ? new Date(data.start_time).toISOString()
         : data.start_time;
@@ -50,13 +50,13 @@ export const useShifts = () => {
       });
     },
     onSuccess: () => {
-      // Refrescar la lista de shifts
+      toast.success("Solicitud enviada correctamente");
       queryClient.invalidateQueries({
         queryKey: ["shifts", patient?.profile_id],
       });
     },
     onError: (error: Error) => {
-      console.error("Error creating shift:", error);
+      toast.error(error.message);
     },
   });
 

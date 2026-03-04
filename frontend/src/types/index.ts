@@ -108,6 +108,7 @@ export interface Payroll {
   full_name: string;
   totalHours: number;
   totalAmount: number;
+  payment_id: string | null;
 }
 
 export interface RegistrationResponse {

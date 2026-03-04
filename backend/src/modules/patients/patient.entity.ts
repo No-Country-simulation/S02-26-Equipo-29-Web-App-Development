@@ -35,6 +35,9 @@ export class Patient {
   @Column({ nullable: true })
   notes: string;
 
+  @Column({ nullable: true })
+  phone?: string;
+
   @Column({ default: true })
   is_active: boolean;
 

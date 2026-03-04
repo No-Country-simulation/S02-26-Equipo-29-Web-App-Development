@@ -40,7 +40,6 @@ export  function Info() {
                                         { label: 'CBU', value: caregiverData?.cbu || 'No registrado' },
                                         { label: 'Alias Mercado Pago', value: caregiverData?.mercado_pago_alias || 'No registrado' },
                                         { label: 'Tarifa por hora', value: caregiverData?.hourly_rate ? `$${caregiverData?.hourly_rate}/hora` : 'No registrada' },
-                                        // { label: 'Turno', value: caregiverData?.shiftRange },
                                     ].map((item) => (
                                         <article key={item.label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
                                             <p className="text-xs uppercase tracking-wide text-slate-400">{item.label}</p>
@@ -55,6 +54,8 @@ export  function Info() {
                                         { label: 'DNI', value: patientData?.dni || 'No registrado' },
                                         { label: 'Dirección', value: patientData?.address || 'No registrada' },
                                         { label: 'Notas', value: patientData?.notes || 'No registradas' },
+                                        { label: "Teléfono", value: patientData?.phone || "No registrado"},
+                                        {label: "Email", value: user?.email || "No registrado"}
                                         
                                     ].map((item) => (
                                         <article key={item.label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
