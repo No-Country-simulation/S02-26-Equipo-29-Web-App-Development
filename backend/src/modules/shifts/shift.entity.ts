@@ -77,6 +77,9 @@ export class Shift {
 
   @Column({ type: 'text', nullable: true })
   report!: string | null;
+  
+  @Column({ type: 'text', nullable: true })
+notes!: string | null;
 
   @Column({ type: 'text', nullable: true })
   location!: string | null;

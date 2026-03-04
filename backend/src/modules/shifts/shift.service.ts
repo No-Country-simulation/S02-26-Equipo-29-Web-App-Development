@@ -7,7 +7,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, LessThan, MoreThan, Repository } from 'typeorm';
+import { LessThan, MoreThan, Repository } from 'typeorm';
 import { Shift } from './shift.entity';
 import { Caregiver } from '../caregivers/caregiver.entity';
 import { Patient } from '../patients/patient.entity';
@@ -134,6 +134,7 @@ export class ShiftsService {
       status: ShiftStatus.PENDING,
       service: service,
       report: report,
+      notes: dto.notes ?? null,
       location: location,
     });
     return this.shiftRepository.save(shift);
