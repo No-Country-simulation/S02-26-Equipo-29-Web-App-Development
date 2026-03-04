@@ -105,3 +105,15 @@ Desarrollar una plataforma centralizada para gestionar pacientes, cuidadores, gu
 
 ### RF-06 Aprobación administrativa
 - Aprobación/recha
+
+---
+
+## 📋 Documentación QA
+
+Incluye:
+- Casos de Prueba
+- Matriz de Trazabilidad (HU ↔ CP ↔ Endpoint)
+- Evidencia de ejecución
+- Metricas
+
+🔗 [Ver documentación QA en Google Sheets](https://docs.google.com/spreadsheets/d/1GNK3CKi6sCu4CDaH3_VZRvhGiE04omMR/edit?usp=sharing&ouid=108197313288252525313&rtpof=true&sd=true)
