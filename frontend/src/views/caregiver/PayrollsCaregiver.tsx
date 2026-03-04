@@ -31,7 +31,7 @@ export function PayrollsCaregiver() {
   if (isLoading) {
     return (
       <>
-        <Header user={user} shifts={shifts} />
+        <Header user={user}  />
 
         <section className="mt-6 rounded-3xl border border-border bg-surface p-6 shadow-lg animate-pulse">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -125,34 +125,32 @@ export function PayrollsCaregiver() {
         <table className="min-w-full divide-y divide-border text-sm">
           <thead className="bg-background text-left text-text-secondary">
             <tr>
-              <th className="px-4 py-3 font-medium">Estado</th>
+              <th className="px-4 py-3 font-medium text-center">Estado</th>
               <th className="px-4 py-3 font-medium text-center">Horas</th>
-              <th className="px-4 py-3 font-medium">Monto</th>
-              <th className="px-4 py-3 font-medium text-right">Acción</th>
+              <th className="px-4 py-3 font-medium text-center">Monto</th>
+              <th className="px-4 py-3 font-medium text-center">Acción</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border bg-surface">
             {payrolls.length > 0 ? (
-              payrolls.map((payroll) => (
+              payrolls.map((payroll, index) => (
                 <tr
-                  key={`${payroll.profile_id}-${payroll.status}-${
-                    payroll.totalAmount
-                  }-${Math.random()}`}
+                  key={`${payroll.profile_id}-${payroll.status}-${index}`}
                   className="hover:bg-white/5"
                 >
-                  <td className="px-4 py-4 text-text-secondary">
+                  <td className="px-4 py-4 text-center text-text-secondary">
                     {translateStatus(payroll.status)}
                   </td>
                   <td className="px-4 py-4 text-center text-text-secondary">
                     {Number(payroll.totalHours).toFixed(1)}
                   </td>
-                  <td className="px-4 py-4 font-semibold text-text-primary">
+                  <td className="px-4 py-4 text-center font-semibold text-text-primary">
                     ${Number(payroll.totalAmount).toLocaleString()}
                   </td>
-                  <td className="px-4 py-4 text-right">
+                  <td className="px-4 py-4 text-center">
                     {payroll.status === "payed" && payroll.payment_id ? (
                       <button
-                        onClick={() => handleViewReceipt(payroll.payment_id)}
+                        onClick={() => handleViewReceipt(payroll.payment_id!)}
                         className="text-xs font-bold text-primary hover:underline cursor-pointer"
                       >
                         Ver comprobante

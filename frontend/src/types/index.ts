@@ -61,6 +61,10 @@ export interface ShiftCaregiverSummary {
   is_verified: boolean;
   status: string;
   full_name?: string;
+  profile?: {
+    full_name: string;
+    id: string;
+  };
 }
 
 export interface ShiftPatientSummary {
