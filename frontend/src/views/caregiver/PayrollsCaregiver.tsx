@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { usePayrollsByCaregiver, useUser } from "../../hooks";
+import { useCaregiverShifts } from '../../hooks/caregiver/useCaregiver';
 import { translateStatus } from "../../utils/status";
+import { Header } from "../../components/UI/Headers";
 
 export function PayrollsCaregiver() {
   const { data: user } = useUser();
+  const { data: shifts } = useCaregiverShifts();
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState("pending");
   const limit = 10;
@@ -19,12 +22,47 @@ export function PayrollsCaregiver() {
 
   if (isLoading) {
     return (
-      <div className="p-10 flex flex-col items-center justify-center gap-4 text-text-secondary min-h-100">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-        <p className="font-medium animate-pulse">
-          Cargando historial de pagos...
-        </p>
-      </div>
+      <>
+        <Header user={user} shifts={shifts} />
+
+        <section className="mt-6 rounded-3xl border border-border bg-surface p-6 shadow-lg animate-pulse">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="h-3 w-24 rounded-xl bg-border" />
+              <div className="mt-2 h-7 w-56 rounded-xl bg-border" />
+            </div>
+            <div className="mt-2 flex gap-2 sm:mt-0">
+              <div className="h-9 w-24 rounded-xl bg-border" />
+              <div className="h-9 w-24 rounded-xl bg-border" />
+            </div>
+          </div>
+
+          <div className="mt-6 overflow-hidden rounded-2xl border border-border">
+            <div className="bg-background px-4 py-3 flex gap-8">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-4 w-20 rounded-xl bg-border" />
+              ))}
+            </div>
+
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-8 px-4 py-4 border-t border-border bg-surface">
+                <div className="h-4 w-20 rounded-xl bg-border flex-1" />
+                <div className="h-4 w-16 rounded-xl bg-border flex-1" />
+                <div className="h-4 w-24 rounded-xl bg-border flex-1" />
+                <div className="h-4 w-32 rounded-xl bg-border flex-1" />
+              </div>
+            ))}
+
+            <div className="flex flex-col gap-3 border-t border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="h-4 w-28 rounded-xl bg-border" />
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-24 rounded-2xl bg-border" />
+                <div className="h-8 w-24 rounded-2xl bg-border" />
+              </div>
+            </div>
+          </div>
+        </section>
+      </>
     );
   }
 
@@ -32,11 +70,14 @@ export function PayrollsCaregiver() {
   const meta = data?.meta || { total: 0, page: 1, lastPage: 1 };
 
   return (
-    <section className="m-10 rounded-3xl border border-border bg-surface p-6 shadow-lg">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.4em] text-text-secondary">
-            Mis pagos
+    <>
+      <Header user={user} shifts={shifts} />
+      
+      <section className="mt-6 rounded-3xl border border-border bg-surface p-6 shadow-lg">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.4em] text-text-secondary">
+              Mis pagos
           </p>
           <h2 className="text-xl font-semibold">
             {meta.total} pagos registrados
@@ -145,5 +186,6 @@ export function PayrollsCaregiver() {
         )}
       </div>
     </section>
+    </>
   );
 }

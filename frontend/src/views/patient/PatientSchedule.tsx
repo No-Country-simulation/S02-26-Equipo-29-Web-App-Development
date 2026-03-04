@@ -15,10 +15,11 @@ import { toast } from "sonner";
 import { ReporteDialog } from "../../components/caregiver/Reporte";
 import { ShiftCardDialog } from "../../components/shifts/summaryShift";
 import { Calendar } from "../../components/UI/Calendar";
+import { Header } from "../../components/UI/Headers";
 
 export const PatientSchedule = () => {
-  useUser();
-  const { shifts: hookShifts } = useShifts();
+  const { data: user } = useUser();
+  const { shifts: hookShifts, isLoading } = useShifts();
   const [selectedPatient, setSelectedPatient] = useState<
     (typeof assignedPatients)[number] | null
   >(null);
@@ -118,16 +119,80 @@ export const PatientSchedule = () => {
     return Number(((endDate - startDate) / (1000 * 60 * 60)).toFixed(2));
   };
 
+  const shiftsPending = hookShifts.filter((shift) => shift.status !== "COMPLETED");
+
+  if (isLoading) {
+    return (
+      <>
+        <Header user={user} shifts={hookShifts} />
+
+        <section className="m-10 rounded-3xl border border-border bg-surface p-6 shadow-lg animate-pulse">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="h-3 w-40 rounded-xl bg-border" />
+              <div className="mt-2 h-7 w-64 rounded-xl bg-border" />
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="h-4 w-28 rounded-xl bg-border" />
+              <div className="h-10 w-20 rounded-2xl bg-border" />
+              <div className="h-10 w-28 rounded-2xl bg-border" />
+            </div>
+          </div>
+
+          <div className="mt-6 overflow-hidden rounded-2xl border border-border">
+            <div className="bg-background px-4 py-3 flex gap-6">
+              {Array.from({ length: 7 }).map((_, i) => (
+                <div key={i} className="h-4 w-16 rounded-xl bg-border" />
+              ))}
+            </div>
+
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex gap-6 px-4 py-4 border-t border-border bg-surface">
+                {Array.from({ length: 7 }).map((__, j) => (
+                  <div key={j} className="h-4 w-16 rounded-xl bg-border flex-1" />
+                ))}
+              </div>
+            ))}
+
+            <div className="flex flex-col gap-3 border-t border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="h-4 w-48 rounded-xl bg-border" />
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-20 rounded-2xl bg-border" />
+                <div className="h-4 w-24 rounded-xl bg-border" />
+                <div className="h-8 w-20 rounded-2xl bg-border" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className=" rounded-3xl border border-border bg-surface p-6 shadow-lg animate-pulse">
+          <div className="h-7 w-56 rounded-xl bg-border mb-2" />
+          <div className="h-4 w-40 rounded-xl bg-border mb-6" />
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="rounded-2xl border border-border px-3 py-3">
+                <div className="h-4 w-3/4 rounded-xl bg-border" />
+                <div className="mt-2 h-3 w-2/3 rounded-xl bg-border" />
+              </div>
+            ))}
+          </div>
+        </section>
+      </>
+    );
+  }
+
   return (
     <>
-      <section className="m-10 rounded-3xl border border-border bg-surface p-6 shadow-lg">
+      <Header user={user} shifts={hookShifts} />
+
+      <section className=" rounded-3xl border border-border bg-surface p-6 shadow-lg">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.4em] text-text-secondary">
               Pacientes asignados
             </p>
             <h2 className="text-xl font-semibold">
-              {hookShifts.length} guardias programadas esta semana
+              {shiftsPending.length} guardias programadas esta semana
             </h2>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -164,8 +229,7 @@ export const PatientSchedule = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-surface">
-              {hookShifts
-                .filter((shift) => shift.status !== "COMPLETED")
+              {shiftsPending
                 .map((shift) => (
                   <>
                     <tr
@@ -302,7 +366,9 @@ export const PatientSchedule = () => {
                 ? {
                     id: foundShift.id,
                     caregiver_id: foundShift.caregiver?.profile_id || "",
-                    patient_id: foundShift.patient?.profile_id || "",
+                    patient_id: foundShift.patient?.profile?.id || "",
+                    patient_name: foundShift.patient?.profile?.full_name || "",
+                    patient_phone: foundShift.patient?.profile?.phone || "",
                     startTime: foundShift.startTime,
                     endTime: foundShift.endTime,
                     location: foundShift.location || "",
@@ -416,7 +482,7 @@ export const PatientSchedule = () => {
       </section>
 
       {
-        <section className="m-10 rounded-3xl border border-border bg-surface p-6 shadow-lg">
+        <section className="mt-6 rounded-3xl border border-border bg-surface p-6 shadow-lg">
           <h2 className="text-xl font-semibold mb-4">Calendario Completo</h2>
           <p className="text-sm text-text-secondary mb-4">Turnos Finalizados</p>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">

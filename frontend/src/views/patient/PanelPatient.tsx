@@ -1,20 +1,26 @@
 import { ChevronDown } from "lucide-react";
 import { useUser } from "../../hooks";
-import { useNextShift, useShifts } from "../../hooks/patient/useShifts";
+import { useShifts } from "../../hooks/patient/useShifts";
 import { formatDate, formatTime } from "../../utils/formatDate";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Header } from "../../components/UI/Headers";
 
 export function PanelPatient() {
   const { data: user } = useUser();
-  const { data: nextShift } = useNextShift();
-
   const {
-    shifts: hookShifts,
+    shifts,
     createShift,
     isCreating,
     createError,
+    isLoading,
   } = useShifts();
+  
+  const nextShiftAproved = shifts.find(
+    (shift) => shift.caregiver !== null && shift.status !== "COMPLETED",
+  );
+
+  const hookShifts = shifts;
 
   // Estado para el formulario
   const [showForm, setShowForm] = useState(false);
@@ -63,23 +69,48 @@ export function PanelPatient() {
     setShowForm(false);
   };
 
+  if (isLoading) {
+    return (
+      <main className="min-h-screen bg-background px-4 py-6 lg:px-8">
+        <Header user={user} shifts={hookShifts} />
+
+        <section className="mx-auto w-full max-w-6xl space-y-5 animate-pulse">
+          <div className="h-9 w-44 rounded-2xl bg-border" />
+
+          <section className="mt-5 grid gap-6 lg:grid-cols-2">
+            <article className="rounded-3xl border border-border bg-surface p-6 shadow-lg">
+              <div className="h-3 w-36 rounded-xl bg-border" />
+              <div className="mt-3 h-7 w-56 rounded-xl bg-border" />
+              <div className="mt-2 h-4 w-full rounded-xl bg-border" />
+              <div className="mt-2 h-4 w-2/3 rounded-xl bg-border" />
+            </article>
+
+            <article className="rounded-3xl border border-border bg-surface p-6 shadow-lg">
+              <div className="h-3 w-32 rounded-xl bg-border" />
+              <ul className="mt-4 space-y-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <li
+                    key={i}
+                    className="rounded-2xl border border-border bg-background px-4 py-3"
+                  >
+                    <div className="h-4 w-3/4 rounded-xl bg-border" />
+                    <div className="mt-2 h-4 w-2/3 rounded-xl bg-border" />
+                    <div className="mt-2 h-3 w-full rounded-xl bg-border" />
+                    <div className="mt-2 h-3 w-5/6 rounded-xl bg-border" />
+                  </li>
+                ))}
+              </ul>
+            </article>
+          </section>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-background px-4 py-6 lg:px-8">
+        <Header user={user} shifts={hookShifts} />
       <section className="mx-auto w-full max-w-6xl space-y-5">
-        <header className="rounded-3xl border border-border bg-surface p-6 shadow-lg">
-          <p className="text-xs uppercase tracking-[0.4em] text-text-secondary">
-            Panel paciente
-          </p>
-          <h1 className="mt-2 text-2xl font-semibold text-text-primary">
-            Paciente{" "}
-            <span className="text-lg font-normal text-text-secondary">
-              {user?.full_name}
-            </span>
-          </h1>
-          <p className="mt-1 text-sm text-text-secondary">
-            Gestiona tu información y guardias
-          </p>
-        </header>
 
         <div className="flex justify-start">
           <button
@@ -193,21 +224,21 @@ export function PanelPatient() {
               Cuidador asignado
             </p>
             <h2 className="mt-3 text-xl font-semibold">
-              {nextShift?.caregiver?.profile?.full_name ||
+              {nextShiftAproved?.caregiver?.full_name ||
                 "Sin cuidador asignado"}
             </h2>
             <p className="text-sm text-text-secondary">
               Turno:{" "}
-              {nextShift?.start_time
-                ? `${formatDateTime(nextShift.start_time)} - ${formatDateTime(
-                    nextShift.end_time,
-                  )} - 🕛${nextShift?.hours} horas`
+              {nextShiftAproved?.start_time
+                ? `${formatDateTime(nextShiftAproved.start_time)} - ${formatDateTime(
+                    nextShiftAproved.end_time,
+                  )} - 🕛${nextShiftAproved?.hours} horas`
                 : "Sin turno asignado"}
             </p>
             <p className="mt-4 text-sm">
               Teléfono de contacto:{" "}
               <span className="font-medium text-primary">
-                {nextShift?.caregiver?.phone || "Sin teléfono disponible"}
+                {nextShiftAproved?.caregiver?.phone || "Sin teléfono disponible"}
               </span>
             </p>
             <div></div>
