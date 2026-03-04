@@ -30,7 +30,7 @@ export const AssignCaregiverModal = ({ shift, onClose }: Props) => {
           toast.success("Cuidador asignado correctamente");
           onClose();
         },
-        onError: (error: any) => {
+        onError: (error) => {
           toast.error(error.message || "Error al asignar cuidador");
         },
       }
@@ -38,7 +38,7 @@ export const AssignCaregiverModal = ({ shift, onClose }: Props) => {
   };
 
   const filteredCaregivers = caregivers?.filter((c) =>
-    c.profile.full_name.toLowerCase().includes(searchTerm.toLowerCase())
+    c.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -49,7 +49,7 @@ export const AssignCaregiverModal = ({ shift, onClose }: Props) => {
           <div>
             <h2 className="text-xl font-bold text-text-primary">Asignar Cuidador</h2>
             <p className="text-sm text-text-secondary mt-1">
-              {formatDateSafe(shift.start_time)} • {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
+              {formatDateSafe(shift.start_time as string)} • {formatTime(shift.start_time as string)} - {formatTime(shift.end_time as string)}
             </p>
           </div>
           <button
@@ -94,14 +94,14 @@ export const AssignCaregiverModal = ({ shift, onClose }: Props) => {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                      {takeFirstLetters(caregiver.profile.full_name)}
+                      {takeFirstLetters(caregiver.profile?.full_name || "")}
                     </div>
                     <div>
-                      <h4 className="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors">
-                        {caregiver.profile.full_name}
+                       <h4 className="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors">
+                        {caregiver.profile?.full_name}
                       </h4>
                       <div className="flex items-center gap-2 mt-0.5 text-xs text-text-secondary">
-                        <span>{caregiver.profile.phone || "Sin teléfono"}</span>
+                        <span>{caregiver.profile?.phone || "Sin teléfono"}</span>
                         <span>•</span>
                         <span className="text-primary font-medium">${caregiver.hourly_rate}/hr</span>
                       </div>
@@ -109,7 +109,7 @@ export const AssignCaregiverModal = ({ shift, onClose }: Props) => {
                   </div>
                   <button
                     disabled={isAssigning}
-                    onClick={() => handleAssign(caregiver.profile_id)}
+                    onClick={() => handleAssign(caregiver.profile_id || "")}
                     className="bg-primary text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all disabled:opacity-50 disabled:shadow-none"
                   >
                     {isAssigning ? <Loader2 className="animate-spin" size={14} /> : "Asignar"}

@@ -1,13 +1,14 @@
+import React from "react";
 import { formatDateSafe, formatTime } from "../../utils/formatDate";
 import type { User } from "../../types";
 
 interface HeaderProps {
   user: User;
-  shifts?: any[];
+  shifts?: any;
 }
 
 export const Header: React.FC<HeaderProps> = ({ user, shifts }) => {
-  const shiftList = Array.isArray(shifts) ? shifts : shifts?.data || [];
+  const shiftList = Array.isArray(shifts) ? shifts : (shifts && typeof shifts === 'object' && 'data' in shifts) ? shifts.data : [];
   const nextShift = shiftList[shiftList.length - 1]; // Assuming the last shift is the next one
   const nextShiftStart = nextShift?.start_time || nextShift?.startTime;
   const nextShiftEnd = nextShift?.end_time || nextShift?.endTime;

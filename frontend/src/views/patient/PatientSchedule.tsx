@@ -366,9 +366,9 @@ export const PatientSchedule = () => {
                 ? {
                     id: foundShift.id,
                     caregiver_id: foundShift.caregiver?.profile_id || "",
-                    patient_id: foundShift.patient?.profile?.id || "",
-                    patient_name: foundShift.patient?.profile?.full_name || "",
-                    patient_phone: foundShift.patient?.profile?.phone || "",
+                    patient_id: foundShift.patient?.profile_id || "",
+                    patient_name: foundShift.patient?.full_name || "",
+                    patient_phone: foundShift.patient?.phone || "",
                     startTime: foundShift.startTime,
                     endTime: foundShift.endTime,
                     location: foundShift.location || "",

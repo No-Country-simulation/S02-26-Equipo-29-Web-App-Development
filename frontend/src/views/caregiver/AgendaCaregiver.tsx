@@ -7,9 +7,11 @@ import { formatDayMonth, formatTime } from "../../utils/formatDate";
 import { ReporteDialog } from "../../components/caregiver/Reporte";
 import { Calendar } from "../../components/UI/Calendar";
 import { Header } from "../../components/UI/Headers";
+import type { Shift } from "../../types";
 
 export const Agenda = () => {
-  const { data: hookShifts } = useCaregiverShifts();
+  const { data: user, isLoading: isUserLoading } = useUser();
+  const { data: hookShifts, isLoading: isShiftsLoading } = useCaregiverShifts();
   const caregiverShifts = Array.isArray(hookShifts)
     ? hookShifts
     : hookShifts?.data || [];
@@ -31,6 +33,7 @@ export const Agenda = () => {
     medicacion: "",
     observaciones: "",
   });
+
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -62,8 +65,8 @@ export const Agenda = () => {
 
   console.log("Caregiver Shifts in Agenda:", caregiverShifts);
 
-  const shiftsPending = caregiverShifts.filter((shift) => shift.status !== "COMPLETED");
-  const shiftsCompleted = caregiverShifts.filter((shift) => shift.status === "COMPLETED");
+  const shiftsPending = caregiverShifts.filter((shift:Shift) => shift.status !== "COMPLETED");
+  const shiftsCompleted = caregiverShifts.filter((shift:Shift) => shift.status === "COMPLETED");
 
   const isLoading = isUserLoading || isShiftsLoading;
 
@@ -206,9 +209,9 @@ export const Agenda = () => {
                         onClick={() => {
                           setSelectedShift(shift);
                           setSelectedPatient({
-                            id: shift.patient?.profile?.profile_id || shift.id,
+                            id: shift.patient?.profile_id || shift.id,
                             name:
-                              shift.patient?.profile?.full_name || "Sin nombre",
+                              shift.patient?.full_name || "Sin nombre",
                             day:
                               shift.start_time || shift.startTime
                                 ? formatDayMonth(
@@ -226,7 +229,7 @@ export const Agenda = () => {
                                 : "",
                             notes: shift.report || "Sin notas disponibles",
                             phone:
-                              shift.patient?.profile?.phone ||
+                              shift.patient?.phone ||
                               "Sin teléfono disponible",
                           });
                           setPatientDialogOpen(true);
@@ -234,7 +237,7 @@ export const Agenda = () => {
                         className="text-left w-full px-2 py-1 transition"
                       >
                         <p className="font-medium">
-                          {shift.patient?.profile?.full_name || "Sin nombre"}
+                          {shift.patient?.full_name || "Sin nombre"}
                         </p>
                       </button>
                     </td>
@@ -390,9 +393,9 @@ export const Agenda = () => {
                         onClick={() => {
                           setSelectedShift(shift);
                           setSelectedPatient({
-                            id: shift.patient?.profile?.profile_id || shift.id,
+                            id: shift.patient?.profile_id || shift.id,
                             name:
-                              shift.patient?.profile?.full_name || "Sin nombre",
+                              shift.patient?.full_name || "Sin nombre",
                             day:
                               shift.start_time || shift.startTime
                                 ? formatDayMonth(
@@ -410,7 +413,7 @@ export const Agenda = () => {
                                 : "",
                             notes: shift.report || "Sin notas disponibles",
                             phone:
-                              shift.patient?.profile?.phone ||
+                              shift.patient?.phone ||
                               "Sin teléfono disponible",
                           });
                           setPatientDialogOpen(true);
@@ -418,7 +421,7 @@ export const Agenda = () => {
                         className="text-left w-full px-2 py-1 transition"
                       >
                         <p className="font-medium">
-                          {shift.patient?.profile?.full_name || "Sin nombre"}
+                          {shift.patient?.full_name || "Sin nombre"}
                         </p>
                       </button>
                     </td>
