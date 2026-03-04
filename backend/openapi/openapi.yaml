@@ -1,20 +1,51 @@
 openapi: 3.0.0
 paths:
-  /auth/register:
-    post:
-      operationId: AuthController_register
+  /:
+    get:
+      operationId: HealthController_check
       parameters: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RegisterDto'
       responses:
-        '201':
+        '200':
           description: ''
       tags:
-        - Auth
+        - Health
+  /admin/available-caregivers:
+    get:
+      operationId: AdminController_getAvailableCaregivers
+      parameters:
+        - name: start
+          required: true
+          in: query
+          schema:
+            type: string
+        - name: end
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Admin
+  /admin/dashboard:
+    get:
+      operationId: AdminController_getDashboard
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Admin
+  /admin/registrations:
+    get:
+      operationId: AdminController_getRegistrations
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Admin
   /auth/login:
     post:
       operationId: AuthController_login
@@ -39,94 +70,39 @@ paths:
           description: ''
       tags:
         - Auth
-  /patients:
-    get:
-      operationId: PatientController_findAll
-      parameters: []
-      responses:
-        '200':
-          description: ''
-      tags:
-        - Patient
+  /auth/register:
     post:
-      operationId: PatientController_create
+      operationId: AuthController_register
       parameters: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreatePatientDto'
+              $ref: '#/components/schemas/RegisterDto'
       responses:
         '201':
           description: ''
       tags:
-        - Patient
-  /patients/my_documents:
+        - Auth
+  /caregivers:
     get:
-      operationId: PatientController_getDocuments
+      operationId: CaregiverController_findAll
       parameters: []
       responses:
         '200':
           description: ''
       tags:
-        - Patient
-  '/patients/{id}':
-    get:
-      operationId: PatientController_findOne
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-      tags:
-        - Patient
-    patch:
-      operationId: PatientController_update
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdatePatientDto'
-      responses:
-        '200':
-          description: ''
-      tags:
-        - Patient
-  '/patients/documents/{id}':
-    delete:
-      operationId: PatientController_deleteDocument
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-      tags:
-        - Patient
-  /patients/documents:
+        - Caregiver
+  /caregivers/documents:
     post:
-      operationId: PatientController_uploadDocuments
+      operationId: CaregiverController_uploadDocuments
       parameters: []
       responses:
         '201':
           description: ''
       tags:
-        - Patient
+        - Caregiver
   '/caregivers/documents/{id}':
     delete:
       operationId: CaregiverController_deleteDocument
@@ -136,15 +112,6 @@ paths:
           in: path
           schema:
             type: string
-      responses:
-        '200':
-          description: ''
-      tags:
-        - Caregiver
-  /caregivers:
-    get:
-      operationId: CaregiverController_findAll
-      parameters: []
       responses:
         '200':
           description: ''
@@ -192,88 +159,41 @@ paths:
           description: ''
       tags:
         - Caregiver
-  /caregivers/documents:
-    post:
-      operationId: CaregiverController_uploadDocuments
+  /patients:
+    get:
+      operationId: PatientController_findAll
       parameters: []
       responses:
-        '201':
+        '200':
           description: ''
       tags:
-        - Caregiver
-  /shifts:
+        - Patient
     post:
-      operationId: ShiftsController_create
+      operationId: PatientController_create
       parameters: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateShiftDto'
+              $ref: '#/components/schemas/CreatePatientDto'
       responses:
         '201':
           description: ''
       tags:
-        - Shifts
-    get:
-      operationId: ShiftsController_findAll
-      parameters:
-        - name: page
-          required: true
-          in: query
-          schema:
-            type: number
-        - name: limit
-          required: true
-          in: query
-          schema:
-            type: number
-        - name: status
-          required: true
-          in: query
-          schema:
-            type: string
+        - Patient
+  /patients/documents:
+    post:
+      operationId: PatientController_uploadDocuments
+      parameters: []
       responses:
-        '200':
+        '201':
           description: ''
       tags:
-        - Shifts
-  '/shifts/{id}':
-    get:
-      operationId: ShiftsController_findOne
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-      tags:
-        - Shifts
-    patch:
-      operationId: ShiftsController_update
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateShiftDto'
-      responses:
-        '200':
-          description: ''
-      tags:
-        - Shifts
+        - Patient
+  '/patients/documents/{id}':
     delete:
-      operationId: ShiftsController_remove
+      operationId: PatientController_deleteDocument
       parameters:
         - name: id
           required: true
@@ -284,12 +204,21 @@ paths:
         '200':
           description: ''
       tags:
-        - Shifts
-  '/shifts/patient/{patientId}/next':
+        - Patient
+  /patients/my_documents:
     get:
-      operationId: ShiftsController_findNext
+      operationId: PatientController_getDocuments
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Patient
+  '/patients/{id}':
+    get:
+      operationId: PatientController_findOne
       parameters:
-        - name: patientId
+        - name: id
           required: true
           in: path
           schema:
@@ -298,58 +227,9 @@ paths:
         '200':
           description: ''
       tags:
-        - Shifts
-  '/shifts/patient/{patientId}':
-    get:
-      operationId: ShiftsController_findByPatient
-      parameters:
-        - name: patientId
-          required: true
-          in: path
-          schema:
-            type: string
-        - name: page
-          required: true
-          in: query
-          schema:
-            type: number
-        - name: limit
-          required: true
-          in: query
-          schema:
-            type: number
-      responses:
-        '200':
-          description: ''
-      tags:
-        - Shifts
-  '/shifts/caregiver/{caregiverProfileId}':
-    get:
-      operationId: ShiftsController_findByCaregiver
-      parameters:
-        - name: caregiverProfileId
-          required: true
-          in: path
-          schema:
-            type: string
-        - name: page
-          required: true
-          in: query
-          schema:
-            type: number
-        - name: limit
-          required: true
-          in: query
-          schema:
-            type: number
-      responses:
-        '200':
-          description: ''
-      tags:
-        - Shifts
-  '/shifts/{id}/status':
+        - Patient
     patch:
-      operationId: ShiftsController_updateStatus
+      operationId: PatientController_update
       parameters:
         - name: id
           required: true
@@ -361,12 +241,12 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateStatusDto'
+              $ref: '#/components/schemas/UpdatePatientDto'
       responses:
         '200':
           description: ''
       tags:
-        - Shifts
+        - Patient
   /payments/transfer:
     post:
       operationId: PaymentController_createTransfer
@@ -449,52 +329,6 @@ paths:
           description: ''
       tags:
         - Payrolls
-  /admin/dashboard:
-    get:
-      operationId: AdminController_getDashboard
-      parameters: []
-      responses:
-        '200':
-          description: ''
-      tags:
-        - Admin
-  /admin/registrations:
-    get:
-      operationId: AdminController_getRegistrations
-      parameters: []
-      responses:
-        '200':
-          description: ''
-      tags:
-        - Admin
-  /admin/available-caregivers:
-    get:
-      operationId: AdminController_getAvailableCaregivers
-      parameters:
-        - name: start
-          required: true
-          in: query
-          schema:
-            type: string
-        - name: end
-          required: true
-          in: query
-          schema:
-            type: string
-      responses:
-        '200':
-          description: ''
-      tags:
-        - Admin
-  /:
-    get:
-      operationId: HealthController_check
-      parameters: []
-      responses:
-        '200':
-          description: ''
-      tags:
-        - Health
   /ratings:
     post:
       operationId: RatingsController_create
@@ -524,6 +358,172 @@ paths:
           description: ''
       tags:
         - Ratings
+  /shifts:
+    get:
+      operationId: ShiftsController_findAll
+      parameters:
+        - name: page
+          required: true
+          in: query
+          schema:
+            type: number
+        - name: limit
+          required: true
+          in: query
+          schema:
+            type: number
+        - name: status
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Shifts
+    post:
+      operationId: ShiftsController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateShiftDto'
+      responses:
+        '201':
+          description: ''
+      tags:
+        - Shifts
+  '/shifts/caregiver/{caregiverProfileId}':
+    get:
+      operationId: ShiftsController_findByCaregiver
+      parameters:
+        - name: caregiverProfileId
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: page
+          required: true
+          in: query
+          schema:
+            type: number
+        - name: limit
+          required: true
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Shifts
+  '/shifts/patient/{patientId}':
+    get:
+      operationId: ShiftsController_findByPatient
+      parameters:
+        - name: patientId
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: page
+          required: true
+          in: query
+          schema:
+            type: number
+        - name: limit
+          required: true
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Shifts
+  '/shifts/patient/{patientId}/next':
+    get:
+      operationId: ShiftsController_findNext
+      parameters:
+        - name: patientId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Shifts
+  '/shifts/{id}':
+    delete:
+      operationId: ShiftsController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Shifts
+    get:
+      operationId: ShiftsController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Shifts
+    patch:
+      operationId: ShiftsController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateShiftDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Shifts
+  '/shifts/{id}/status':
+    patch:
+      operationId: ShiftsController_updateStatus
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStatusDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Shifts
 info:
   title: Caregiving API
   description: Caregiving PYME API
@@ -538,33 +538,43 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
-    RegisterDto:
-      type: object
-      properties: {}
-    LoginDto:
-      type: object
-      properties: {}
     CreatePatientDto:
       type: object
       properties: {}
-    UpdatePatientDto:
-      type: object
-      properties: {}
-    UpdateCaregiverDto:
-      type: object
-      properties: {}
-    CreateShiftDto:
-      type: object
-      properties: {}
-    UpdateShiftDto:
-      type: object
-      properties: {}
-    UpdateStatusDto:
-      type: object
-      properties: {}
-    CreateTransferDto:
-      type: object
-      properties: {}
+      example: {}
     CreateRatingDto:
       type: object
       properties: {}
+      example: {}
+    CreateShiftDto:
+      type: object
+      properties: {}
+      example: {}
+    CreateTransferDto:
+      type: object
+      properties: {}
+      example: {}
+    LoginDto:
+      type: object
+      properties: {}
+      example: {}
+    RegisterDto:
+      type: object
+      properties: {}
+      example: {}
+    UpdateCaregiverDto:
+      type: object
+      properties: {}
+      example: {}
+    UpdatePatientDto:
+      type: object
+      properties: {}
+      example: {}
+    UpdateShiftDto:
+      type: object
+      properties: {}
+      example: {}
+    UpdateStatusDto:
+      type: object
+      properties: {}
+      example: {}

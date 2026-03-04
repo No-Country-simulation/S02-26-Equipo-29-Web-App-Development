@@ -28,7 +28,9 @@
     "migration:run": "pnpm typeorm migration:run",
     "migration:revert": "pnpm typeorm migration:revert",
     "openapi:generate": "ts-node src/scripts/generate-openapi.ts",
-    "openapi:yaml": "swagger-cli bundle openapi/openapi.json --type yaml --outfile openapi/openapi.yaml"
+    "openapi:enhance": "node scripts/enhance-openapi.js",
+    "openapi:yaml": "swagger-cli bundle openapi/openapi.json --type yaml --outfile openapi/openapi.yaml",
+    "openapi:build": "pnpm openapi:generate && pnpm openapi:enhance && pnpm openapi:yaml"
   },
   "dependencies": {
     "@nestjs/bullmq": "^11.0.4",
