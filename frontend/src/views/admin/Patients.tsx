@@ -1,6 +1,10 @@
 import { usePatients } from "../../hooks";
 import { formatDate } from "../../utils/formatDate";
 import { getStatusColor, translateStatus } from "../../utils/status";
+import {
+  AdminHeaderSkeleton,
+  AdminTableSkeleton,
+} from "../../components/UI/Skeleton";
 import { takeFirstLetters } from "../../utils/firstLetters";
 
 export function Patients() {
@@ -8,9 +12,12 @@ export function Patients() {
 
   if (isLoading) {
     return (
-      <div className="p-10 flex flex-col items-center justify-center gap-4 text-text-secondary min-h-100">
-        <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
-        <p className="font-medium animate-pulse">Cargando pacientes...</p>
+      <div className="p-5 bg-background space-y-6">
+        <AdminHeaderSkeleton
+          titleWidth="w-80"
+          subtitleWidth="w-96"
+        />
+        <AdminTableSkeleton columns={4} rows={6} />
       </div>
     );
   }

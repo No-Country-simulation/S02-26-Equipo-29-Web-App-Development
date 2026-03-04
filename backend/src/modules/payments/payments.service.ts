@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Payment } from './payment.entity';
@@ -45,5 +44,11 @@ export class PaymentService {
     );
 
     return payment;
+  }
+
+  async findOne(id: string) {
+    return await this.paymentRepository.findOne({
+      where: { id },
+    });
   }
 }

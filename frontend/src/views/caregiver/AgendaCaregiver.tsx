@@ -9,12 +9,10 @@ import { Calendar } from "../../components/UI/Calendar";
 import { Header } from "../../components/UI/Headers";
 
 export const Agenda = () => {
-  const { data: user, isLoading: isUserLoading } = useUser();
-  const { data: hookShiftsCaregiver, isLoading: isShiftsLoading } =
-    useCaregiverShifts();
-  const caregiverShifts = Array.isArray(hookShiftsCaregiver)
-    ? hookShiftsCaregiver
-    : hookShiftsCaregiver?.data || [];
+  const { data: hookShifts } = useCaregiverShifts();
+  const caregiverShifts = Array.isArray(hookShifts)
+    ? hookShifts
+    : hookShifts?.data || [];
 
   const [selectedPatient, setSelectedPatient] = useState<{
     id: string;

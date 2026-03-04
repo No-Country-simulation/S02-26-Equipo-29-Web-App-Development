@@ -1,44 +1,47 @@
 import { Circle, Plus, Check, X } from "lucide-react";
 import { useState } from "react";
-import { useCaregivers, useShifts } from "../../hooks";
+import { useShifts } from "../../hooks";
 import { formatDateSafe, formatTime } from "../../utils/formatDate";
 import { getStatusColorShift, translateStatusShift } from "../../utils/status";
-import type { Caregiver } from "../../types";
-import { assignCaregiverShift, updateShiftStatus } from "../../api";
+import type { Shift } from "../../types";
+import { updateShiftStatus } from "../../api";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { Pagination } from "../../components/UI/Pagination";
 import { takeFirstLetters } from "../../utils/firstLetters";
 
+import {
+  AdminHeaderSkeleton,
+  AdminTableSkeleton,
+} from "../../components/UI/Skeleton";
+
+import { AssignCaregiverModal } from "../../components/admin/AssignCaregiverModal";
+
 export function Appointments() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const limit = 10;
+  const [selectedShiftForAssignment, setSelectedShiftForAssignment] = useState<Shift | null>(null);
 
-  const [filter, _setFilter] = useState("PENDING");
+  const [filter, setFilter] = useState("PENDING");
   const {
     data: shiftsData,
     isLoading,
     isError,
   } = useShifts(page, limit, filter);
 
-  const {
-    data: caregivers,
-    isLoading: isLoadingCaregivers,
-    isError: isErrorCaregivers,
-  } = useCaregivers();
-
-  const setFilter = (newFilter: string) => {
-    _setFilter(newFilter);
-    setPage(1);
-  };
-
-  if (isLoading || isLoadingCaregivers) {
-    return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="p-5 bg-background space-y-6">
+        <AdminHeaderSkeleton titleWidth="w-80" subtitleWidth="w-96" />
+        <div className="h-12 w-96 rounded-2xl bg-border animate-pulse" />
+        <AdminTableSkeleton columns={6} rows={8} />
+      </div>
+    );
   }
 
-  if (isError || isErrorCaregivers) {
+  if (isError) {
     return <div>Error...</div>;
   }
 
@@ -58,23 +61,7 @@ export function Appointments() {
     }
   };
 
-  const handleAssignCaregiver = async (
-    shiftId: string,
-    caregiverId: string,
-  ) => {
-    try {
-      await assignCaregiverShift(shiftId, caregiverId);
-      toast.success("Cuidador asignado correctamente");
-      queryClient.invalidateQueries({ queryKey: ["shifts"] });
-    } catch (error) {
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error("Error al asignar el cuidador");
-      }
-    }
-  };
-
+console.log(shifts)
   return (
     <div className="p-5 bg-background min-h-screen">
       <header className="rounded-3xl border border-border bg-surface p-8 shadow-xl relative overflow-hidden group">
@@ -195,7 +182,7 @@ export function Appointments() {
                   Horario
                 </th>
                 <th className="px-6 py-4 font-semibold tracking-wider ">
-                  Servicio
+                 Notas
                 </th>
                 <th className="px-6 py-4 font-semibold tracking-wider ">
                   Cuidador
@@ -237,29 +224,25 @@ export function Appointments() {
                   </td>
                   <td className="px-6 py-5  whitespace-nowrap">
                     <span className="text-text-primary">
-                      {shift.service || "General"}
+                      {shift.service || "general" }
                     </span>
                   </td>
-                  <td className="px-6 py-5">
-                    <select
-                      onChange={(e) =>
-                        handleAssignCaregiver(shift.id, e.target.value)
-                      }
-                      className="bg-background border border-border rounded-xl px-3 py-1.5 text-xs focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all cursor-pointer w-full max-w-[160px]"
-                    >
-                      <option value="">Seleccionar...</option>
-                      {caregivers?.map((caregiver: Caregiver) => (
-                        <option
-                          key={caregiver.id}
-                          value={caregiver.profile_id}
-                          selected={
-                            shift.caregiver?.profile_id === caregiver.profile_id
-                          }
-                        >
-                          {caregiver.full_name}
-                        </option>
-                      ))}
-                    </select>
+                  <td className="px-6 py-5 ">
+                    {shift.caregiver ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-text-secondary text-sm">
+                          {shift.caregiver?.profile?.full_name}
+                        </span>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setSelectedShiftForAssignment(shift)}
+                        className="bg-primary/10 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 group w-full max-w-[140px] justify-center"
+                      >
+                        <Plus size={14} className="group-hover:rotate-90 transition-transform" />
+                        Asignar
+                      </button>
+                    )}
                   </td>
                   <td className="px-6 py-5">
                     <span
@@ -315,6 +298,13 @@ export function Appointments() {
           </div>
         )}
       </div>
+      {/* Modal de Asignación */}
+      {selectedShiftForAssignment && (
+        <AssignCaregiverModal
+          shift={selectedShiftForAssignment}
+          onClose={() => setSelectedShiftForAssignment(null)}
+        />
+      )}
     </div>
   );
 }

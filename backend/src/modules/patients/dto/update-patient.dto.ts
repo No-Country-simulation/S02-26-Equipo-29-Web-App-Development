@@ -3,6 +3,10 @@ import { PatientStatus } from '../enums/patient-status-enum';
 
 export class UpdatePatientDto {
   @IsOptional()
+  @IsString({ message: 'El nombre completo debe ser una cadena de texto' })
+  full_name?: string;
+
+  @IsOptional()
   @IsString({ message: 'El DNI debe ser una cadena de texto' })
   dni?: string;
 

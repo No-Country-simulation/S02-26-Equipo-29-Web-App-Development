@@ -3,6 +3,8 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
+  Param,
   Post,
   UploadedFiles,
   UseGuards,
@@ -49,5 +51,12 @@ export class PaymentController {
     }
 
     return this.paymentService.createTransfer(body, files.transfer_receipt[0]);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Roles(ProfileRole.ADMIN)
+  @Get('/:id')
+  async findOne(@Param('id') id: string) {
+    return this.paymentService.findOne(id);
   }
 }

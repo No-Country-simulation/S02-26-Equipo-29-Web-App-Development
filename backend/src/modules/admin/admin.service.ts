@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, Repository } from 'typeorm';
+import { Between, In, LessThan, MoreThan, Not, Repository } from 'typeorm';
 import { Patient } from '../patients/patient.entity';
 import { Caregiver } from '../caregivers/caregiver.entity';
 import { CaregiverDocument } from '../caregivers/caregiver-document.entity';
-import { getWeekRanges, growth } from './utils';
+import { getMonthRanges, growth } from './utils';
 import { Status } from '../caregivers/enums/caregiver-status.enum';
 import { Shift } from '../shifts/shift.entity';
 import { ShiftStatus } from '../shifts/enums/shift-status.enum';
@@ -88,21 +88,21 @@ export class AdminService {
   }
 
   async getDashboard() {
-    const { startOfWeek, endOfWeek, startOfLastWeek, endOfLastWeek } =
-      getWeekRanges();
+    const { startOfMonth, endOfMonth, startOfLastMonth, endOfLastMonth } =
+      getMonthRanges();
 
     const [
       patients,
       caregivers,
-      patientsThisWeek,
-      caregiversThisWeek,
-      patientsLastWeek,
-      caregiversLastWeek,
+      patientsThisMonth,
+      caregiversThisMonth,
+      patientsLastMonth,
+      caregiversLastMonth,
       shifts,
-      hoursThisWeek,
-      hoursLastWeek,
-      ratingsThisWeek,
-      ratingsLastWeek,
+      hoursThisMonth,
+      hoursLastMonth,
+      ratingsThisMonth,
+      ratingsLastMonth,
       ratings,
     ] = await Promise.all([
       this.patientRepo.count({
@@ -118,28 +118,28 @@ export class AdminService {
       this.patientRepo.count({
         where: {
           status: PatientStatus.APPROVED,
-          created_at: Between(startOfWeek, endOfWeek),
+          created_at: Between(startOfMonth, endOfMonth),
         },
       }),
       this.caregiverRepo.count({
         where: {
           status: Status.APPROVED,
-          created_at: Between(startOfWeek, endOfWeek),
+          created_at: Between(startOfMonth, endOfMonth),
         },
       }),
       this.patientRepo.count({
-        where: { created_at: Between(startOfLastWeek, endOfLastWeek) },
+        where: { created_at: Between(startOfLastMonth, endOfLastMonth) },
       }),
       this.caregiverRepo.count({
         where: {
           status: Status.APPROVED,
-          created_at: Between(startOfLastWeek, endOfLastWeek),
+          created_at: Between(startOfLastMonth, endOfLastMonth),
         },
       }),
       this.shiftRepository.find({
         relations: ['caregiver', 'patient', 'patient.profile', 'approved_by'],
         order: {
-          start_time: 'DESC',
+          start_time: 'ASC',
         },
         take: 5,
         where: {
@@ -149,31 +149,31 @@ export class AdminService {
       this.shiftRepository.find({
         where: {
           status: ShiftStatus.COMPLETED,
-          start_time: Between(startOfWeek, endOfWeek),
+          start_time: Between(startOfMonth, endOfMonth),
         },
         select: ['hours'],
       }),
       this.shiftRepository.find({
         where: {
           status: ShiftStatus.COMPLETED,
-          start_time: Between(startOfLastWeek, endOfLastWeek),
+          start_time: Between(startOfLastMonth, endOfLastMonth),
         },
         select: ['hours'],
       }),
       this.ratingRepository.count({
-        where: { createdAt: Between(startOfWeek, endOfWeek) },
+        where: { createdAt: Between(startOfMonth, endOfMonth) },
       }),
       this.ratingRepository.count({
-        where: { createdAt: Between(startOfLastWeek, endOfLastWeek) },
+        where: { createdAt: Between(startOfLastMonth, endOfLastMonth) },
       }),
       this.ratingRepository.find(),
     ]);
 
-    const hoursSumThisWeek = hoursThisWeek.reduce(
+    const hoursSumThisMonth = hoursThisMonth.reduce(
       (acc, shift) => acc + Number(shift.hours),
       0,
     );
-    const hoursSumLastWeek = hoursLastWeek.reduce(
+    const hoursSumLastMonth = hoursLastMonth.reduce(
       (acc, shift) => acc + Number(shift.hours),
       0,
     );
@@ -181,26 +181,68 @@ export class AdminService {
     const ratingsSum = ratings.reduce((acc, rating) => {
       return acc + Number(rating.number);
     }, 0);
-    const ratingsAverage = ratingsSum / ratings.length;
+    const ratingsAverage = ratings.length > 0 ? ratingsSum / ratings.length : 0;
 
     return {
       patients: {
         total: patients,
-        growth: growth(patientsThisWeek, patientsLastWeek),
+        growth: growth(patientsThisMonth, patientsLastMonth),
       },
       caregivers: {
         total: caregivers,
-        growth: growth(caregiversThisWeek, caregiversLastWeek),
+        growth: growth(caregiversThisMonth, caregiversLastMonth),
       },
       shifts: shifts,
       hours: {
-        hours: hoursSumThisWeek.toFixed(2),
-        growth: growth(hoursSumThisWeek, hoursSumLastWeek),
+        hours: hoursSumThisMonth.toFixed(2),
+        growth: growth(hoursSumThisMonth, hoursSumLastMonth),
       },
       ratings: {
         ratings: ratingsAverage.toFixed(2),
-        growth: growth(ratingsThisWeek, ratingsLastWeek),
+        growth: growth(ratingsThisMonth, ratingsLastMonth),
       },
     };
+  }
+
+  async getAvailableCaregivers(start_time?: string, end_time?: string) {
+    let excludedCaregiverIds: string[] = [];
+
+    if (start_time && end_time) {
+      const start = new Date(start_time);
+      const end = new Date(end_time);
+
+      // Encontrar todos los turnos que se solapan con el rango dado
+      // y que están en un estado que bloquea la disponibilidad
+      const conflictingShifts = await this.shiftRepository.find({
+        where: {
+          start_time: LessThan(end),
+          end_time: MoreThan(start),
+          status: In([
+            ShiftStatus.ASSIGNED,
+            ShiftStatus.IN_PROGRESS,
+            ShiftStatus.COMPLETED,
+          ]),
+          caregiver: Not(null),
+        },
+        relations: ['caregiver'],
+      });
+
+      excludedCaregiverIds = conflictingShifts
+        .map((shift) => shift.caregiver?.profile_id)
+        .filter((id): id is string => !!id);
+    }
+
+    const where: any = {
+      status: Status.APPROVED,
+    };
+
+    if (excludedCaregiverIds.length > 0) {
+      where.profile_id = Not(In(excludedCaregiverIds));
+    }
+
+    return await this.caregiverRepo.find({
+      where,
+      relations: ['profile'],
+    });
   }
 }

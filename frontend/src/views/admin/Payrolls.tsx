@@ -4,11 +4,17 @@ import { getStatusColor, translateStatus } from "../../utils/status";
 import { takeFirstLetters } from "../../utils/firstLetters";
 import { ChevronLeft, ChevronRight, Calculator, Landmark } from "lucide-react";
 import type { Payroll } from "../../types";
-import { PaymentModal } from "../../components";
+import { PaymentModal, ReceiptModal } from "../../components";
+
+import {
+  AdminHeaderSkeleton,
+  AdminTableSkeleton,
+} from "../../components/UI/Skeleton";
 
 export function Payrolls() {
   const [selectedPayroll, setSelectedPayroll] = useState<Payroll | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
   const [page, setPage] = useState(1);
   const [activeTab, _setActiveTab] = useState("pending");
   const limit = 10;
@@ -27,18 +33,25 @@ export function Payrolls() {
   const handleCloseModal = () => {
     setSelectedPayroll(null);
     setShowModal(false);
+    setShowReceipt(false);
+  };
+
+  const handleViewReceipt = (payroll: Payroll) => {
+    setSelectedPayroll(payroll);
+    setShowReceipt(true);
   };
 
   if (isLoading) {
     return (
-      <div className="p-10 flex flex-col items-center justify-center gap-4 text-text-secondary min-h-100">
-        <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
-        <p className="font-medium animate-pulse">
-          Cargando información de sueldos...
-        </p>
+      <div className="p-5 bg-background space-y-6">
+        <AdminHeaderSkeleton titleWidth="w-80" subtitleWidth="w-96" />
+        <div className="h-12 w-48 rounded-2xl bg-border animate-pulse" />
+        <AdminTableSkeleton columns={5} rows={8} />
       </div>
     );
   }
+
+
 
   const payrolls = data?.payrolls || [];
   const meta = data?.meta || { total: 0, page: 1, lastPage: 1 };
@@ -97,9 +110,9 @@ export function Payrolls() {
               </thead>
               <tbody className="divide-y divide-border whitespace-nowrap">
                 {payrolls.length > 0 ? (
-                  payrolls.map((payroll: Payroll) => (
+                  payrolls.map((payroll: Payroll, index: number) => (
                     <tr
-                      key={`${payroll.profile_id}-${payroll.status}`}
+                      key={`${payroll.profile_id}-${payroll.status}-${index}`}
                       className="hover:bg-primary/5 transition-all group"
                     >
                       <td className="px-6 py-5">
@@ -155,14 +168,16 @@ export function Payrolls() {
                         </span>
                       </td>
                       <td className="px-6 py-5 text-right">
-                        <button
+                       { payroll.status === "pending" ? <button
                           onClick={() => handleSelectPayroll(payroll)}
                           className="relative overflow-hidden cursor-pointer bg-surface hover:bg-primary hover:text-white border-2 border-border hover:border-primary rounded-2xl px-8 py-2.5 text-xs font-black uppercase tracking-widest transition-all hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] active:scale-95 group"
                         >
                           <span className="relative z-10 transition-colors">
                             Liquidar
                           </span>
-                        </button>
+                        </button> : <button
+                        onClick={() => handleViewReceipt(payroll)}
+                         className="cursor-pointer text-xs font-black uppercase tracking-widest text-text-secondary">Ver comprobante</button>}
                       </td>
                     </tr>
                   ))
@@ -216,6 +231,12 @@ export function Payrolls() {
               mercadoPagoAlias={
                 selectedPayroll?.mercado_pago_alias || "No ingresado"
               }
+              onClose={handleCloseModal}
+            />
+          )}
+          {showReceipt && selectedPayroll?.payment_id && (
+            <ReceiptModal
+              paymentId={selectedPayroll.payment_id}
               onClose={handleCloseModal}
             />
           )}

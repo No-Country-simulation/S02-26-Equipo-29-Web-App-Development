@@ -5,6 +5,7 @@ import type { Caregiver, Patient } from "../../types";
 import { useRegistrations, useUpdateProfile } from "../../hooks";
 import { toast } from "sonner";
 import { getStatusColor, translateStatus } from "../../utils/status";
+import { AdminRegistrationSkeleton } from "../../components/UI/Skeleton";
 import { takeFirstLetters } from "../../utils/firstLetters";
 
 
@@ -57,7 +58,7 @@ export function Registration() {
   }
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <AdminRegistrationSkeleton />;
   }
 
   return (

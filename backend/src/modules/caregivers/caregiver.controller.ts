@@ -18,6 +18,7 @@ import { CaregiverService } from './caregiver.service';
 import type { AuthRequest } from '../../common/interfaces/auth-request.interface';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Caregiver } from './caregiver.entity';
+import { UpdateCaregiverDto } from './dto/update-caregiver.dto';
 
 @Controller('caregivers')
 export class CaregiverController {
@@ -48,7 +49,7 @@ export class CaregiverController {
   @UseGuards(JwtAuthGuard)
   updateCaregiver(
     @Param('caregiverId') caregiverId: string,
-    @Body() data: Partial<Caregiver>,
+    @Body() data: UpdateCaregiverDto,
   ) {
     return this.caregiverService.upDateCaregiver(caregiverId, data);
   }

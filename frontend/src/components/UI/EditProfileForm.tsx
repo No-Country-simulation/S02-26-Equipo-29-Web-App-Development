@@ -51,6 +51,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps & { handleUpdateSucc
             address: patientData?.address || "",
             notes: patientData?.notes || "",
             dni: patientData?.dni || "",
+            phone: patientData?.phone || "",
         }),
     };
 
@@ -69,15 +70,19 @@ export const EditProfileForm: React.FC<EditProfileFormProps & { handleUpdateSucc
         setIsPending(true);
         const role = currentUser?.role as string;
         const profileData = role === "CAREGIVER" ? {
+            full_name: formData.full_name,
+            email: formData.email,
             phone: formData.phone,
             cbu: formData.cbu,
             mercado_pago_alias: formData.mercado_pago_alias,
-            hourly_rate: formData.hourly_rate,
+            hourly_rate: Number(formData.hourly_rate),
         } : {
+            full_name: formData.full_name,
+            email: formData.email,
             dni: formData.dni,
             address: formData.address,
             notes: formData.notes,
-                phone: formData.phone,
+            phone: formData.phone,
         };
 
         await updateProfile.mutateAsync({

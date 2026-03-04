@@ -2,6 +2,7 @@ import { useState } from "react";
 import { usePayrollsByCaregiver, useUser } from "../../hooks";
 import { useCaregiverShifts } from '../../hooks/caregiver/useCaregiver';
 import { translateStatus } from "../../utils/status";
+import { ReceiptModal } from "../../components";
 import { Header } from "../../components/UI/Headers";
 
 export function PayrollsCaregiver() {
@@ -9,6 +10,8 @@ export function PayrollsCaregiver() {
   const { data: shifts } = useCaregiverShifts();
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState("pending");
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
   const limit = 10;
 
   const caregiverId = user?.profile?.id || user?.profile_id || user?.id;
@@ -19,6 +22,11 @@ export function PayrollsCaregiver() {
     limit,
     activeTab,
   );
+
+  const handleViewReceipt = (paymentId: string) => {
+    setSelectedPaymentId(paymentId);
+    setShowReceipt(true);
+  };
 
   if (isLoading) {
     return (
@@ -120,7 +128,7 @@ export function PayrollsCaregiver() {
               <th className="px-4 py-3 font-medium">Estado</th>
               <th className="px-4 py-3 font-medium text-center">Horas</th>
               <th className="px-4 py-3 font-medium">Monto</th>
-              <th className="px-4 py-3 font-medium">CBU / Alias</th>
+              <th className="px-4 py-3 font-medium text-right">Acción</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border bg-surface">
@@ -141,8 +149,19 @@ export function PayrollsCaregiver() {
                   <td className="px-4 py-4 font-semibold text-text-primary">
                     ${Number(payroll.totalAmount).toLocaleString()}
                   </td>
-                  <td className="px-4 py-4 text-text-secondary italic">
-                    {payroll.cbu || payroll.mercado_pago_alias || "Sin datos"}
+                  <td className="px-4 py-4 text-right">
+                    {payroll.status === "payed" && payroll.payment_id ? (
+                      <button
+                        onClick={() => handleViewReceipt(payroll.payment_id)}
+                        className="text-xs font-bold text-primary hover:underline cursor-pointer"
+                      >
+                        Ver comprobante
+                      </button>
+                    ) : (
+                      <span className="text-xs text-text-secondary italic opacity-50">
+                        {payroll.status === "payed" ? "Procesando..." : "Pendiente"}
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))
@@ -185,6 +204,13 @@ export function PayrollsCaregiver() {
           </div>
         )}
       </div>
+
+      {showReceipt && selectedPaymentId && (
+        <ReceiptModal
+          paymentId={selectedPaymentId}
+          onClose={() => setShowReceipt(false)}
+        />
+      )}
     </section>
     </>
   );
