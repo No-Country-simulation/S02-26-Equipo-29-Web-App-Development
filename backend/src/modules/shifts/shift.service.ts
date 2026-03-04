@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 // src/modules/shifts/shifts.service.ts
 
 import {
@@ -193,6 +194,7 @@ export class ShiftsService {
         'patient.profile.user',
         'approved_by',
         'approved_by.user',
+        'rating',
       ],
     });
 
@@ -244,6 +246,7 @@ export class ShiftsService {
         'patient',
         'patient.profile',
         'approved_by',
+        'rating',
       ],
       order: { start_time: 'ASC' },
       take: limit,

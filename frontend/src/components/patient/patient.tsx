@@ -18,6 +18,8 @@ type PatientDialogProps = {
     id: string;
     caregiver_id: string;
     patient_id: string;
+    patient_name?: string;
+    patient_phone?: string;
     startTime: string;
     endTime: string;
     location: string;
@@ -48,7 +50,7 @@ export const Patient = ({
               Ficha del paciente
             </p>
             <h2 className="mt-2 text-2xl font-semibold">
-              {patient.profile?.full_name || patient.name}
+              {shift?.patient_name || patient.name}
             </h2>
             <p className="text-sm text-text-secondary">ID {patient.id}</p>
           </div>
@@ -107,10 +109,10 @@ export const Patient = ({
             <p className="text-xs uppercase tracking-[0.3em] text-text-secondary">
               Contacto de emergencia
             </p>
-            <p className="mt-2 font-medium">{patient?.name}</p>
+            <p className="mt-2 font-medium">{shift?.patient_name || patient.name}</p>
             <p>
               Teléfono:{" "}
-              <span className="font-medium text-primary">{patient?.phone}</span>
+              <span className="font-medium text-primary">{shift?.patient_phone ? shift?.patient_phone : patient?.phone}</span>
             </p>
           </div>
         </div>
