@@ -117,3 +117,9 @@ Incluye:
 - Metricas
 
 🔗 [Ver documentación QA en Google Sheets](https://docs.google.com/spreadsheets/d/1GNK3CKi6sCu4CDaH3_VZRvhGiE04omMR/edit?usp=sharing&ouid=108197313288252525313&rtpof=true&sd=true)
+
+# 🔧 API Testing
+
+La colección de Postman utilizada para validar los endpoints del backend se encuentra en:
+
+📂 [Ver colección de Postman](pyme-api.postman_collection.json)
