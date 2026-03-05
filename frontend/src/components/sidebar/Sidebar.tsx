@@ -104,7 +104,7 @@ export function Sidebar() {
         <button
           onClick={() => {
             localStorage.removeItem("userToken");
-            queryClient.invalidateQueries({ queryKey: ["user"] });
+            queryClient.clear();
             navigate("/login");
           }}
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2 cursor-pointer

@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { usePayrollsByCaregiver, useUser } from "../../hooks";
-import { useCaregiverShifts } from '../../hooks/caregiver/useCaregiver';
 import { translateStatus } from "../../utils/status";
 import { ReceiptModal } from "../../components";
 import { Header } from "../../components/UI/Headers";
 
 export function PayrollsCaregiver() {
   const { data: user } = useUser();
-  const { data: shifts } = useCaregiverShifts();
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState("pending");
   const [showReceipt, setShowReceipt] = useState(false);
@@ -31,7 +29,10 @@ export function PayrollsCaregiver() {
   if (isLoading) {
     return (
       <>
-        <Header user={user}  />
+        <Header 
+          title="Tus Pagos" 
+          description="Seguimiento de tus liquidaciones y comprobantes" 
+        />
 
         <section className="mt-6 rounded-3xl border border-border bg-surface p-6 shadow-lg animate-pulse">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -79,16 +80,19 @@ export function PayrollsCaregiver() {
 
   return (
     <>
-      <Header user={user} shifts={shifts} />
+      <Header 
+        title="Mis Pagos" 
+        description="Seguimiento de tus liquidaciones y comprobantes" 
+      />
       
       <section className="mt-6 rounded-3xl border border-border bg-surface p-6 shadow-lg">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.4em] text-text-secondary">
-              Mis pagos
+              Pagos registrados
           </p>
           <h2 className="text-xl font-semibold">
-            {meta.total} pagos registrados
+          Pagos { activeTab === "pending" ? "pendientes" : "recibidos"} {meta.total}
           </h2>
           <div className="mt-4 flex gap-2">
             <button
@@ -115,7 +119,7 @@ export function PayrollsCaregiver() {
                   : "bg-background text-text-secondary hover:bg-primary/10 hover:text-primary"
               }`}
             >
-              Pagados
+              Recibidos
             </button>
           </div>
         </div>

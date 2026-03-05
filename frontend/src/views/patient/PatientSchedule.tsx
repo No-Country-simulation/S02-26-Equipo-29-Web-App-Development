@@ -6,9 +6,8 @@ import {
   XIcon,
   ZoomIn,
 } from "lucide-react";
-import { useState, type ChangeEvent } from "react";
+import { useState } from "react";
 import { Patient } from "../../components/patient/patient";
-import { useUser } from "../../hooks";
 import { useShifts, useFinalizeShift } from "../../hooks/patient/useShifts";
 import { formatDayMonth, formatTime } from "../../utils/formatDate";
 import { toast } from "sonner";
@@ -18,11 +17,15 @@ import { Calendar } from "../../components/UI/Calendar";
 import { Header } from "../../components/UI/Headers";
 
 export const PatientSchedule = () => {
-  const { data: user } = useUser();
   const { shifts: hookShifts, isLoading } = useShifts();
-  const [selectedPatient, setSelectedPatient] = useState<
-    (typeof assignedPatients)[number] | null
-  >(null);
+  const [selectedPatient, setSelectedPatient] = useState<{
+    id: string;
+    name: string;
+    day: string;
+    schedule: string;
+    notes: string;
+    phone: string;
+  } | null>(null);
   const [patientDialogOpen, setPatientDialogOpen] = useState(false);
 
   const [endShift, setEndShift] = useState(false);
@@ -36,26 +39,30 @@ export const PatientSchedule = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [assignedPatients] = useState<
-    {
-      id: string;
-      name: string;
-      day: string;
-      schedule: string;
-      notes: string;
-      phone: string;
-    }[]
-  >([]);
-
-  const totalPages = Math.max(1, Math.ceil(assignedPatients.length / pageSize));
-  const paginatedPatients = assignedPatients.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
-  );
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [openSummaryShiftId, setOpenSummaryShiftId] = useState<string | null>(
     null,
   );
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const shiftsPending = hookShifts.filter((shift) => {
+    const shiftDate = new Date(shift.start_time || shift.startTime || "");
+    shiftDate.setHours(0, 0, 0, 0);
+    const isTodayOrFuture = shiftDate >= today;
+    const isUpcomingStatus = ["PENDING", "ASSIGNED", "IN_PROGRESS"].includes(
+      shift.status,
+    );
+    return isTodayOrFuture && isUpcomingStatus;
+  });
+
+  const totalPages = Math.max(1, Math.ceil(shiftsPending.length / pageSize));
+  const validCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedShifts = shiftsPending.slice(
+    (validCurrentPage - 1) * pageSize,
+    validCurrentPage * pageSize,
+  );
+
   const handleOpenReportDialog = (report: string) => {
     setSelectedReport({
       comportamiento: report,
@@ -65,7 +72,7 @@ export const PatientSchedule = () => {
     setReportDialogOpen(true);
   };
 
-  const handlePageSizeChange = (event: ChangeEvent<HTMLSelectElement>) => {
+  const handlePageSizeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setPageSize(Number(event.target.value));
     setCurrentPage(1);
   };
@@ -119,12 +126,13 @@ export const PatientSchedule = () => {
     return Number(((endDate - startDate) / (1000 * 60 * 60)).toFixed(2));
   };
 
-  const shiftsPending = hookShifts.filter((shift) => shift.status !== "COMPLETED");
-
   if (isLoading) {
     return (
       <>
-        <Header user={user} shifts={hookShifts} />
+        <Header 
+          title="Mi Calendario" 
+          description="Seguimiento detallado de tus turnos y visitas" 
+        />
 
         <section className="m-10 rounded-3xl border border-border bg-surface p-6 shadow-lg animate-pulse">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -183,7 +191,10 @@ export const PatientSchedule = () => {
 
   return (
     <>
-      <Header user={user} shifts={hookShifts} />
+      <Header 
+        title="Mi Calendario" 
+        description="Seguimiento detallado de tus turnos y visitas" 
+      />
 
       <section className=" rounded-3xl border border-border bg-surface p-6 shadow-lg">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -229,8 +240,7 @@ export const PatientSchedule = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-surface">
-              {shiftsPending
-                .map((shift) => (
+              {paginatedShifts.map((shift) => (
                   <>
                     <tr
                       key={shift.patient?.profile_id || shift.id}
@@ -329,7 +339,7 @@ export const PatientSchedule = () => {
           </table>
           <div className="flex flex-col gap-3 border-t border-border px-4 py-4 text-sm text-text-secondary sm:flex-row sm:items-center sm:justify-between">
             <p>
-              Mostrando {paginatedPatients.length} de {assignedPatients.length}{" "}
+              Mostrando {paginatedShifts.length} de {shiftsPending.length}{" "}
               pacientes
             </p>
             <div className="flex items-center gap-3">

@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { Documents, Info } from '../../components';
 import { Shifts } from '../../components/shifts/Shifts';
 import { Header } from "../../components/UI/Headers";
-import { useUser } from '../../hooks';
-import { useCaregiverShifts } from '../../hooks/caregiver/useCaregiver';
 export interface Document {
     id: string;
     name: string;
@@ -21,16 +19,17 @@ export interface Shift {
 }
 
 export const CaregiverInfo: React.FC = () => {
-    const { data: user, isLoading: isUserLoading } = useUser();
-    const { data: shifts, isLoading: isShiftsLoading } = useCaregiverShifts();
-    const isLoading = isUserLoading || isShiftsLoading;
+    const isLoading = false; // Adjusted as useUser was the only thing loading here, but actually we should check if we still need isLoading
 
     const [activeTab, setActiveTab] = useState<'info' | 'documents' | 'shifts'>('info');
 
     if (isLoading) {
         return (
             <>
-                <Header user={user} shifts={shifts} />
+                <Header 
+                  title="Mi Perfil" 
+                  description="Información personal y documentos" 
+                />
 
                 <div className="h-auto w-full rounded-3xl border border-border bg-surface px-4 py-8 shadow-lg animate-pulse">
                     <div className="space-y-8">
@@ -62,7 +61,10 @@ export const CaregiverInfo: React.FC = () => {
     return (
         <>
         
-        <Header user={user} shifts={shifts} />
+        <Header 
+          title="Mi Perfil" 
+          description="Información personal y documentos" 
+        />
 
         <div className="h-auto w-full rounded-3xl border border-slate-200 bg-surface px-4 py-8 text-slate-900 shadow-lg">
 

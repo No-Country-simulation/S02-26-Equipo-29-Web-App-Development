@@ -7,7 +7,7 @@ export const usePatient = () => {
   return useQuery({
     queryKey: ["patient", user?.id],
     queryFn: () => getPatientById(user?.id as string),
-    enabled: !!user?.id && user?.role === "PATIENT",
+    enabled: !!user?.id && (user?.role === "PATIENT" || user?.role === "FAMILY"),
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 10,
     retry: 1,

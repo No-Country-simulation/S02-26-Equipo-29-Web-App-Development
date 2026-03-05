@@ -39,10 +39,10 @@ export function Patients() {
             <table className="min-w-full divide-y divide-border text-sm">
               <thead className="bg-background/50 text-left text-text-secondary uppercase tracking-widest text-[10px] font-bold whitespace-nowrap">
                 <tr>
-                  <th className="px-6 py-4">Paciente</th>
-                  <th className="px-6 py-4">Fecha de Registro</th>
-                  <th className="px-6 py-4">Estado</th>
-                  <th className="px-6 py-4 text-right">ACCIONES</th>
+                  <th className="px-6 py-4 text-center">Paciente</th>
+                  <th className="px-6 py-4 text-center">Fecha de Registro</th>
+                  <th className="px-6 py-4 text-center">Estado</th>
+                  <th className="px-6 py-4 text-center">ACCIONES</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border whitespace-nowrap">
@@ -51,8 +51,8 @@ export function Patients() {
                     key={patient.id}
                     className="hover:bg-primary/5 transition-all group"
                   >
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-4">
+                    <td className="px-6 py-5 text-center">
+                      <div className="flex items-center gap-4 justify-center">
                         <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-primary to-primary/40 flex items-center justify-center text-white font-bold shadow-lg ring-2 ring-primary/10 group-hover:scale-105 transition-transform">
                           {takeFirstLetters(patient.profile?.full_name || "")}
                         </div>
@@ -66,10 +66,10 @@ export function Patients() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-5 text-text-secondary font-medium">
+                    <td className="px-6 py-5 text-center text-text-secondary font-medium">
                       {formatDate(patient.profile?.created_at || "")}
                     </td>
-                    <td className="px-6 py-5">
+                    <td className="px-6 py-5 text-center">
                       <span
                         className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm ${getStatusColor(
                           patient.status || "",
@@ -78,7 +78,7 @@ export function Patients() {
                         {translateStatus(patient.status || "")}
                       </span>
                     </td>
-                    <td className="px-6 py-5 text-right">
+                    <td className="px-6 py-5 text-center">
                       <button className="bg-surface hover:bg-primary hover:text-white border-2 border-border hover:border-primary rounded-2xl px-6 py-2 text-xs font-black uppercase tracking-widest transition-all hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] active:scale-90 shadow-sm cursor-pointer whitespace-nowrap">
                         Revisar
                       </button>

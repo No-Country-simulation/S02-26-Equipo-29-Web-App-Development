@@ -198,14 +198,18 @@ export function Documents() {
           )}
         </div>
         <div>
-          <p className="text-gray-500 mb-2">Historial Clinico</p>
+          <p className="text-gray-500 mb-2">
+            {isCaregiver ? "Antecedentes Penales" : "Historial Clinico"}
+          </p>
           {activeDocuments?.find(
-            (doc) => doc.document_type === "medical_history",
+            (doc) => 
+              doc.document_type === (isCaregiver ? "criminal_record" : "medical_history"),
           ) ? (
             <ImageDocument
               document={
                 activeDocuments.find(
-                  (doc) => doc.document_type === "medical_history",
+                  (doc) => 
+                    doc.document_type === (isCaregiver ? "criminal_record" : "medical_history"),
                 )!
               }
               handleDeleteDocument={handleDeleteDocument}
@@ -213,7 +217,7 @@ export function Documents() {
             />
           ) : (
             <DocumentInput
-              id="medical_history"
+              id={isCaregiver ? "criminal_record" : "medical_history"}
               handleFileUpload={handleFileUpload}
             />
           )}

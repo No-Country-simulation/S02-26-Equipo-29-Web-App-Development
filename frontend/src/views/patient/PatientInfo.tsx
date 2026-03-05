@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Documents, Info } from '../../components';
 import { Shifts } from '../../components/shifts/Shifts';
 import { Header } from '../../components/UI/Headers';
-import { useUser } from '../../hooks/user/useUser';
 import { useShifts } from "../../hooks/patient/useShifts";
   
   export interface Document {
@@ -17,13 +16,15 @@ export const PatientInfo: React.FC = () => {
 
       const [activeTab, setActiveTab] = useState<'info' | 'documents' | 'shifts'>('info');
   
-      const { data: user } = useUser();
-      const { shifts: hookShifts, isLoading } = useShifts();
+      const { isLoading } = useShifts();
 
       if (isLoading) {
           return (
               <>
-                  <Header user={user} shifts={hookShifts} />
+                  <Header 
+                    title="Mi Perfil" 
+                    description="Información personal y documentos médicos" 
+                  />
 
                   <div className="h-auto bg-background px-4 py-8 border border-border rounded-3xl shadow-lg animate-pulse">
                       <div className="mx-auto max-w-5xl space-y-8">
@@ -54,7 +55,10 @@ export const PatientInfo: React.FC = () => {
 
       return (
         <>
-          <Header user={user} shifts={hookShifts} />
+          <Header 
+            title="Mi Perfil" 
+            description="Información personal y documentos médicos" 
+          />
 
           <div className="h-auto bg-background px-4 py-8 text-slate-900 border border-slate-200 rounded-3xl shadow-lg">
               <div className="mx-auto max-w-5xl space-y-8">

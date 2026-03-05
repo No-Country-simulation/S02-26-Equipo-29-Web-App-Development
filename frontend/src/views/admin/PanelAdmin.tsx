@@ -149,7 +149,14 @@ export function PanelAdmin() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border bg-surface">
-                {dashboard?.shifts.map((shift: Shift) => (
+                {dashboard?.shifts.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-8 font-bold text-text-secondary text-lg">
+                      No hay horas pendientes de aprobación
+                    </td>
+                  </tr>
+                ) : (
+                  dashboard?.shifts.map((shift: Shift) => (
                   <tr
                     key={shift.id}
                     className="transition-colors hover:bg-white/5"
@@ -192,8 +199,8 @@ export function PanelAdmin() {
                         {translateStatusShift(shift.status)}
                       </span>
                     </td>
-                  </tr>
-                ))}
+                  </tr> 
+                )))}
               </tbody>
             </table>
           </div>

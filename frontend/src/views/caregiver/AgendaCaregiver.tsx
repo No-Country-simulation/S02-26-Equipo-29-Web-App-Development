@@ -1,7 +1,7 @@
 import { MessagesSquare, ZoomIn } from "lucide-react";
-import { useState, type ChangeEvent } from "react";
+import { useState } from "react";
 import { Patient } from "../../components/patient/patient";
-import { useUser } from "../../hooks/user/useUser";
+
 import { useCaregiverShifts } from "../../hooks/caregiver/useCaregiver";
 import { formatDayMonth, formatTime } from "../../utils/formatDate";
 import { ReporteDialog } from "../../components/caregiver/Reporte";
@@ -10,7 +10,6 @@ import { Header } from "../../components/UI/Headers";
 import type { Shift } from "../../types";
 
 export const Agenda = () => {
-  const { data: user, isLoading: isUserLoading } = useUser();
   const { data: hookShifts, isLoading: isShiftsLoading } = useCaregiverShifts();
   const caregiverShifts = Array.isArray(hookShifts)
     ? hookShifts
@@ -38,14 +37,30 @@ export const Agenda = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
-  const totalPages = Math.max(1, Math.ceil(caregiverShifts.length / pageSize));
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const shiftsPending = caregiverShifts.filter((shift: Shift) => {
+    const shiftDate = new Date(shift.start_time || shift.startTime || "");
+    shiftDate.setHours(0, 0, 0, 0);
+    const isTodayOrFuture = shiftDate >= today;
+    const isUpcomingStatus = ["PENDING", "ASSIGNED", "IN_PROGRESS"].includes(
+      shift.status,
+    );
+    return isTodayOrFuture && isUpcomingStatus;
+  });
+
+  const shiftsCompleted = caregiverShifts.filter(
+    (shift: Shift) => shift.status === "COMPLETED",
+  );
+
+  const totalPages = Math.max(1, Math.ceil(shiftsPending.length / pageSize));
   const validCurrentPage = Math.min(currentPage, totalPages);
-  const paginatedPatients = caregiverShifts.slice(
+  const paginatedShifts = shiftsPending.slice(
     (validCurrentPage - 1) * pageSize,
     validCurrentPage * pageSize,
   );
 
-  const handlePageSizeChange = (event: ChangeEvent<HTMLSelectElement>) => {
+  const handlePageSizeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setPageSize(Number(event.target.value));
     setCurrentPage(1);
   };
@@ -63,12 +78,7 @@ export const Agenda = () => {
     setReportDialogOpen(true);
   };
 
-  console.log("Caregiver Shifts in Agenda:", caregiverShifts);
-
-  const shiftsPending = caregiverShifts.filter((shift:Shift) => shift.status !== "COMPLETED");
-  const shiftsCompleted = caregiverShifts.filter((shift:Shift) => shift.status === "COMPLETED");
-
-  const isLoading = isUserLoading || isShiftsLoading;
+  const isLoading = isShiftsLoading;
 
   if (isLoading) {
     return (
@@ -150,10 +160,13 @@ export const Agenda = () => {
       </div>
     );
   }
-  
+
   return (
     <>
-      <Header user={user} shifts={caregiverShifts} />
+      <Header 
+        title="Mi Agenda" 
+        description="Visualización y gestión de tus turnos programados" 
+      />
       
       <section className="w-full rounded-3xl border border-border bg-surface p-6 shadow-lg mb-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -201,7 +214,7 @@ export const Agenda = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-surface">
-              {shiftsPending.map((shift: any) => (
+              {paginatedShifts.map((shift: any) => (
                 <>
                   <tr key={shift.id} className="hover:bg-white/5">
                     <td className="px-4 py-4 hover:bg-accent/20 rounded-lg">
@@ -211,7 +224,7 @@ export const Agenda = () => {
                           setSelectedPatient({
                             id: shift.patient?.profile_id || shift.id,
                             name:
-                              shift.patient?.full_name || "Sin nombre",
+                              shift.patient?.profile?.full_name || "Sin nombre",
                             day:
                               shift.start_time || shift.startTime
                                 ? formatDayMonth(
@@ -229,7 +242,7 @@ export const Agenda = () => {
                                 : "",
                             notes: shift.report || "Sin notas disponibles",
                             phone:
-                              shift.patient?.phone ||
+                              shift.patient?.profile?.phone ||
                               "Sin teléfono disponible",
                           });
                           setPatientDialogOpen(true);
@@ -237,7 +250,7 @@ export const Agenda = () => {
                         className="text-left w-full px-2 py-1 transition"
                       >
                         <p className="font-medium">
-                          {shift.patient?.full_name || "Sin nombre"}
+                          {shift.patient?.profile?.full_name || "Sin nombre"}
                         </p>
                       </button>
                     </td>
@@ -296,7 +309,7 @@ export const Agenda = () => {
           </table>
           <div className="flex flex-col gap-3 border-t border-border px-4 py-4 text-sm text-text-secondary sm:flex-row sm:items-center sm:justify-between">
             <p>
-              Mostrando {paginatedPatients.length} de {caregiverShifts.length}{" "}
+              Mostrando {paginatedShifts.length} de {shiftsPending.length}{" "}
               pacientes
             </p>
             <div className="flex items-center gap-3">
@@ -413,7 +426,7 @@ export const Agenda = () => {
                                 : "",
                             notes: shift.report || "Sin notas disponibles",
                             phone:
-                              shift.patient?.phone ||
+                              shift.patient?.profile?.phone ||
                               "Sin teléfono disponible",
                           });
                           setPatientDialogOpen(true);
@@ -421,7 +434,7 @@ export const Agenda = () => {
                         className="text-left w-full px-2 py-1 transition"
                       >
                         <p className="font-medium">
-                          {shift.patient?.full_name || "Sin nombre"}
+                          {shift.patient?.profile?.full_name || "Sin nombre"}
                         </p>
                       </button>
                     </td>
@@ -469,7 +482,7 @@ export const Agenda = () => {
           </table>
           <div className="flex flex-col gap-3 border-t border-border px-4 py-4 text-sm text-text-secondary sm:flex-row sm:items-center sm:justify-between">
             <p>
-              Mostrando {paginatedPatients.length} de {caregiverShifts.length}{" "}
+              Mostrando {shiftsCompleted.length} de {shiftsCompleted.length}{" "}
               pacientes
             </p>
             <div className="flex items-center gap-3">

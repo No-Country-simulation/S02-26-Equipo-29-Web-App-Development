@@ -1,12 +1,15 @@
 import { ChevronDown } from "lucide-react";
 import { useUser } from "../../hooks";
-import { useShifts } from "../../hooks/patient/useShifts";
+import { useNextShift, useShifts } from "../../hooks/patient/useShifts";
 import { formatDate, formatTime } from "../../utils/formatDate";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Header } from "../../components/UI/Headers";
+import { api } from "../../lib/axios/api";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function PanelPatient() {
+  const queryClient = useQueryClient();
   const { data: user } = useUser();
   const {
     shifts,
@@ -15,12 +18,9 @@ export function PanelPatient() {
     createError,
     isLoading,
   } = useShifts();
+  const {data:nextShift} = useNextShift();
   
-  const nextShiftAproved = shifts.find(
-    (shift) => shift.caregiver !== null && shift.status !== "COMPLETED",
-  );
 
-  const hookShifts = shifts;
 
   // Estado para el formulario
   const [showForm, setShowForm] = useState(false);
@@ -45,7 +45,7 @@ export function PanelPatient() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.start_time || !formData.end_time) {
@@ -53,26 +53,47 @@ export function PanelPatient() {
       return;
     }
 
-    createShift({
-      start_time: formData.start_time,
-      end_time: formData.end_time,
-      report: formData.report || undefined,
-      location: formData.location || undefined,
-    });
+    try {
+      await createShift({
+        start_time: formData.start_time,
+        end_time: formData.end_time,
+        report: formData.report || undefined,
+        location: formData.location || undefined,
+      });
 
-    setFormData({
-      start_time: "",
-      end_time: "",
-      report: "",
-      location: "",
-    });
-    setShowForm(false);
+      setFormData({
+        start_time: "",
+        end_time: "",
+        report: "",
+        location: "",
+      });
+      setShowForm(false);
+    } catch{
+      toast.error("Error al pedir la guardia, intenta de nuevo");
+    }
+  };
+
+
+  const cancelShift =async (shiftId: string) => {
+    try {
+      await api.patch(`/shifts/${shiftId}/status`, {
+        status: "CANCELLED",
+      });
+      queryClient.invalidateQueries({ queryKey: ["shifts"] });
+      queryClient.invalidateQueries({ queryKey: ["next-shift"] });
+      toast.success("Guardia cancelada correctamente");
+    } catch {
+      toast.error("Error al cancelar la guardia");
+    }
   };
 
   if (isLoading) {
     return (
       <main className="min-h-screen bg-background px-4 py-6 lg:px-8">
-        <Header user={user} shifts={hookShifts} />
+        <Header 
+          title="Panel del Paciente" 
+          description="Resumen de tus cuidados y solicitudes" 
+        />
 
         <section className="mx-auto w-full max-w-6xl space-y-5 animate-pulse">
           <div className="h-9 w-44 rounded-2xl bg-border" />
@@ -109,7 +130,10 @@ export function PanelPatient() {
 
   return (
     <main className="min-h-screen bg-background px-4 py-6 lg:px-8">
-        <Header user={user} shifts={hookShifts} />
+        <Header 
+          title="Panel del Paciente" 
+          description="Resumen de tus cuidados y solicitudes" 
+        />
       <section className="mx-auto w-full max-w-6xl space-y-5">
 
         <div className="flex justify-start">
@@ -224,21 +248,21 @@ export function PanelPatient() {
               Cuidador asignado
             </p>
             <h2 className="mt-3 text-xl font-semibold">
-              {nextShiftAproved?.caregiver?.full_name ||
+              {nextShift?.caregiver?.profile?.full_name ||
                 "Sin cuidador asignado"}
             </h2>
             <p className="text-sm text-text-secondary">
               Turno:{" "}
-              {nextShiftAproved?.start_time
-                ? `${formatDateTime(nextShiftAproved.start_time)} - ${formatDateTime(
-                    nextShiftAproved.end_time,
-                  )} - 🕛${nextShiftAproved?.hours} horas`
+              {nextShift?.start_time
+                ? `${formatDateTime(nextShift.start_time)} - ${formatDateTime(
+                    nextShift.end_time,
+                  )} - 🕛${nextShift?.hours} horas`
                 : "Sin turno asignado"}
             </p>
             <p className="mt-4 text-sm">
               Teléfono de contacto:{" "}
               <span className="font-medium text-primary">
-                {nextShiftAproved?.caregiver?.phone || "Sin teléfono disponible"}
+                {nextShift?.caregiver?.profile?.phone || "Sin teléfono disponible"}
               </span>
             </p>
             <div></div>
@@ -249,12 +273,20 @@ export function PanelPatient() {
               Próximas visitas
             </p>
             <ul className="mt-4 space-y-4 text-sm">
-              {hookShifts
-                .filter((shift) => shift.status !== "COMPLETED")
+              {shifts
+                .filter((visit) => {
+                  const shiftDate = new Date(visit.startTime || "");
+                  shiftDate.setHours(0, 0, 0, 0);
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  const isTodayOrFuture = shiftDate >= today;
+                  const isUpcomingStatus = ["PENDING", "ASSIGNED", "IN_PROGRESS"].includes(visit.status);
+                  return isTodayOrFuture && isUpcomingStatus;
+                })
                 .map((visit) => (
                   <li
                     key={`${visit.startTime}-${visit.endTime}`}
-                    className="rounded-2xl border border-border bg-background px-4 py-3"
+                    className="relative rounded-2xl border border-border bg-background px-4 py-3"
                   >
                     <p className="text-base font-semibold">
                       🗓️{formatDateTime(visit.startTime)} 🕛
@@ -274,6 +306,12 @@ export function PanelPatient() {
                         {visit.location || "Sin ubicación disponible"}
                       </span>
                     </p>
+                    <button
+                      onClick={() => cancelShift(visit.id)}
+                      className="absolute top-3 right-3 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50"
+                    >
+                      Cancelar turno
+                    </button>
                   </li>
                 ))}
             </ul>
