@@ -1,0 +1,80 @@
+ratings:
+  get:
+    tags: [Ratings]
+    summary: Listar ratings
+    responses:
+      "200":
+        description: Lista de ratings
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "../schemas/ratings.yaml#/Rating"
+
+  post:
+    tags: [Ratings]
+    summary: Crear rating
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/ratings.yaml#/RatingCreateRequest"
+    responses:
+      "201":
+        description: Rating creado
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/ratings.yaml#/Rating"
+
+ratingById:
+  get:
+    tags: [Ratings]
+    summary: Obtener rating por ID
+    parameters:
+      - name: ratingId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      "200":
+        description: Rating encontrado
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/ratings.yaml#/Rating"
+
+  patch:
+    tags: [Ratings]
+    summary: Actualizar rating
+    parameters:
+      - name: ratingId
+        in: path
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/ratings.yaml#/RatingUpdateRequest"
+    responses:
+      "200":
+        description: Rating actualizado
+
+  delete:
+    tags: [Ratings]
+    summary: Eliminar rating
+    parameters:
+      - name: ratingId
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      "204":
+        description: Rating eliminado

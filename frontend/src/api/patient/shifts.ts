@@ -1,9 +1,9 @@
+import { AxiosError } from "axios";
 import { api } from "../../lib/axios/api";
 import type { Shift } from "../../types";
 
 export interface CreateShiftRequest {
   patientId: string;
-  caregiverId: string;
   start_time: string;
   end_time: string;
   report?: string;
@@ -50,6 +50,10 @@ type ShiftApiResponse = {
   status?: string;
   hours?: number;
   location?: string | null;
+  rating?: {
+    number: number;
+    notes?: string | null;
+  } | null;
 };
 
 type PaginatedShiftsResponse = {
@@ -63,24 +67,23 @@ type PaginatedShiftsResponse = {
 
 const mapShift = (shift: ShiftApiResponse): Shift => ({
   id: shift.id,
-  created_by:
-    shift.created_by
-      ? {
-          id: shift.created_by.id,
-          full_name: shift.created_by.full_name,
-          phone: shift.created_by.phone ?? null,
-          role: shift.created_by.role,
-          is_active: shift.created_by.is_active,
-          created_at: shift.created_by.created_at,
-        }
-      : {
-          id: shift.profile?.id || "",
-          full_name: shift.profile?.full_name || "Sin nombre",
-          phone: shift.profile?.phone ?? null,
-          role: shift.profile?.role || "",
-          is_active: shift.profile?.is_active ?? true,
-          created_at: shift.profile?.created_at || "",
-        },
+  created_by: shift.created_by
+    ? {
+        id: shift.created_by.id,
+        full_name: shift.created_by.full_name,
+        phone: shift.created_by.phone ?? null,
+        role: shift.created_by.role,
+        is_active: shift.created_by.is_active,
+        created_at: shift.created_by.created_at,
+      }
+    : {
+        id: shift.profile?.id || "",
+        full_name: shift.profile?.full_name || "Sin nombre",
+        phone: shift.profile?.phone ?? null,
+        role: shift.profile?.role || "",
+        is_active: shift.profile?.is_active ?? true,
+        created_at: shift.profile?.created_at || "",
+      },
   caregiver: shift.caregiver
     ? {
         profile_id: shift.caregiver.profile_id,
@@ -98,26 +101,38 @@ const mapShift = (shift: ShiftApiResponse): Shift => ({
   endTime: shift.end_time,
   report: shift.report ?? undefined,
   location: shift.location ?? undefined,
-  status: shift.status,
+  status: shift.status || "PENDING",
   hours: shift.hours,
+  rating: shift.rating
+    ? {
+        number: shift.rating.number,
+        notes: shift.rating.notes ?? null,
+      }
+    : null,
 });
 
 export const getPatientShifts = async (patientId: string): Promise<Shift[]> => {
-  const response = await api.get<PaginatedShiftsResponse>(`/shifts/patient/${patientId}`);
+  const response = await api.get<PaginatedShiftsResponse>(
+    `/shifts/patient/${patientId}`,
+  );
   return response.data.data.map(mapShift);
 };
 
-export const createShift = async (
-  data: CreateShiftRequest
-): Promise<Shift> => {
-  const response = await api.post<ShiftApiResponse>(`/shifts`, {
+export const createShift = async (data: CreateShiftRequest): Promise<Shift> => {
+   try {
+    const response = await api.post<ShiftApiResponse>(`/shifts`, {
     patientId: data.patientId,
-    caregiverId: data.caregiverId,
     start_time: data.start_time,
     end_time: data.end_time,
     service: "Cuidado general",
     report: data.report || undefined,
     location: data.location || undefined,
-  });
+  })
   return mapShift(response.data);
+} catch (error) {
+    if (error instanceof AxiosError) {
+        throw new Error(error.response?.data.message || "Error al crear la guardia");
+    }
+    throw new Error("Error al crear la guardia");
+}
 };

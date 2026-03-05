@@ -5,10 +5,10 @@ import {
   Column,
   ManyToOne,
   CreateDateColumn,
-  OneToMany,
 } from 'typeorm';
 import { Caregiver } from '../caregivers/caregiver.entity';
 import { Payment } from '../payments/payment.entity';
+import { Shift } from '../shifts/shift.entity';
 
 @Entity('payrolls')
 export class Payroll {
@@ -18,11 +18,17 @@ export class Payroll {
   @ManyToOne(() => Caregiver, (caregiver) => caregiver.payrolls)
   caregiver: Caregiver;
 
-  @Column({ type: 'date' })
+  @ManyToOne(() => Shift, (shift) => shift.payrolls)
+  shift: Shift;
+
+  @Column({ type: 'timestamp' })
   period_start: Date;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'timestamp' })
   period_end: Date;
+
+  @Column({ type: 'numeric' })
+  hourly_rate: number;
 
   @Column({ type: 'numeric' })
   total_hours: number;
@@ -36,6 +42,6 @@ export class Payroll {
   @CreateDateColumn()
   created_at: Date;
 
-  @OneToMany(() => Payment, (payment) => payment.payroll)
-  payments: Payment[];
+  @ManyToOne(() => Payment, (payment) => payment.payrolls)
+  payment: Payment;
 }

@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import {
   BadRequestException,
   Injectable,
@@ -14,6 +13,7 @@ import { CloudinaryService } from '../../shared/media/media.service';
 import { UploadDocumentDto } from './dto/upload-document.dto';
 import { PatientDocumentStatus } from './enums/patient-document-status.enum';
 import { PatientDocumentType } from './enums/patient-document-type.enum';
+import { Profile } from '../profiles/profile.entity';
 
 @Injectable()
 export class PatientService {
@@ -23,6 +23,9 @@ export class PatientService {
 
     @InjectRepository(PatientDocument)
     private readonly documentRepo: Repository<PatientDocument>,
+
+    @InjectRepository(Profile)
+    private readonly profileRepo: Repository<Profile>,
 
     private readonly cloudinaryService: CloudinaryService,
   ) {}
@@ -50,33 +53,38 @@ export class PatientService {
   }
 
   async update(id: string, updateData: UpdatePatientDto) {
-    // Log para debugging
-    console.log('🔍 Datos recibidos para actualizar:', updateData);
-    console.log('🔍 ID del paciente:', id);
-
     // Verificar que el paciente existe
     const patient = await this.findOne(id);
-    console.log('🔍 Paciente antes de actualizar:', patient);
+    if (!patient) {
+      throw new NotFoundException(`Paciente con ID ${id} no encontrado`);
+    }
+    const { full_name, ...patientData } = updateData;
 
     // Actualizar usando el método update de TypeORM
-    const result = await this.patientRepo.update(
-      { profile_id: id },
-      updateData,
-    );
+    if (Object.keys(patientData).length > 0) {
+      await this.patientRepo.update({ profile_id: id }, patientData);
+    }
 
-    console.log('🔍 Resultado de la actualización:', result);
+    const profileUpdates: Record<string, string> = {};
+    if (typeof updateData.phone !== 'undefined')
+      profileUpdates.phone = updateData.phone;
+    if (typeof full_name !== 'undefined') profileUpdates.full_name = full_name;
+
+    if (Object.keys(profileUpdates).length > 0) {
+      await this.profileRepo.update({ id }, profileUpdates);
+    }
 
     // Retornar el paciente actualizado
     const updatedPatient = await this.findOne(id);
-    console.log('🔍 Paciente después de actualizar:', updatedPatient);
 
     return updatedPatient;
   }
 
   async getDocuments(profileId: string) {
-    return this.documentRepo.find({
+    const documents = await this.documentRepo.find({
       where: { patient: { profile_id: profileId } },
     });
+    return documents;
   }
 
   async uploadDocument(

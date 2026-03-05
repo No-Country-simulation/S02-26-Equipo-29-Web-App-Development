@@ -1,6 +1,16 @@
 version: "3.9"
 
 services:
+
+  redis_pyme:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
   postgres:
     image: postgres:15-alpine
     container_name: postgres
@@ -16,3 +26,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:

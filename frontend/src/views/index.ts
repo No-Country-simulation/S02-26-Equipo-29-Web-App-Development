@@ -3,6 +3,13 @@ export { Registration } from "./admin/Registration";
 export { Patients } from "./admin/Patients";
 export { Caregivers } from "./admin/Caregivers";
 export { Appointments } from "./admin/Appointments";
+export { Payrolls } from "./admin/Payrolls";
+export { Reports } from "./admin/Reports";
 export { PanelPatient } from "./patient/PanelPatient";
 export { PatientInfo } from "./patient/PatientInfo";
 export { PatientSchedule } from "./patient/PatientSchedule";
+export { Agenda } from "./caregiver/AgendaCaregiver";
+export { CaregiverInfo } from "./caregiver/CaregiverInfo";
+export { PayrollsCaregiver } from "./caregiver/PayrollsCaregiver";
+
+

@@ -22,6 +22,7 @@ export class Profile {
 
   @OneToOne(() => AuthUser, (user: AuthUser) => user.profile, {
     nullable: false,
+    eager: true,
   })
   @JoinColumn({ name: 'user_id' })
   user!: AuthUser;

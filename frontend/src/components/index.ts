@@ -1,7 +1,9 @@
 export { Sidebar } from "./sidebar/Sidebar";
-export { CaregiverDashboard } from "./dashboard/CaregiverDashboard";
 export { DashboardLink } from "./UI/DashboardLink";
 export { Documents } from "./caregiver/Documents";
 export { Shifts } from "./caregiver/Shifts";
 export { Info } from "./caregiver/Info";
-
+export { Footer } from "./footer/Footer";
+export { PaymentModal } from "./modal/PaymentModal";
+export { AssignCaregiverModal } from "./admin/AssignCaregiverModal";
+export { ReceiptModal } from "./admin/ReceiptModal";

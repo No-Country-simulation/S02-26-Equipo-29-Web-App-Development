@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import {
   BadRequestException,
   Injectable,
@@ -13,6 +12,8 @@ import { UploadDocumentDto } from './dto/upload-document.dto';
 import { CaregiverDocumentStatus } from './enums/caregiver-document-status.enum';
 import { CloudinaryService } from '../../shared/media/media.service';
 import { CaregiverDocumentType } from './enums/caregiver-document-type.enum';
+import { Profile } from '../profiles/profile.entity';
+import { UpdateCaregiverDto } from './dto/update-caregiver.dto';
 
 @Injectable()
 export class CaregiverService {
@@ -22,6 +23,9 @@ export class CaregiverService {
 
     @InjectRepository(CaregiverDocument)
     private readonly documentRepo: Repository<CaregiverDocument>,
+
+    @InjectRepository(Profile)
+    private readonly profileRepo: Repository<Profile>,
 
     private readonly cloudinaryService: CloudinaryService,
   ) {}
@@ -88,15 +92,32 @@ export class CaregiverService {
     return caregiver;
   }
 
-  async upDateCaregiver(profileId: string, data: Partial<Caregiver>) {
+  async upDateCaregiver(profileId: string, data: UpdateCaregiverDto) {
     const caregiver = await this.caregiverRepo.findOne({
       where: { profile_id: profileId },
     });
     if (!caregiver) {
       throw new NotFoundException('Caregiver no encontrado');
     }
-    Object.assign(caregiver, data);
-    return this.caregiverRepo.save(caregiver);
+
+    const { full_name, ...caregiverData } = data;
+
+    if (Object.keys(caregiverData).length > 0) {
+      await this.caregiverRepo.update({ profile_id: profileId }, caregiverData);
+    }
+
+    const profileUpdates: Record<string, string> = {};
+    if (full_name) profileUpdates.full_name = full_name;
+    if (data.phone) profileUpdates.phone = data.phone;
+
+    if (Object.keys(profileUpdates).length > 0) {
+      await this.profileRepo.update({ id: profileId }, profileUpdates);
+    }
+
+    return this.caregiverRepo.findOne({
+      where: { profile_id: profileId },
+      relations: ['profile'],
+    });
   }
 
   async uploadDocument(

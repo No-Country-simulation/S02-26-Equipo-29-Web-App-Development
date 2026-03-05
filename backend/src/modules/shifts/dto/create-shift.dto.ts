@@ -19,6 +19,10 @@ export class CreateShiftDto {
   @IsOptional()
   @IsString()
   report?: string;
+  
+  @IsOptional()
+  @IsString()
+  notes?: string;
 
   @IsOptional()
   @IsString()

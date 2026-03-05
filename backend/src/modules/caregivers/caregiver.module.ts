@@ -6,9 +6,10 @@ import { CaregiverDocument } from './caregiver-document.entity';
 import { CaregiverController } from './caregiver.controller';
 import { CaregiverService } from './caregiver.service';
 import { MediaModule } from '../../shared/media/media.module';
+import { Profile } from '../profiles/profile.entity';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Caregiver, CaregiverDocument]),
+    TypeOrmModule.forFeature([Caregiver, CaregiverDocument, Profile]),
     MediaModule,
   ],
   controllers: [CaregiverController],

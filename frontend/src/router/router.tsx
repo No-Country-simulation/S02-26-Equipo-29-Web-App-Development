@@ -2,18 +2,22 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { Home } from "../components/home/Home";
 import { Login } from "../components/login/LogIn";
 import {
+  Agenda,
   Appointments,
+  CaregiverInfo,
   Caregivers,
   PatientInfo,
   Patients,
   PatientSchedule,
+  Payrolls,
+  Reports,
   Registration,
+  PayrollsCaregiver,
 } from "../views";
 import { ProtectedRoute } from "../components/ProtectedRoute";
-import { Agenda } from "../views/caregiver/AgendaCaregiver";
-import { CaregiverInfo } from "../views/caregiver/CaregiverInfo";
 import { MainDashboard } from "../components/dashboard/MainDashboard";
 import { QueryClientProvider } from "../providers/QueryClientProvider";
+
 
 export const router = createBrowserRouter([
   {
@@ -40,6 +44,10 @@ export const router = createBrowserRouter([
       {
         path: "/dashboard",
         element: null,
+      },
+      {
+        path: "/payrolls",
+        element: <Payrolls />,
       },
       {
         path: "/registration",
@@ -76,6 +84,14 @@ export const router = createBrowserRouter([
       {
         path: "/patient/schedule",
         element: <PatientSchedule />,
+      },
+      {
+        path: "/caregiver/payrolls",
+        element: <PayrollsCaregiver />,
+      },
+      {
+        path: "/reports",
+        element: <Reports />,
       },
     ],
   },

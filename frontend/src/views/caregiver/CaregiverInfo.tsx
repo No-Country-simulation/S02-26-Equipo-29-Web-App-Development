@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Documents, Info } from '../../components';
 import { Shifts } from '../../components/shifts/Shifts';
-
+import { Header } from "../../components/UI/Headers";
 export interface Document {
     id: string;
     name: string;
@@ -19,17 +19,56 @@ export interface Shift {
 }
 
 export const CaregiverInfo: React.FC = () => {
+    const isLoading = false; // Adjusted as useUser was the only thing loading here, but actually we should check if we still need isLoading
 
     const [activeTab, setActiveTab] = useState<'info' | 'documents' | 'shifts'>('info');
 
-    // const [shifts, ] = useState<Shift[]>([]);
+    if (isLoading) {
+        return (
+            <>
+                <Header 
+                  title="Mi Perfil" 
+                  description="Información personal y documentos" 
+                />
 
-  
+                <div className="h-auto w-full rounded-3xl border border-border bg-surface px-4 py-8 shadow-lg animate-pulse">
+                    <div className="space-y-8">
+                        <div className="flex flex-wrap gap-3">
+                            {Array.from({ length: 3 }).map((_, i) => (
+                                <div key={i} className="h-10 w-32 rounded-2xl bg-border" />
+                            ))}
+                        </div>
 
+                        <section className="rounded-3xl border border-border bg-background p-6 shadow-lg">
+                            <div className="h-7 w-56 rounded-xl bg-border mb-2" />
+                            <div className="h-4 w-40 rounded-xl bg-border mb-6" />
+
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                {Array.from({ length: 6 }).map((_, i) => (
+                                    <div key={i} className="space-y-2">
+                                        <div className="h-3 w-24 rounded-xl bg-border" />
+                                        <div className="h-10 w-full rounded-2xl bg-border" />
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </>
+        );
+    }
 
     return (
-        <div className="h-auto bg-surface px-4 py-8 text-slate-900 border border-slate-200 rounded-3xl shadow-lg">
-            <div className="mx-auto max-w-5xl space-y-8">
+        <>
+        
+        <Header 
+          title="Mi Perfil" 
+          description="Información personal y documentos" 
+        />
+
+        <div className="h-auto w-full rounded-3xl border border-slate-200 bg-surface px-4 py-8 text-slate-900 shadow-lg">
+
+            <div className="space-y-8">
                 
 
                 <div className="flex flex-wrap gap-3">
@@ -69,6 +108,7 @@ export const CaregiverInfo: React.FC = () => {
                 </section>
             </div>
         </div>
+        </>
     );
 };
 

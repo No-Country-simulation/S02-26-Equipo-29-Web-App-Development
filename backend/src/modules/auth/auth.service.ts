@@ -106,7 +106,6 @@ export class AuthService {
 
     return this.buildToken(user, user.profile);
   }
-
   // =====================
   // 🎟️ JWT
   // =====================
@@ -115,7 +114,9 @@ export class AuthService {
     profile: Profile,
   ): { access_token: string } {
     const payload = {
-      sub: profile.id,
+      sub: user.id,
+      profileId: profile.id,
+      email: user.email,
       role: profile.role,
     };
 

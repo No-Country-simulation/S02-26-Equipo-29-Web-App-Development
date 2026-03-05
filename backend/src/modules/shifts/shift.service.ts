@@ -7,17 +7,18 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, Repository } from 'typeorm';
-
+import { LessThan, MoreThan, Repository, Not, In } from 'typeorm';
 import { Shift } from './shift.entity';
 import { Caregiver } from '../caregivers/caregiver.entity';
 import { Patient } from '../patients/patient.entity';
 import { Profile } from '../profiles/profile.entity';
-
 import { CreateShiftDto } from './dto/create-shift.dto';
 import { UpdateShiftDto } from './dto/update-shift.dto';
 import { ShiftStatus } from './enums/shift-status.enum';
 import { UpdateStatusDto } from './dto/update-status.dto';
+import { Queue } from 'bullmq';
+import { InjectQueue } from '@nestjs/bullmq';
+import { ShiftType } from './constants/shifts-procesor';
 
 @Injectable()
 export class ShiftsService {
@@ -33,10 +34,37 @@ export class ShiftsService {
 
     @InjectRepository(Profile)
     private readonly profileRepository: Repository<Profile>,
+    @InjectQueue('shifts') private queue: Queue,
   ) {}
+
+  async findNext(patientId: string): Promise<Shift> {
+    const shift = await this.shiftRepository.findOne({
+      where: {
+        patient: { profile_id: patientId },
+        start_time: MoreThan(new Date()),
+        status: ShiftStatus.ASSIGNED,
+      },
+      relations: [
+        'caregiver',
+        'caregiver.profile',
+        'caregiver.profile.user',
+        'patient',
+        'patient.profile',
+        'patient.profile.user',
+        'approved_by',
+        'approved_by.user',
+      ],
+      order: { start_time: 'ASC' },
+    });
+    if (!shift) {
+      throw new NotFoundException('No se encontro el turno');
+    }
+    return shift;
+  }
 
   async updateStatus(id: string, dto: UpdateStatusDto): Promise<Shift> {
     const shift = await this.findOne(id);
+
     if (!shift) {
       throw new BadRequestException('No se encontro el turno');
     }
@@ -49,6 +77,20 @@ export class ShiftsService {
       throw new BadRequestException('El turno ya se encuentra completado');
     }
     shift.status = dto.status;
+    if (dto.status === ShiftStatus.ASSIGNED) {
+      await this.queue.add(ShiftType.confirmed, {
+        to: shift.patient.profile.user.email,
+        date: shift.start_time,
+        patient: shift.patient.profile.full_name,
+        caregiver: shift.caregiver?.profile.full_name,
+      });
+      await this.queue.add(ShiftType.assigned, {
+        to: shift.caregiver?.profile.user.email,
+        date: shift.start_time,
+        caregiver: shift.caregiver?.profile.full_name,
+        patient: shift.patient.profile.full_name,
+      });
+    }
     return this.shiftRepository.save(shift);
   }
 
@@ -59,18 +101,21 @@ export class ShiftsService {
     });
 
     if (!patient) {
-      throw new NotFoundException('Patient not found');
+      throw new NotFoundException('No se encontro el paciente');
     }
 
     const start = new Date(dto.start_time);
     const end = new Date(dto.end_time);
+
+    if (end <= start) {
+      throw new BadRequestException(
+        'La fecha de finalización debe ser mayor a la de inicio',
+      );
+    }
+
     const report = dto.report ? dto.report : null;
     const service = dto.service ? dto.service : null;
     const location = dto.location ? dto.location : null;
-
-    if (end <= start) {
-      throw new BadRequestException('end_time must be greater than start_time');
-    }
 
     const alreadyExists = await this.allReadyExists(
       dto.start_time,
@@ -78,7 +123,7 @@ export class ShiftsService {
       dto.patientId,
     );
     if (alreadyExists) {
-      throw new BadRequestException('Shift already exists');
+      throw new BadRequestException('Ya existe una guardia en ese horario');
     }
     const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
 
@@ -89,11 +134,10 @@ export class ShiftsService {
       hours,
       status: ShiftStatus.PENDING,
       service: service,
-      profile: patient.profile,
       report: report,
+      notes: dto.notes ?? null,
       location: location,
     });
-    console.log('Creating shift:', shift);
     return this.shiftRepository.save(shift);
   }
 
@@ -104,29 +148,33 @@ export class ShiftsService {
   ): Promise<boolean> {
     const start = new Date(start_time);
     const end = new Date(end_time);
-    const shift = await this.shiftRepository.findOneBy({
-      start_time: Between(start, end),
-      end_time: Between(start, end),
-      patient: {
-        profile_id: patientId,
+
+    // Logic for any overlap:
+    // (ExistingStart < NewEnd) AND (ExistingEnd > NewStart)
+    const shift = await this.shiftRepository.findOne({
+      where: {
+        patient: { profile_id: patientId },
+        start_time: LessThan(end),
+        end_time: MoreThan(start),
+        status: Not(In([ShiftStatus.CANCELLED, ShiftStatus.REJECTED])),
       },
     });
     return !!shift;
   }
 
   // 📄 FIND ALL
-  async findAll(page: number = 1, limit: number = 10) {
+  async findAll(page: number = 1, limit: number = 10, status?: string) {
     const skip = (page - 1) * limit;
 
+    const where: Record<string, string> = {};
+    if (status && status !== 'ALL') {
+      where.status = status as ShiftStatus.PENDING;
+    }
+
     const [data, total] = await this.shiftRepository.findAndCount({
-      relations: [
-        'caregiver',
-        'patient',
-        'patient.profile',
-        'approved_by',
-        'profile',
-      ],
-      order: { created_at: 'DESC' },
+      where,
+      relations: ['caregiver', 'patient', 'patient.profile', 'approved_by'],
+      order: { start_time: 'ASC' },
       take: limit,
       skip: skip,
     });
@@ -147,74 +195,68 @@ export class ShiftsService {
       where: { id },
       relations: [
         'caregiver',
+        'caregiver.profile',
+        'caregiver.profile.user',
         'patient',
         'patient.profile',
+        'patient.profile.user',
         'approved_by',
-        'profile',
+        'approved_by.user',
+        'rating',
       ],
     });
 
     if (!shift) {
       throw new NotFoundException('Shift not found');
     }
-
     return shift;
   }
-
   // FIND MANY BY PATIENT
-  async findByPatient(patientId: string, page: number = 1, limit: number = 10) {
-    const skip = (page - 1) * limit;
-    const [data, total] = await this.shiftRepository.findAndCount({
+  async findByPatient(patientId: string) {
+    const data = await this.shiftRepository.find({
       where: { patient: { profile_id: patientId } },
       relations: [
         'caregiver',
         'caregiver.profile',
         'patient',
+        'patient.profile',
+        'rating',
         'approved_by',
-        'profile',
       ],
-      order: { created_at: 'DESC' },
-      take: limit,
-      skip: skip,
+      order: { start_time: 'ASC' },
     });
 
     return {
       data,
       meta: {
-        total,
-        page,
-        lastPage: Math.ceil(total / limit),
+        total: data.length,
+        page: 1,
+        lastPage: 1,
       },
     };
   }
 
   // FIND MANY BY CAREGIVER
-  async findByCaregiver(
-    caregiverProfileId: string,
-    page: number = 1,
-    limit: number = 10,
-  ) {
-    const skip = (page - 1) * limit;
-    const [data, total] = await this.shiftRepository.findAndCount({
+  async findByCaregiver(caregiverProfileId: string) {
+    const data = await this.shiftRepository.find({
       where: { caregiver: { profile_id: caregiverProfileId } },
       relations: [
         'caregiver',
         'caregiver.profile',
         'patient',
+        'patient.profile',
         'approved_by',
-        'profile',
+        'rating',
       ],
-      order: { created_at: 'DESC' },
-      take: limit,
-      skip: skip,
+      order: { start_time: 'ASC' },
     });
 
     return {
       data,
       meta: {
-        total,
-        page,
-        lastPage: Math.ceil(total / limit),
+        total: data.length,
+        page: 1,
+        lastPage: 1,
       },
     };
   }
@@ -265,5 +307,23 @@ export class ShiftsService {
   async remove(id: string): Promise<void> {
     const shift = await this.findOne(id);
     await this.shiftRepository.remove(shift);
+  }
+
+  // 📊 REPORT
+  async findReport(from: Date, to: Date): Promise<Shift[]> {
+    return this.shiftRepository.find({
+      where: {
+        start_time: MoreThan(from),
+        end_time: LessThan(to),
+      },
+      relations: [
+        'caregiver',
+        'caregiver.profile',
+        'patient',
+        'patient.profile',
+        'rating',
+      ],
+      order: { start_time: 'ASC' },
+    });
   }
 }

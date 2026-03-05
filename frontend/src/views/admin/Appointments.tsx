@@ -1,64 +1,62 @@
 import { Circle, Plus, Check, X } from "lucide-react";
 import { useState } from "react";
-import { useCaregivers, useShifts } from "../../hooks";
-import {formatDateSafe,  formatTime } from "../../utils/formatDate";
+import { useShifts } from "../../hooks";
+import { formatDateSafe, formatTime } from "../../utils/formatDate";
 import { getStatusColorShift, translateStatusShift } from "../../utils/status";
-import type { Caregiver } from "../../types";
-import { assignCaregiverShift, updateShiftStatus } from "../../api";
+import type { Shift } from "../../types";
+import { updateShiftStatus } from "../../api";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { Pagination } from "../../components/UI/Pagination";
 import { takeFirstLetters } from "../../utils/firstLetters";
 
-export function Appointments() {
+import {
+  AdminHeaderSkeleton,
+  AdminTableSkeleton,
+} from "../../components/UI/Skeleton";
 
-  const queryClient= useQueryClient();
+import { AssignCaregiverModal } from "../../components/admin/AssignCaregiverModal";
+
+export function Appointments() {
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const limit = 10;
+  const [selectedShiftForAssignment, setSelectedShiftForAssignment] = useState<Shift | null>(null);
 
-   const { data: shiftsData, isLoading, isError } = useShifts(page, limit);
- const {data:caregivers ,isLoading:isLoadingCaregivers,isError:isErrorCaregivers}=useCaregivers();
   const [filter, setFilter] = useState("PENDING");
- 
-  if(isLoading || isLoadingCaregivers){
-    return <div>Loading...</div>
+  const {
+    data: shiftsData,
+    isLoading,
+    isError,
+  } = useShifts(page, limit, filter);
+
+  if (isLoading) {
+    return (
+      <div className="p-5 bg-background space-y-6">
+        <AdminHeaderSkeleton titleWidth="w-80" subtitleWidth="w-96" />
+        <div className="h-12 w-96 rounded-2xl bg-border animate-pulse" />
+        <AdminTableSkeleton columns={6} rows={8} />
+      </div>
+    );
   }
 
-  if(isError || isErrorCaregivers){
-    return <div>Error...</div>
+  if (isError) {
+    return <div>Error...</div>;
   }
 
-  const filteredShifts = shiftsData?.data.filter((shift: any) => {
-    if (filter === "ALL") return true;
-    return shift.status === filter;
-  });
+  const shifts = shiftsData?.data || [];
 
   const handleUpdateStatus = async (id: string, status: string) => {
-     try {
-       await updateShiftStatus(id, status);
-       toast.success("Estado actualizado correctamente");
-       queryClient.invalidateQueries({ queryKey: ["shifts"] });
-     } catch (error) {
-      if(error instanceof AxiosError && error.response?.data?.message){
-        toast.error(error.response.data.message);
-      }else{
-        toast.error("Error al actualizar el estado");
-      }
-     }
-  };
-
-  const handleAssignCaregiver = async (shiftId: string, caregiverId: string) => {
-    console.log(shiftId, caregiverId);
     try {
-      await assignCaregiverShift(shiftId, caregiverId);
-      toast.success("Cuidador asignado correctamente");
+      await updateShiftStatus(id, status);
+      toast.success("Estado actualizado correctamente");
       queryClient.invalidateQueries({ queryKey: ["shifts"] });
     } catch (error) {
-      if(error instanceof AxiosError && error.response?.data?.message){
+      if (error instanceof AxiosError && error.response?.data?.message) {
         toast.error(error.response.data.message);
-      }else{
-        toast.error("Error al asignar el cuidador");
+      } else {
+        toast.error("Error al actualizar el estado");
       }
     }
   };
@@ -66,11 +64,14 @@ export function Appointments() {
 
   return (
     <div className="p-5 bg-background min-h-screen">
-      <header className="rounded-3xl border border-border p-6 bg-surface shadow-lg">
-        <h1 className="text-2xl font-bold">Calendario de cuidados</h1>
-        <p className="text-gray-400 mt-1">Gestionar los cuidados de los pacientes</p>
+      <header className="rounded-3xl border border-border bg-surface p-8 shadow-xl relative overflow-hidden group">
+        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-primary/60">
+          Calendario de cuidados
+        </h1>
+        <p className="text-text-secondary mt-2 max-w-2xl">
+          Gestionar los cuidados de los pacientes
+        </p>
       </header>
-      
 
       {/* Filtros */}
       <div className="mt-5 rounded-3xl border border-border bg-surface p-4 md:p-6 shadow-lg">
@@ -83,7 +84,9 @@ export function Appointments() {
               <button
                 onClick={() => setFilter("ALL")}
                 className={`cursor-pointer transition-all duration-200 hover:bg-primary hover:text-white rounded-2xl border border-border bg-background px-4 py-2 text-xs sm:text-sm font-medium ${
-                  filter === "ALL" ? "bg-primary text-white border-primary" : "text-text-secondary"
+                  filter === "ALL"
+                    ? "bg-primary text-white border-primary"
+                    : "text-text-secondary"
                 }`}
               >
                 Todas
@@ -91,40 +94,68 @@ export function Appointments() {
               <button
                 onClick={() => setFilter("PENDING")}
                 className={`cursor-pointer transition-all duration-200 hover:bg-yellow-500/20 rounded-2xl border border-border bg-background px-4 py-2 text-xs sm:text-sm font-medium flex items-center gap-2 ${
-                  filter === "PENDING" ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/50" : "text-text-secondary"
+                  filter === "PENDING"
+                    ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/50"
+                    : "text-text-secondary"
                 }`}
               >
-                <Circle className={`w-2 h-2 ${filter === "PENDING" ? "fill-yellow-500" : "fill-yellow-500/50"}`} />
+                <Circle
+                  className={`w-2 h-2 ${
+                    filter === "PENDING"
+                      ? "fill-yellow-500"
+                      : "fill-yellow-500/50"
+                  }`}
+                />
                 <span className="hidden xs:inline">Pendientes</span>
                 <span className="xs:hidden">Pend.</span>
               </button>
               <button
                 onClick={() => setFilter("ASSIGNED")}
                 className={`cursor-pointer transition-all duration-200 hover:bg-green-500/20 rounded-2xl border border-border bg-background px-4 py-2 text-xs sm:text-sm font-medium flex items-center gap-2 ${
-                  filter === "ASSIGNED" ? "bg-green-500/10 text-green-500 border-green-500/50" : "text-text-secondary"
+                  filter === "ASSIGNED"
+                    ? "bg-green-500/10 text-green-500 border-green-500/50"
+                    : "text-text-secondary"
                 }`}
               >
-                <Circle className={`w-2 h-2 ${filter === "ASSIGNED" ? "fill-green-500" : "fill-green-500/50"}`} />
+                <Circle
+                  className={`w-2 h-2 ${
+                    filter === "ASSIGNED"
+                      ? "fill-green-500"
+                      : "fill-green-500/50"
+                  }`}
+                />
                 <span className="hidden xs:inline">Asignadas</span>
                 <span className="xs:hidden">Asig.</span>
               </button>
               <button
-                onClick={() => setFilter("REJECTED")}
+                onClick={() => setFilter("CANCELLED")}
                 className={`cursor-pointer transition-all duration-200 hover:bg-red-500/20 rounded-2xl border border-border bg-background px-4 py-2 text-xs sm:text-sm font-medium flex items-center gap-2 ${
-                  filter === "REJECTED" ? "bg-red-500/10 text-red-500 border-red-500/50" : "text-text-secondary"
+                  filter === "CANCELLED"
+                    ? "bg-red-500/10 text-red-500 border-red-500/50"
+                    : "text-text-secondary"
                 }`}
               >
-                <Circle className={`w-2 h-2 ${filter === "REJECTED" ? "fill-red-500" : "fill-red-500/50"}`} />
-                <span className="hidden xs:inline">Rechazadas</span>
-                <span className="xs:hidden">Rech.</span>
+                <Circle
+                  className={`w-2 h-2 ${
+                    filter === "CANCELLED" ? "fill-red-500" : "fill-red-500/50"
+                  }`}
+                />
+                <span className="hidden xs:inline">Canceladas</span>
+                <span className="xs:hidden">Canc.</span>
               </button>
               <button
                 onClick={() => setFilter("COMPLETED")}
                 className={`cursor-pointer transition-all duration-200 hover:bg-primary/20 rounded-2xl border border-border bg-background px-4 py-2 text-xs sm:text-sm font-medium flex items-center gap-2 ${
-                  filter === "COMPLETED" ? "bg-primary/10 text-primary border-primary/50" : "text-text-secondary"
+                  filter === "COMPLETED"
+                    ? "bg-primary/10 text-primary border-primary/50"
+                    : "text-text-secondary"
                 }`}
               >
-                <Circle className={`w-2 h-2 ${filter === "COMPLETED" ? "fill-primary" : "fill-primary/50"}`} />
+                <Circle
+                  className={`w-2 h-2 ${
+                    filter === "COMPLETED" ? "fill-primary" : "fill-primary/50"
+                  }`}
+                />
                 <span className="hidden xs:inline">Completadas</span>
                 <span className="xs:hidden">Compl.</span>
               </button>
@@ -136,87 +167,128 @@ export function Appointments() {
         </div>
       </div>
 
-      {/* Tabla de cuidados */}
-      <div className="mt-5 overflow-hidden rounded-3xl border border-border bg-surface shadow-xl">
+      <div className="mt-8 overflow-hidden rounded-3xl border border-border bg-surface shadow-inner">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-border text-sm">
-            <thead className="bg-background/50 text-left text-text-secondary">
+            <thead className="bg-background/50 text-left text-text-secondary uppercase tracking-widest text-[10px] font-bold">
               <tr>
-                <th className="px-6 py-4 font-semibold tracking-wider ">Paciente</th>
-                <th className="px-6 py-4 font-semibold tracking-wider ">Fecha</th>
-                <th className="px-6 py-4 font-semibold tracking-wider ">Horario</th>
-                <th className="px-6 py-4 font-semibold tracking-wider ">Servicio</th>
-                <th className="px-6 py-4 font-semibold tracking-wider ">Cuidador</th>
-                <th className="px-6 py-4 font-semibold tracking-wider ">Estado</th>
-                <th className="px-6 py-4 font-semibold tracking-wider text-center">Acciones</th>
+                <th className="px-6 py-4 font-semibold tracking-wider text-center ">
+                  Paciente
+                </th>
+                <th className="px-6 py-4 font-semibold tracking-wider text-center">
+                  Fecha
+                </th>
+                <th className="px-6 py-4 font-semibold tracking-wider text-center">
+                  Horario
+                </th>
+                <th className="px-6 py-4 font-semibold tracking-wider text-center">
+                 Notas
+                </th>
+                <th className="px-6 py-4 font-semibold tracking-wider text-center">
+                  Cuidador
+                </th>
+                <th className="px-6 py-4 font-semibold tracking-wider text-center">
+                  Estado
+                </th>
+                <th className="px-6 py-4 font-semibold tracking-wider text-center">
+                  Acciones
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border bg-surface">
-              {filteredShifts?.map((shift: any) => (
-                <tr key={shift.id} className="transition-colors hover:bg-white/5">
+            <tbody className="divide-y divide-border whitespace-nowrap">
+              {shifts.map((shift) => (
+                <tr
+                  key={shift.id}
+                  className="hover:bg-primary/5 transition-all group"
+                >
                   <td className="px-6 py-5 ">
-                    <div className="flex items-center">
-                      <div className="h-9 p-2 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold mr-3">
-                        {takeFirstLetters(shift.patient.profile.full_name)}
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-primary to-primary/40 flex items-center justify-center text-white font-bold shadow-lg ring-2 ring-primary/10 group-hover:scale-105 transition-transform">
+                        {takeFirstLetters(
+                          shift.patient.profile?.full_name || "",
+                        )}
                       </div>
-                      <p className="font-semibold text-text-primary whitespace-nowrap">{shift.patient.profile.full_name}</p>
+                      <p className="font-bold text-base group-hover:text-primary transition-colors italic">
+                        {shift.patient.profile?.full_name || "N/A"}
+                      </p>
                     </div>
                   </td>
-                  <td className="px-6 py-5">
-                    <p className="text-text-secondary  whitespace-nowrap">{formatDateSafe(shift.start_time)}</p>
+                  <td className="px-6 py-5 text-center">
+                    <p className="text-text-secondary  whitespace-nowrap">
+                      {formatDateSafe(shift.start_time || "")}
+                    </p>
                   </td>
-                  <td className="px-6 py-5 text-text-secondary  whitespace-nowrap">
-                    {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
+                  <td className="px-6 py-5 text-center text-text-secondary  whitespace-nowrap">
+                    {formatTime(shift.start_time || "")} -{" "}
+                    {formatTime(shift.end_time || "")}
                   </td>
-                  <td className="px-6 py-5  whitespace-nowrap">
-                    <span className="text-text-primary">{shift.service || "General"}</span>
+                  <td className="px-6 py-5 text-center whitespace-nowrap">
+                    <span className="text-text-primary">
+                      {shift.service || "general" }
+                    </span>
                   </td>
-                  <td className="px-6 py-5">
-                    <select onChange={(e) => handleAssignCaregiver(shift.id, e.target.value)} className="bg-background border border-border rounded-xl px-3 py-1.5 text-xs focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all cursor-pointer w-full max-w-[160px]">
-                      <option value="">Seleccionar...</option>
-                      {caregivers?.map((caregiver: Caregiver) => (
-                        <option key={caregiver.id} value={caregiver.profile_id} selected={shift.caregiver?.profile_id === caregiver.profile_id}>
-                          {caregiver.full_name}
-                        </option>
-                      ))}
-                    </select>
+                  <td className="px-6 py-5 text-center">
+                    {shift.caregiver ? (
+                      <div className="flex items-center gap-2 justify-center">
+                        <span className="text-text-secondary text-sm">
+                          {shift.caregiver?.profile?.full_name}
+                        </span>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setSelectedShiftForAssignment(shift)}
+                        className="bg-primary/10 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 group w-full max-w-[140px] justify-center"
+                      >
+                        <Plus size={14} className="group-hover:rotate-90 transition-transform" />
+                        Asignar
+                      </button>
+                    )}
                   </td>
-                  <td className="px-6 py-5">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ring-1 ring-inset ${getStatusColorShift(shift.status)}`}>
+                  <td className="px-6 py-5 text-center">
+                    <span
+                      className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm ring-1 ring-inset ${getStatusColorShift(
+                        shift.status,
+                      )}`}
+                    >
                       {translateStatusShift(shift.status)}
                     </span>
                   </td>
-                  <td className="px-6 py-5" >
-                    <div className="flex gap-2 justify-center">
-                      <button 
-                      disabled={shift.status!=="PENDING"}
-                      onClick={()=>handleUpdateStatus(shift.id,"ASSIGNED")}
-                      className="p-2 transition-all duration-200 rounded-xl border border-green-500/20 bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white hover:scale-110 active:scale-90 shadow-sm" title="Aprobar">
+                  <td className="px-6 py-5 text-center">
+                    <div className="flex gap-3 justify-center">
+                      <button
+                        disabled={shift.status !== "PENDING"}
+                        onClick={() => handleUpdateStatus(shift.id, "ASSIGNED")}
+                        className="p-3 transition-all duration-200 rounded-xl border border-green-500/20 bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white hover:shadow-[0_0_15px_rgba(34,197,94,0.3)] active:scale-90 shadow-sm disabled:opacity-30 disabled:cursor-not-allowed group-hover:scale-110"
+                        title="Aprobar"
+                      >
                         <Check className="w-4 h-4" />
                       </button>
-                      <button 
-                      disabled={shift.status!=="PENDING"}
-                      onClick={()=>handleUpdateStatus(shift.id,"REJECTED")}
-                      className="p-2 transition-all duration-200 rounded-xl border border-red-500/20 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white hover:scale-110 active:scale-90 shadow-sm" title="Rechazar">
+                      <button
+                        disabled={shift.status !== "PENDING"}
+                        onClick={() => handleUpdateStatus(shift.id, "REJECTED")}
+                        className="p-3 transition-all duration-200 rounded-xl border border-red-500/20 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white hover:shadow-[0_0_15px_rgba(239,68,68,0.3)] active:scale-90 shadow-sm disabled:opacity-30 disabled:cursor-not-allowed group-hover:scale-110"
+                        title="Rechazar"
+                      >
                         <X className="w-4 h-4" />
                       </button>
                     </div>
                   </td>
                 </tr>
-              ))
-            }
-            {filteredShifts?.length === 0 && (
-              <tr>
-                <td colSpan={7} className="text-center py-10">
-                  <p className="text-text-secondary">No hay turnos con este filtro</p>
-                </td>
-              </tr>
-            )}
+              ))}
+              {shifts.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="text-center py-10">
+                    <p className="text-text-secondary">
+                      No hay turnos con este filtro
+                    </p>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
-        
-        {filteredShifts?.length > 0 && shiftsData && (
+
+        {shifts.length > 0 && shiftsData && (
           <div className="border-t border-border bg-surface/50">
             <Pagination
               currentPage={shiftsData.meta.page}
@@ -226,6 +298,13 @@ export function Appointments() {
           </div>
         )}
       </div>
+      {/* Modal de Asignación */}
+      {selectedShiftForAssignment && (
+        <AssignCaregiverModal
+          shift={selectedShiftForAssignment}
+          onClose={() => setSelectedShiftForAssignment(null)}
+        />
+      )}
     </div>
   );
 }

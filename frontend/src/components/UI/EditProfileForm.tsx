@@ -2,15 +2,14 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import type { Caregiver, Patient } from "../../types";
 import { toast } from "sonner";
-import { api } from "../../lib/axios/api";
 import { isAxiosError } from "axios";
-import { useUser } from "../../hooks/user/useUser";
+import { useUser, useUpdateProfile } from "../../hooks";
 import { useCaregiver } from "../../hooks";
 import { usePatient } from "../../hooks/patient/usePatient";
 interface EditProfileFormData {
     full_name: string;
     email: string;
-    phone: string;
+    phone?: string;
     cbu?: string;
     mercado_pago_alias?: string;
     hourly_rate?: number;
@@ -41,8 +40,9 @@ export const EditProfileForm: React.FC<EditProfileFormProps & { handleUpdateSucc
     const defaultValues: EditProfileFormData = {
         full_name: user.full_name,
         email: user.email,
+        phone: currentUser?.phone || "",
         ...(currentUser?.role === "CAREGIVER" && {
-            phone: caregiverData?.phone || "",
+            phone: caregiverData?.phone || currentUser?.phone || "",
             cbu: caregiverData?.cbu || "",
             mercado_pago_alias: caregiverData?.mercado_pago_alias || "",
             hourly_rate: caregiverData?.hourly_rate || 0,
@@ -51,6 +51,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps & { handleUpdateSucc
             address: patientData?.address || "",
             notes: patientData?.notes || "",
             dni: patientData?.dni || "",
+            phone: patientData?.phone || "",
         }),
     };
 
@@ -62,42 +63,42 @@ export const EditProfileForm: React.FC<EditProfileFormProps & { handleUpdateSucc
         defaultValues,
     });
 
+    const updateProfile = useUpdateProfile();
+
    const onSubmit = async (formData: EditProfileFormData) => {
-
-
     try {
         setIsPending(true);
-        if (currentUser?.role === "CAREGIVER") {
-            // Solo enviar campos de cuidador
-            const caregiverData = {
-                phone: formData.phone,
-                cbu: formData.cbu,
-                mercado_pago_alias: formData.mercado_pago_alias,
-                hourly_rate: formData.hourly_rate,
-            };
-            
-            const response = await api.put(`/caregivers/${user?.id}`, caregiverData);
-            toast.success(response.data.message || "Perfil actualizado exitosamente");
-            
+        const role = currentUser?.role as string;
+        const profileData = role === "CAREGIVER" ? {
+            full_name: formData.full_name,
+            email: formData.email,
+            phone: formData.phone,
+            cbu: formData.cbu,
+            mercado_pago_alias: formData.mercado_pago_alias,
+            hourly_rate: Number(formData.hourly_rate),
+        } : {
+            full_name: formData.full_name,
+            email: formData.email,
+            dni: formData.dni,
+            address: formData.address,
+            notes: formData.notes,
+            phone: formData.phone,
+        };
 
-        } else if (currentUser?.role === "PATIENT") {
-            // Solo enviar campos de paciente
-            const patientData = {
-                dni: formData.dni,
-                address: formData.address,
-                notes: formData.notes,
-            };
-            
-            const response = await api.patch(`/patients/${user?.id}`, patientData);
-            toast.success(response.data.message || "Perfil actualizado exitosamente");
-        }
+        await updateProfile.mutateAsync({
+            id: user?.id as string,
+            role,
+            data: profileData,
+        });
+        
+        toast.success("Perfil actualizado exitosamente");
         handleUpdateSuccess();
-    } catch (error) {
+    } catch (error: unknown) {
        if(isAxiosError(error)){
         toast.error(error.response?.data.message);
-       }
+       } else {
         toast.error("Error al editar el perfil");
-        
+       }
     }finally{
         setIsPending(false);
     }

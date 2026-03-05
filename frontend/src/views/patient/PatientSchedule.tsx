@@ -1,91 +1,79 @@
 import React from "react";
-import { MessagesSquare, SquareCheckBig, SquareX, Star } from "lucide-react";
-import { useState, useRef, useEffect, type ChangeEvent } from "react";
+import {
+  MessagesSquare,
+  SquareCheckBig,
+  Star,
+  XIcon,
+  ZoomIn,
+} from "lucide-react";
+import { useState } from "react";
 import { Patient } from "../../components/patient/patient";
-import { useCaregivers, useUser } from "../../hooks";
-import { useShifts } from "../../hooks/patient/useShifts";
-import "cally";
+import { useShifts, useFinalizeShift } from "../../hooks/patient/useShifts";
 import { formatDayMonth, formatTime } from "../../utils/formatDate";
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace JSX {
-    interface IntrinsicElements {
-      "calendar-date": React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement>,
-        HTMLElement
-      >;
-      "calendar-month": React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement>,
-        HTMLElement
-      >;
-      "calendar-range": React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement>,
-        HTMLElement
-      > & { months?: number };
-    }
-  }
-}
+import { toast } from "sonner";
+import { ReporteDialog } from "../../components/caregiver/Reporte";
+import { ShiftCardDialog } from "../../components/shifts/summaryShift";
+import { Calendar } from "../../components/UI/Calendar";
+import { Header } from "../../components/UI/Headers";
+import { ButtonNewShift } from "../../components/UI/ButtonNewShift";
 
 export const PatientSchedule = () => {
-  const { data: user } = useUser();
-  const { shifts: hookShifts } = useShifts();
-  const { data: caregivers = [] } = useCaregivers();
-  const [selectedPatient, setSelectedPatient] = useState<
-    (typeof assignedPatients)[number] | null
-  >(null);
+  const { shifts: hookShifts, isLoading } = useShifts();
+  const [selectedPatient, setSelectedPatient] = useState<{
+    id: string;
+    name: string;
+    day: string;
+    schedule: string;
+    notes: string;
+    phone: string;
+  } | null>(null);
   const [patientDialogOpen, setPatientDialogOpen] = useState(false);
 
   const [endShift, setEndShift] = useState(false);
   const [rating, setRating] = useState(0);
   const [report, setReport] = useState("");
   const [selectedShiftId, setSelectedShiftId] = useState<string | null>(null);
- 
-  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState({
+    comportamiento: "",
+    medicacion: "",
+    observaciones: "",
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [assignedPatients, ] = useState<
-    {
-      id: string;
-      name: string;
-      day: string;
-      schedule: string;
-      notes: string;
-      phone: string;
-    }[]
-  >([]);
-  
-
-  console.log("Caregivers data in Agenda:", caregivers);
-  console.log("Shifts data in Agenda:", hookShifts);
-  console.log("User data in Agenda:", user);
-
-
-  const calendarRef = useRef<HTMLElement & { value?: string }>(null);
-  const totalPages = Math.max(1, Math.ceil(assignedPatients.length / pageSize));
-  const paginatedPatients = assignedPatients.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [openSummaryShiftId, setOpenSummaryShiftId] = useState<string | null>(
+    null,
   );
 
-  useEffect(() => {
-    if (!calendarOpen || !calendarRef.current) return;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const shiftsPending = hookShifts.filter((shift) => {
+    const shiftDate = new Date(shift.start_time || shift.startTime || "");
+    shiftDate.setHours(0, 0, 0, 0);
+    const isTodayOrFuture = shiftDate >= today;
+    const isUpcomingStatus = ["PENDING", "ASSIGNED", "IN_PROGRESS"].includes(
+      shift.status,
+    );
+    return isTodayOrFuture && isUpcomingStatus;
+  });
 
-    const calendar = calendarRef.current;
-    const handleChange = (event: Event) => {
-      const value = (event.currentTarget as typeof calendar).value ?? "";
-      const [start = "", end = ""] = value.split("/");
-      setRange(start && end ? { start, end } : null);
-    };
+  const totalPages = Math.max(1, Math.ceil(shiftsPending.length / pageSize));
+  const validCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedShifts = shiftsPending.slice(
+    (validCurrentPage - 1) * pageSize,
+    validCurrentPage * pageSize,
+  );
 
-    calendar.addEventListener("change", handleChange);
-    return () => calendar.removeEventListener("change", handleChange);
-  }, [calendarOpen]);
+  const handleOpenReportDialog = (report: string) => {
+    setSelectedReport({
+      comportamiento: report,
+      medicacion: "",
+      observaciones: "",
+    });
+    setReportDialogOpen(true);
+  };
 
-  useEffect(() => {
-    setCurrentPage((prev) => Math.min(prev, totalPages));
-  }, [totalPages]);
-
-  const handlePageSizeChange = (event: ChangeEvent<HTMLSelectElement>) => {
+  const handlePageSizeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setPageSize(Number(event.target.value));
     setCurrentPage(1);
   };
@@ -99,16 +87,25 @@ export const PatientSchedule = () => {
     setEndShift(true);
   };
 
-  const handleFinalizeShift = (event: React.FormEvent<HTMLFormElement>) => {
+  const finalizeShiftMutation = useFinalizeShift();
+
+  const handleFinalizeShift = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
     const payload = {
-      shiftId: selectedShiftId,
-      rating,
-      report,
+      shiftId: selectedShiftId as string,
+      number: rating,
+      notes: report,
     };
 
-    console.log("Finalizar guardia payload:", payload);
+    try {
+      await finalizeShiftMutation.mutateAsync(payload);
+      toast.success("Guardia finalizada correctamente");
+    } catch {
+      toast.error("Error al finalizar la guardia");
+    }
 
     setEndShift(false);
     setSelectedShiftId(null);
@@ -116,18 +113,100 @@ export const PatientSchedule = () => {
     setReport("");
   };
 
-  // const rangeValue = range ? `${range.start}/${range.end}` : "";
+  const getTotalHours = (start?: string, end?: string) => {
+    if (!start || !end) return undefined;
+    const startDate = new Date(start).getTime();
+    const endDate = new Date(end).getTime();
+    if (
+      Number.isNaN(startDate) ||
+      Number.isNaN(endDate) ||
+      endDate <= startDate
+    ) {
+      return undefined;
+    }
+    return Number(((endDate - startDate) / (1000 * 60 * 60)).toFixed(2));
+  };
+
+  if (isLoading) {
+    return (
+      <>
+        <Header 
+          title="Mi Calendario" 
+          description="Seguimiento detallado de tus turnos y visitas" 
+        />
+
+        <section className="m-10 rounded-3xl border border-border bg-surface p-6 shadow-lg animate-pulse">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="h-3 w-40 rounded-xl bg-border" />
+              <div className="mt-2 h-7 w-64 rounded-xl bg-border" />
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="h-4 w-28 rounded-xl bg-border" />
+              <div className="h-10 w-20 rounded-2xl bg-border" />
+              <div className="h-10 w-28 rounded-2xl bg-border" />
+            </div>
+          </div>
+
+          <div className="mt-6 overflow-hidden rounded-2xl border border-border">
+            <div className="bg-background px-4 py-3 flex gap-6">
+              {Array.from({ length: 7 }).map((_, i) => (
+                <div key={i} className="h-4 w-16 rounded-xl bg-border" />
+              ))}
+            </div>
+
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex gap-6 px-4 py-4 border-t border-border bg-surface">
+                {Array.from({ length: 7 }).map((__, j) => (
+                  <div key={j} className="h-4 w-16 rounded-xl bg-border flex-1" />
+                ))}
+              </div>
+            ))}
+
+            <div className="flex flex-col gap-3 border-t border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="h-4 w-48 rounded-xl bg-border" />
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-20 rounded-2xl bg-border" />
+                <div className="h-4 w-24 rounded-xl bg-border" />
+                <div className="h-8 w-20 rounded-2xl bg-border" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className=" rounded-3xl border border-border bg-surface p-6 shadow-lg animate-pulse">
+          <div className="h-7 w-56 rounded-xl bg-border mb-2" />
+          <div className="h-4 w-40 rounded-xl bg-border mb-6" />
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="rounded-2xl border border-border px-3 py-3">
+                <div className="h-4 w-3/4 rounded-xl bg-border" />
+                <div className="mt-2 h-3 w-2/3 rounded-xl bg-border" />
+              </div>
+            ))}
+          </div>
+        </section>
+      </>
+    );
+  }
 
   return (
     <>
-      <section className="m-10 rounded-3xl border border-border bg-surface p-6 shadow-lg">
+      <Header 
+        title="Mi Calendario" 
+        description="Seguimiento detallado de tus turnos y visitas" 
+      />
+
+      <ButtonNewShift />
+
+      <section className=" rounded-3xl border border-border bg-surface p-6 shadow-lg">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.4em] text-text-secondary">
               Pacientes asignados
             </p>
             <h2 className="text-xl font-semibold">
-              {hookShifts.length} guardias programadas esta semana
+              {shiftsPending.length} guardias programadas esta semana
             </h2>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -145,41 +224,9 @@ export const PatientSchedule = () => {
                 </option>
               ))}
             </select>
-            <button
-              onClick={() => setCalendarOpen(true)}
-              className="rounded-2xl bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-hover"
-            >
-              Ver calendario completo
-            </button>
+
+            <Calendar />
           </div>
-          {calendarOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-              {/* <calendar-range
-                value={rangeValue}
-                months={month}
-                className="bg-white p-6 rounded-2xl shadow-lg"
-                ref={calendarRef as never}
-              >
-                <calendar-month month={month} className="p-4">
-                  <calendar-date
-                    date={day}
-                    className="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center"
-                  ></calendar-date>
-                </calendar-month>
-                <div className="mt-4 text-sm text-text-accent">
-                  {range
-                    ? `Rango seleccionado: ${range.start} a ${range.end}`
-                    : "Selecciona un rango de fechas"}
-                </div>
-              </calendar-range> */}
-              <button
-                onClick={() => setCalendarOpen(false)}
-                className="absolute top-2 right-2 font-bold text-red-500 transition hover:text-red-600 "
-              >
-                <SquareX size={48} strokeWidth={1.5} />
-              </button>
-            </div>
-          )}
         </div>
 
         <div className="mt-6 overflow-hidden rounded-2xl border border-border">
@@ -190,68 +237,112 @@ export const PatientSchedule = () => {
                 <th className="px-4 py-3 font-medium">Día</th>
                 <th className="px-4 py-3 font-medium">Horario</th>
                 <th className="px-4 py-3 font-medium">Notas</th>
+                <th className="px-4 py-3 font-medium">Reporte</th>
                 <th className="px-4 py-3 font-medium">Finalizar</th>
                 <th className="px-4 py-3 font-medium">Contacto</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-surface">
-              {hookShifts.map((shift) => (
-                <>
-                  <tr key={shift.patient?.profile_id || shift.id} className="hover:bg-white/5">
-                    <td className="px-4 py-4 hover:bg-accent/20 rounded-lg">
-                      <button
-                        onClick={() => {
-                          setSelectedPatient({
-                            id: shift.patient?.profile_id || "",
-                            name: shift.patient?.full_name || "Sin nombre",
-                            day: shift.startTime ? formatDayMonth(shift.startTime) : "",
-                            schedule: shift.startTime && shift.endTime ? `${formatTime(shift.startTime)} - ${formatTime(shift.endTime)}` : "",
-                            notes: shift.report || "Sin notas disponibles",
-                            phone: shift.patient?.phone || "Sin teléfono disponible",
-                          });
-                          setPatientDialogOpen(true);
-                        }}
-                        className="text-left w-full px-2 py-1 transition"
-                      >
-                        
-                        <p className="text-xs text-text-secondary">
-                         {shift.caregiver?.full_name || "Sin cuidador asignado"}
-                        </p>
-                      </button>
-                    </td>
-                    <td className="px-4 py-4 text-xs text-text-secondary"> {shift.startTime ? formatDayMonth(shift.startTime) : ""} </td>
-                    <td className="px-4 py-4 text-xs text-text-secondary"> {shift.startTime && shift.endTime ? `${formatTime(shift.startTime)} - ${formatTime(shift.endTime)}` : "--"} </td>
-                    <td className="px-4 py-4 text-xs text-text-secondary">
-                      {shift.report || "Sin notas disponibles"}
-                    </td>
-                    <td className="px-4 py-4">
-                      <button
-                        onClick={() => {
-                          handleOpenEndShiftDialog(shift.id);
-                        }}
-                        className="rounded-2xl bg-primary/50 px-3 py-2 text-xs font-medium text-white transition hover:bg-primary/90"
-                      >
-                        <SquareCheckBig className="hover:text-background/95"/>
-                      </button>
-                    </td>
-                    <td className="px-4 py-4">
-                      <button
-                        onClick={() => {
-                          alert(`Llamando a ${shift.caregiver?.phone || "Número no disponible"}`);
-                        }}
-                        className="rounded-2xl bg-green-500 px-3 py-2 text-xs font-medium text-white transition hover:bg-green-600"
-                      >
-                        <MessagesSquare className="text-white" />
-                      </button>
-                    </td>
-                  </tr>
-                </>
-              ))}
+              {paginatedShifts.map((shift) => (
+                  <>
+                    <tr
+                      key={shift.patient?.profile_id || shift.id}
+                      className="hover:bg-white/5"
+                    >
+                      <td className="px-4 py-4 hover:bg-accent/20 rounded-lg">
+                        <button
+                          onClick={() => {
+                            setSelectedPatient({
+                              id: shift.patient?.profile_id || "",
+                              name: shift.patient?.full_name || "Sin nombre",
+                              day: shift.startTime
+                                ? formatDayMonth(shift.startTime)
+                                : "",
+                              schedule:
+                                shift.startTime && shift.endTime
+                                  ? `${formatTime(
+                                      shift.startTime,
+                                    )} - ${formatTime(shift.endTime)}`
+                                  : "",
+                              notes: shift.report || "Sin notas disponibles",
+                              phone:
+                                shift.patient?.phone ||
+                                "Sin teléfono disponible",
+                            });
+                            setPatientDialogOpen(true);
+                          }}
+                          className="text-left w-full px-2 py-1 transition"
+                        >
+                          <p className="text-xs font-bold text-text-secondary">
+                            {shift.caregiver?.full_name ||
+                              "Sin cuidador asignado"}
+                          </p>
+                        </button>
+                      </td>
+                      <td className="px-4 py-4 text-xs text-text-secondary">
+                        {" "}
+                        {shift.startTime
+                          ? formatDayMonth(shift.startTime)
+                          : ""}{" "}
+                      </td>
+                      <td className="px-4 py-4 text-xs text-text-secondary">
+                        {" "}
+                        {shift.startTime && shift.endTime
+                          ? `${formatTime(shift.startTime)} - ${formatTime(
+                              shift.endTime,
+                            )}`
+                          : "--"}{" "}
+                      </td>
+                      <td className="px-4 py-4 text-xs text-text-secondary">
+                        {shift.report || "Sin notas disponibles"}
+                      </td>
+                      <td className="px-4 py-4 text-xs text-text-secondary">
+                        {shift.report ? (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleOpenReportDialog(shift.report || "")
+                            }
+                            className="rounded-2xl border border-border px-3 py-2 text-xs font-medium text-text-primary transition hover:bg-accent/20"
+                          >
+                            <ZoomIn className="text-text-primary" />
+                          </button>
+                        ) : (
+                          "Sin reporte disponible"
+                        )}
+                      </td>
+                      <td className="px-4 py-4">
+                        <button
+                          onClick={() => {
+                            handleOpenEndShiftDialog(shift.id);
+                          }}
+                          className="rounded-2xl bg-primary/50 px-3 py-2 text-xs font-medium text-white transition hover:bg-primary/90"
+                        >
+                          <SquareCheckBig className="hover:text-background/95" />
+                        </button>
+                      </td>
+                      <td className="px-4 py-4">
+                        <button
+                          onClick={() => {
+                            alert(
+                              `Llamando a ${
+                                shift.caregiver?.phone || "Número no disponible"
+                              }`,
+                            );
+                          }}
+                          className="rounded-2xl bg-green-500 px-3 py-2 text-xs font-medium text-white transition hover:bg-green-600"
+                        >
+                          <MessagesSquare className="text-white" />
+                        </button>
+                      </td>
+                    </tr>
+                  </>
+                ))}
             </tbody>
           </table>
           <div className="flex flex-col gap-3 border-t border-border px-4 py-4 text-sm text-text-secondary sm:flex-row sm:items-center sm:justify-between">
             <p>
-              Mostrando {paginatedPatients.length} de {assignedPatients.length}{" "}
+              Mostrando {paginatedShifts.length} de {shiftsPending.length}{" "}
               pacientes
             </p>
             <div className="flex items-center gap-3">
@@ -280,21 +371,61 @@ export const PatientSchedule = () => {
             open={patientDialogOpen}
             onClose={() => setPatientDialogOpen(false)}
             patient={selectedPatient}
-            user={user}
-            shift={hookShifts.find((shift) => shift.patient?.profile_id === selectedPatient.id) || undefined}
+            shift={(() => {
+              const foundShift = hookShifts.find(
+                (shift) => shift.patient?.profile_id === selectedPatient.id,
+              );
+              return foundShift && foundShift.startTime && foundShift.endTime
+                ? {
+                    id: foundShift.id,
+                    caregiver_id: foundShift.caregiver?.profile_id || "",
+                    patient_id: foundShift.patient?.profile_id || "",
+                    patient_name: foundShift.patient?.full_name || "",
+                    patient_phone: foundShift.patient?.phone || "",
+                    startTime: foundShift.startTime,
+                    endTime: foundShift.endTime,
+                    location: foundShift.location || "",
+                    caregiver: foundShift.caregiver
+                      ? {
+                          full_name: foundShift.caregiver.full_name || "",
+                          phone: foundShift.caregiver.phone || "",
+                        }
+                      : undefined,
+                  }
+                : undefined;
+            })()}
           />
         )}
 
         {endShift && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-white p-6 rounded-2xl shadow-lg min-w-62.5 w-full max-w-md">
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            onClick={() => setEndShift(false)}
+          >
+            <div
+              className="relative bg-white p-6 rounded-2xl shadow-lg min-w-62.5 w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setEndShift(false)}
+                className="absolute right-4 top-4 text-text-secondary hover:text-text-primary transition-colors"
+              >
+                <XIcon size={20} />
+              </button>
               <h2 className="text-xl font-semibold mb-4">Finalizar Guardia</h2>
               <span className="text-sm text-text-secondary mb-4 block">
-                Guardia Ofrecida por : <span className="font-medium">{hookShifts.find((shift) => shift.id === selectedShiftId)?.caregiver?.full_name || "Sin cuidador asignado"}</span>
+                Guardia Ofrecida por :{" "}
+                <span className="font-medium">
+                  {hookShifts.find((shift) => shift.id === selectedShiftId)
+                    ?.caregiver?.full_name || "Sin cuidador asignado"}
+                </span>
               </span>
               <form onSubmit={handleFinalizeShift} className="space-y-4">
                 <div>
-                  <label htmlFor="rating" className="mb-2 block text-sm font-medium text-text-primary">
+                  <label
+                    htmlFor="rating"
+                    className="mb-2 block text-sm font-medium text-text-primary"
+                  >
                     Calificar:
                   </label>
                   <div className="grid max-h-56 grid-cols-[repeat(auto-fit,minmax(20px,1fr))] gap-1 overflow-y-auto rounded-2xl border border-border p-3">
@@ -320,16 +451,26 @@ export const PatientSchedule = () => {
                       );
                     })}
                   </div>
-                  <input id="rating" name="rating" type="number" value={rating} readOnly hidden />
+                  <input
+                    id="rating"
+                    name="rating"
+                    type="number"
+                    value={rating}
+                    readOnly
+                    hidden
+                  />
                 </div>
 
                 <div>
-                  <label htmlFor="report" className="mb-2 block text-sm font-medium text-text-primary">
+                  <label
+                    htmlFor="notes"
+                    className="mb-2 block text-sm font-medium text-text-primary"
+                  >
                     Comentario:
                   </label>
                   <textarea
-                    id="report"
-                    name="report"
+                    id="reports"
+                    name="reports"
                     value={report}
                     onChange={(event) => setReport(event.target.value)}
                     className="min-h-28 w-full rounded-2xl border border-border px-3 py-2 text-sm text-text-primary outline-none transition focus:border-primary"
@@ -338,8 +479,12 @@ export const PatientSchedule = () => {
                 </div>
 
                 <button
+                  disabled={
+                    !hookShifts.find((shift) => shift.id === selectedShiftId)
+                      ?.caregiver?.full_name
+                  }
                   type="submit"
-                  className="w-full rounded-2xl bg-primary px-3 py-2 text-xs font-medium text-white transition hover:bg-primary/90"
+                  className="w-full rounded-2xl bg-primary px-3 py-2 text-xs font-medium text-white transition hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Finalizar
                 </button>
@@ -348,6 +493,72 @@ export const PatientSchedule = () => {
           </div>
         )}
       </section>
+
+      {
+        <section className="mt-6 rounded-3xl border border-border bg-surface p-6 shadow-lg">
+          <h2 className="text-xl font-semibold mb-4">Calendario Completo</h2>
+          <p className="text-sm text-text-secondary mb-4">Turnos Finalizados</p>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {hookShifts
+              .filter((shift) => shift.status === "COMPLETED")
+              .map((shift) => (
+                <div
+                  key={shift.id}
+                  className="flex items-center gap-2 rounded-2xl border border-border px-3 py-2 hover:bg-accent/20 transition"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setOpenSummaryShiftId(shift.id)}
+                    className="w-full text-left rounded-lg px-2 py-1 transition"
+                  >
+                    <p className="text-sm font-medium text-text-primary">
+                      {shift.caregiver?.full_name || "Sin cuidador asignado"}
+                    </p>
+                    <p className="text-xs text-text-secondary">
+                      {shift.startTime ? formatDayMonth(shift.startTime) : ""}
+                      {shift.startTime && shift.endTime
+                        ? ` - ${formatTime(shift.startTime)} a ${formatTime(
+                            shift.endTime,
+                          )}    -`
+                        : ""}
+                      ⭐{shift.rating?.number || "-"}
+                    </p>
+                  </button>
+                  <ShiftCardDialog
+                    shift={{
+                      id: shift.id,
+                      caregiver: {
+                        full_name:
+                          shift.caregiver?.full_name || "Sin cuidador asignado",
+                      },
+                      startTime: shift.startTime,
+                      endTime: shift.endTime,
+                      rating: shift.rating || undefined,
+                      status: shift.status || "PENDING",
+                      patient: {
+                        full_name: shift.patient?.profile?.full_name || "-",
+                      },
+                      location: shift.location || "-",
+                      notes: shift.report || "-",
+                      totalHours: getTotalHours(shift.startTime, shift.endTime),
+                    }}
+                    isOpen={openSummaryShiftId === shift.id}
+                    onOpenChange={(open) =>
+                      setOpenSummaryShiftId(open ? shift.id : null)
+                    }
+                  />
+                </div>
+              ))}
+          </div>
+        </section>
+      }
+
+      <ReporteDialog
+        open={reportDialogOpen}
+        onClose={() => setReportDialogOpen(false)}
+        onSave={() => {}}
+        initialData={selectedReport}
+      />
     </>
   );
 };

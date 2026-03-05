@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 // src/modules/shifts/shifts.controller.ts
 
 import {
@@ -33,24 +32,43 @@ import { UpdateStatusDto } from './dto/update-status.dto';
 export class ShiftsController {
   constructor(private readonly shiftsService: ShiftsService) {}
 
-  // 👨‍💼 SOLO ADMIN puede crear guardias
   @Post()
-  @Roles()
+  @Roles(
+    ProfileRole.ADMIN,
+    ProfileRole.PATIENT,
+    ProfileRole.FAMILY,
+    ProfileRole.STAFF,
+  )
   create(@Body() dto: CreateShiftDto) {
     return this.shiftsService.create(dto);
   }
 
-  // 👀 ADMIN y STAFF pueden ver todas
   @Get()
   @Roles(ProfileRole.ADMIN, ProfileRole.STAFF)
-  findAll(@Query('page') page?: number, @Query('limit') limit?: number) {
-    return this.shiftsService.findAll(page, limit);
+  findAll(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('status') status?: string,
+  ) {
+    return this.shiftsService.findAll(page, limit, status);
+  }
+
+  @Get('report')
+  @Roles(ProfileRole.ADMIN)
+  findReport(@Query('from') from: string, @Query('to') to: string) {
+    return this.shiftsService.findReport(new Date(from), new Date(to));
   }
 
   @Get(':id')
   @Roles(ProfileRole.ADMIN, ProfileRole.STAFF)
   findOne(@Param('id') id: string) {
     return this.shiftsService.findOne(id);
+  }
+
+  @Get('patient/:patientId/next')
+  @Roles(ProfileRole.PATIENT)
+  findNext(@Param('patientId') patientId: string) {
+    return this.shiftsService.findNext(patientId);
   }
 
   @Get('patient/:patientId')
@@ -61,22 +79,14 @@ export class ShiftsController {
     ProfileRole.FAMILY,
     ProfileRole.PATIENT,
   )
-  findByPatient(
-    @Param('patientId') patientId: string,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-  ) {
-    return this.shiftsService.findByPatient(patientId, page, limit);
+  findByPatient(@Param('patientId') patientId: string) {
+    return this.shiftsService.findByPatient(patientId);
   }
 
   @Get('caregiver/:caregiverProfileId')
   @Roles(ProfileRole.ADMIN, ProfileRole.STAFF, ProfileRole.CAREGIVER)
-  findByCaregiver(
-    @Param('caregiverProfileId') caregiverProfileId: string,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-  ) {
-    return this.shiftsService.findByCaregiver(caregiverProfileId, page, limit);
+  findByCaregiver(@Param('caregiverProfileId') caregiverProfileId: string) {
+    return this.shiftsService.findByCaregiver(caregiverProfileId);
   }
 
   @Patch(':id')
@@ -86,7 +96,7 @@ export class ShiftsController {
   }
 
   @Patch(':id/status')
-  @Roles(ProfileRole.ADMIN)
+  @Roles(ProfileRole.ADMIN, ProfileRole.PATIENT, ProfileRole.FAMILY)
   updateStatus(@Param('id') id: string, @Body() dto: UpdateStatusDto) {
     return this.shiftsService.updateStatus(id, dto);
   }

@@ -1,16 +1,25 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useUser } from "../user/useUser";
 import { usePatient } from "./usePatient";
-import { createShift, getPatientShifts, type CreateShiftRequest } from "../../api/patient/shifts";
+import {
+  createShift,
+  getPatientShifts,
+  type CreateShiftRequest,
+} from "../../api/patient/shifts";
+import { api } from "../../lib/axios/api";
+import { getNextShift } from "../../api/patient/getNextShift";
+import { toast } from "sonner";
 
 export const useShifts = () => {
   const { data: patient } = usePatient();
+  const { data: user } = useUser();
   const queryClient = useQueryClient();
 
   // Obtener shifts
   const shiftsQuery = useQuery({
     queryKey: ["shifts", patient?.profile_id],
     queryFn: () => getPatientShifts(patient?.profile_id as string),
-    enabled: !!patient?.profile_id,
+    enabled: !!patient?.profile_id && user?.role === "PATIENT",
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 10,
     retry: 1,
@@ -26,8 +35,7 @@ export const useShifts = () => {
         throw new Error("No se pudo identificar el paciente autenticado");
       }
 
-      // Convertir datetime-local a ISO string si es necesario
-      const startTime = data.start_time.includes("T") 
+      const startTime = data.start_time.includes("T")
         ? new Date(data.start_time).toISOString()
         : data.start_time;
       const endTime = data.end_time.includes("T")
@@ -42,11 +50,13 @@ export const useShifts = () => {
       });
     },
     onSuccess: () => {
-      // Refrescar la lista de shifts
-      queryClient.invalidateQueries({ queryKey: ["shifts", patient?.profile_id] });
+      toast.success("Solicitud enviada correctamente");
+      queryClient.invalidateQueries({
+        queryKey: ["shifts", patient?.profile_id],
+      });
     },
-    onError: (error: any) => {
-      console.error("Error creating shift:", error);
+    onError: (error: Error) => {
+      toast.error(error.message);
     },
   });
 
@@ -55,8 +65,46 @@ export const useShifts = () => {
     isLoading: shiftsQuery.isLoading,
     isError: shiftsQuery.isError,
     error: shiftsQuery.error,
-    createShift: createShiftMutation.mutate,
+    createShift: createShiftMutation.mutateAsync,
     isCreating: createShiftMutation.isPending,
     createError: createShiftMutation.error,
   };
+};
+
+export const useFinalizeShift = () => {
+  const queryClient = useQueryClient();
+  const { data: patient } = usePatient();
+
+  return useMutation({
+    mutationFn: async (payload: {
+      shiftId: string;
+      number: number;
+      notes: string;
+    }) => {
+      const response = await api.post("/ratings", payload);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["shifts", patient?.profile_id],
+      });
+    },
+  });
+};
+
+export const useNextShift = () => {
+  const { data: patient } = usePatient();
+  const { data: user } = useUser();
+
+  return useQuery({
+    queryKey: ["next-shift", patient?.profile_id],
+    queryFn: () => getNextShift(patient?.profile_id as string),
+    enabled: !!patient?.profile_id && user?.role === "PATIENT",
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
 };

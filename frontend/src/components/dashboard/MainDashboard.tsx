@@ -4,23 +4,18 @@ import { PanelCaregiver } from "../../views/caregiver/PanelCaregiver";
 import { PanelAdmin } from "../../views/admin/PanelAdmin";
 import { useUser } from "../../hooks";
 import { PanelPatient } from "../../views";
+import { Footer } from "../footer/Footer";
 
 
 export function MainDashboard() {
-  const { data:user } = useUser(); // "ADMIN", "CAREGIVER", etc.
+  const { data:user } = useUser(); 
   const role = user?.role
   const location = useLocation();
-
-  const defaultView =
-    // role === "ADMIN" ? (
-    //   <PanelAdmin />
-    // ) : user ? (
-    //   <PanelCaregiver user={user} />
-    // ) : null;
+const defaultView =
     role === "ADMIN" ? (
           <PanelAdmin />
         ) : role === "CAREGIVER" ? (
-          <PanelCaregiver user={user} />
+          <PanelCaregiver />
         ) : role === "PATIENT" || role === "FAMILY" ? (
           <PanelPatient />
         ) : null;
@@ -28,11 +23,14 @@ export function MainDashboard() {
   const locationMatchesChildRoute = location.pathname !== "/dashboard";
 
   return (
-    <div className="flex">
+    <div className="flex bg-background min-h-screen">
       <Sidebar />
-      <main className="flex-1">
-        <Outlet context={{ role, user }} /> {/* rutas hijas */}
-        {!locationMatchesChildRoute && defaultView}
+      <main className="flex-1 flex flex-col w-full">
+        <div className="flex-1 p-6 lg:p-10">
+          <Outlet context={{ role, user }} />
+          {!locationMatchesChildRoute && defaultView}
+        </div>
+        <Footer />
       </main>
     </div>
   );

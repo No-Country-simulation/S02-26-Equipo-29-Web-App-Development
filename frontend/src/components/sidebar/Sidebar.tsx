@@ -8,6 +8,8 @@ import {
   LogOutIcon,
   type LucideIcon,
   CalendarIcon,
+  DollarSign,
+  FileText,
 } from "lucide-react";
 import { DashboardLink } from "../UI/DashboardLink";
 import { useUser } from "../../hooks";
@@ -19,17 +21,18 @@ const navLinks: Record<
 > = {
   ADMIN: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
-    { title: "Cuidados", href: "/appointments", icon: CalendarIcon },
+    { title: "Agenda", href: "/appointments", icon: CalendarIcon },
     { title: "Registro", href: "/registration", icon: UserPlusIcon },
     { title: "Pacientes", href: "/patients", icon: UserIcon },
     { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
-    { title: "Métricas", href: "/metrics", icon: TrendingUpIcon },
-    { title: "Administradores", href: "/admins", icon: UserPlusIcon },
+    { title: "Sueldos", href: "/payrolls", icon: DollarSign },
+    { title: "Reportes", href: "/reports", icon: FileText },
   ],
   CAREGIVER: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
     { title: "Agenda", href: "/agenda", icon: CalendarIcon },
     { title: "Mi Información", href: "/caregiver_info", icon: UserPlusIcon },
+    { title: "Mis Sueldos", href: "/caregiver/payrolls", icon: DollarSign },
   ],
   FAMILY: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
@@ -89,12 +92,21 @@ export function Sidebar() {
         </ul>
       </nav>
 
+      <div className="p-2 border-t border-gray-100 flex-shrink-0 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        {user && (
+          <div className="flex flex-col items-center justify-center">
+            <p className="text-xs text-gray-500">{user?.full_name}</p>
+            <p className="text-xs text-gray-500">{user?.email}</p>
+          </div>
+        )}
+      </div>
+
       {/* Logout */}
       <div className="p-2 border-t border-gray-100 flex-shrink-0 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
         <button
           onClick={() => {
             localStorage.removeItem("userToken");
-            queryClient.invalidateQueries({ queryKey: ["user"] });
+            queryClient.clear();
             navigate("/login");
           }}
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2 cursor-pointer

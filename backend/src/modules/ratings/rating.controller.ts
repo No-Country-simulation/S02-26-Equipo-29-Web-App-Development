@@ -25,16 +25,14 @@ import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 export class RatingsController {
   constructor(private readonly ratingsService: RatingsService) {}
 
-  // ⭐ Solo PATIENT puede crear rating
   @Roles(ProfileRole.PATIENT)
   @Post()
   async create(
     @Body() dto: CreateRatingDto,
     @Req() req: Request & { user: JwtPayload },
-  ): Promise<Rating> {
+  ): Promise<Rating | null> {
     const user = req.user;
-
-    return this.ratingsService.create(dto, user.sub);
+    return this.ratingsService.create(dto, user.profileId);
   }
 
   // 🔎 Obtener rating por shift

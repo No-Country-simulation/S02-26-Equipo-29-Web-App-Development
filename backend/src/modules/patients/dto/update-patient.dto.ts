@@ -1,6 +1,11 @@
-import { IsOptional, IsString, IsDateString } from 'class-validator';
+import { IsOptional, IsString, IsDateString, IsEnum } from 'class-validator';
+import { PatientStatus } from '../enums/patient-status-enum';
 
 export class UpdatePatientDto {
+  @IsOptional()
+  @IsString({ message: 'El nombre completo debe ser una cadena de texto' })
+  full_name?: string;
+
   @IsOptional()
   @IsString({ message: 'El DNI debe ser una cadena de texto' })
   dni?: string;
@@ -16,4 +21,12 @@ export class UpdatePatientDto {
   @IsOptional()
   @IsString({ message: 'Las notas deben ser una cadena de texto' })
   notes?: string;
+
+  @IsOptional()
+  @IsEnum(PatientStatus, { message: 'El estado no es válido' })
+  status?: PatientStatus;
+
+  @IsOptional()
+  @IsString({ message: 'El teléfono debe ser una cadena de texto' })
+  phone?: string;
 }

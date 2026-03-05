@@ -1,0 +1,38 @@
+PatientDocument:
+  type: object
+  properties:
+    id:
+      type: string
+    document_type:
+      type: string
+    file_url:
+      type: string
+    status:
+      type: string
+      enum: [pending, approved, rejected]
+    uploaded_at:
+      type: string
+      format: date-time
+    patientProfileId:
+      type: string
+
+PatientDocumentCreateRequest:
+  type: object
+  required:
+    - document_type
+    - file_url
+    - patientProfileId
+  properties:
+    document_type:
+      type: string
+    file_url:
+      type: string
+    patientProfileId:
+      type: string
+
+PatientDocumentUpdateRequest:
+  type: object
+  properties:
+    status:
+      type: string
+      enum: [pending, approved, rejected]

@@ -6,10 +6,17 @@ import { Patient } from '../patients/patient.entity';
 import { Caregiver } from '../caregivers/caregiver.entity';
 import { CaregiverDocument } from '../caregivers/caregiver-document.entity';
 import { Shift } from '../shifts/shift.entity';
+import { Rating } from '../ratings/rating.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Patient, Caregiver, CaregiverDocument, Shift]),
+    TypeOrmModule.forFeature([
+      Patient,
+      Caregiver,
+      CaregiverDocument,
+      Shift,
+      Rating,
+    ]),
   ],
   controllers: [AdminController],
   providers: [AdminService],

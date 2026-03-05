@@ -1,23 +1,25 @@
-import type { Caregiver } from "../../types/index";
-import type { User } from "../../types/index";
-
 type PatientDialogProps = {
   open: boolean;
   onClose: () => void;
   patient: {
     id: string;
     name: string;
-    start_time: string;
-    end_time: string;
+    day?: string;
+    schedule?: string;
     notes: string;
     phone: string;
+    profile?: {
+      profile_id: string;
+      full_name: string;
+      phone: string;
+    };
   };
-  caregiver?: Caregiver;
-  user?: User;
   shift?: {
     id: string;
     caregiver_id: string;
     patient_id: string;
+    patient_name?: string;
+    patient_phone?: string;
     startTime: string;
     endTime: string;
     location: string;
@@ -28,11 +30,6 @@ type PatientDialogProps = {
         full_name: string;
       };
     };
-  profile?: {
-    profile_id: string;
-    full_name: string;
-    phone: string;
-    };
   };
 };
 
@@ -40,8 +37,6 @@ export const Patient = ({
   open,
   onClose,
   patient,
-  caregiver,
-  user,
   shift,
 }: PatientDialogProps) => {
   if (!open) return null;
@@ -54,7 +49,9 @@ export const Patient = ({
             <p className="text-xs uppercase tracking-[0.4em] text-text-secondary">
               Ficha del paciente
             </p>
-            <h2 className="mt-2 text-2xl font-semibold">{patient.name}</h2>
+            <h2 className="mt-2 text-2xl font-semibold">
+              {shift?.patient_name || patient.name}
+            </h2>
             <p className="text-sm text-text-secondary">ID {patient.id}</p>
           </div>
           <button
@@ -71,9 +68,20 @@ export const Patient = ({
             <p className="text-xs uppercase tracking-[0.3em] text-text-secondary">
               Cuidador asignado
             </p>
-            <p className="mt-2 font-medium">{shift?.caregiver?.profile?.full_name || shift?.caregiver?.full_name|| "Sin cuidador asignado"}</p>
+            <p className="mt-2 font-medium">
+              {shift?.caregiver?.profile?.full_name ||
+                shift?.caregiver?.full_name ||
+                "Sin cuidador asignado"}
+            </p>
             <p className="text-text-secondary">
-              Turno: {shift ? `${new Date(shift.start_time || shift.startTime).toLocaleTimeString()} - ${new Date(shift.end_time || shift.endTime).toLocaleTimeString()}` : "Sin turno asignado"}
+              Turno:{" "}
+              {shift
+                ? `${new Date(
+                    shift.startTime,
+                  ).toLocaleTimeString()} - ${new Date(
+                    shift.endTime,
+                  ).toLocaleTimeString()}`
+                : "Sin turno asignado"}
             </p>
           </div>
 
@@ -81,11 +89,6 @@ export const Patient = ({
             <p className="text-xs uppercase tracking-[0.3em] text-text-secondary">
               Medicación
             </p>
-            {/* <ul className="mt-2 list-disc space-y-1 pl-5">
-              {patient.medications.map((med) => (
-                <li key={med}>{med}</li>
-              ))}
-            </ul> */}
           </div>
 
           <div className="rounded-2xl border border-border bg-background p-4">
@@ -106,13 +109,10 @@ export const Patient = ({
             <p className="text-xs uppercase tracking-[0.3em] text-text-secondary">
               Contacto de emergencia
             </p>
-            <p className="mt-2 font-medium">{patient.name}</p>
-            {/* <p className="text-[var(--color-text-secondary)]">
-              Relación: {patient.emergencyContact.relation}
-            </p> */}
+            <p className="mt-2 font-medium">{shift?.patient_name || patient.name}</p>
             <p>
               Teléfono:{" "}
-              <span className="font-medium text-primary">{patient.phone}</span>
+              <span className="font-medium text-primary">{shift?.patient_phone ? shift?.patient_phone : patient?.phone}</span>
             </p>
           </div>
         </div>
