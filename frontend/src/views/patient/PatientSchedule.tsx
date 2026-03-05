@@ -15,6 +15,7 @@ import { ReporteDialog } from "../../components/caregiver/Reporte";
 import { ShiftCardDialog } from "../../components/shifts/summaryShift";
 import { Calendar } from "../../components/UI/Calendar";
 import { Header } from "../../components/UI/Headers";
+import { ButtonNewShift } from "../../components/UI/ButtonNewShift";
 
 export const PatientSchedule = () => {
   const { shifts: hookShifts, isLoading } = useShifts();
@@ -195,6 +196,8 @@ export const PatientSchedule = () => {
         title="Mi Calendario" 
         description="Seguimiento detallado de tus turnos y visitas" 
       />
+
+      <ButtonNewShift />
 
       <section className=" rounded-3xl border border-border bg-surface p-6 shadow-lg">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

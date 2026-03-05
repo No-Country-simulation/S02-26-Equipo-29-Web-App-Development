@@ -41,7 +41,7 @@ export  function Info() {
                                         { label: 'Alias Mercado Pago', value: caregiverData?.mercado_pago_alias || 'No registrado' },
                                         { label: 'Tarifa por hora', value: caregiverData?.hourly_rate ? `$${caregiverData?.hourly_rate}/hora` : 'No registrada' },
                                     ].map((item) => (
-                                        <article key={item.label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                                        <article key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                                             <p className="text-xs uppercase tracking-wide text-slate-400">{item.label}</p>
                                             <p className="text-base font-medium text-slate-900">{item.value}</p>
                                         </article>
@@ -58,7 +58,7 @@ export  function Info() {
                                         {label: "Email", value: user?.email || "No registrado"}
                                         
                                     ].map((item) => (
-                                        <article key={item.label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                                        <article key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                                             <p className="text-xs uppercase tracking-wide text-slate-400">{item.label}</p>
                                             <p className="text-base font-medium text-slate-900">{item.value}</p>
                                         </article>

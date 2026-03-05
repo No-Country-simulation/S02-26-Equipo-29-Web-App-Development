@@ -4,6 +4,7 @@ import { Documents, Info } from '../../components';
 import { Shifts } from '../../components/shifts/Shifts';
 import { Header } from '../../components/UI/Headers';
 import { useShifts } from "../../hooks/patient/useShifts";
+import { ButtonNewShift } from '../../components/UI/ButtonNewShift';
   
   export interface Document {
       id: string;
@@ -60,7 +61,9 @@ export const PatientInfo: React.FC = () => {
             description="Información personal y documentos médicos" 
           />
 
-          <div className="h-auto bg-background px-4 py-8 text-slate-900 border border-slate-200 rounded-3xl shadow-lg">
+          <ButtonNewShift />
+
+          <div className="h-auto bg-white px-4 py-8 text-slate-900 border border-slate-200 rounded-3xl shadow-lg">
               <div className="mx-auto max-w-5xl space-y-8">
                   
   
@@ -76,7 +79,7 @@ export const PatientInfo: React.FC = () => {
                               className={`rounded-2xl border px-4 py-2 text-sm font-medium shadow-sm transition ${
                                   activeTab === tab.id
                                       ? 'border-primary bg-primary text-white'
-                                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                                      : 'border-slate-200 bg-background text-slate-600 hover:border-slate-300'
                               }`}
                           >
                               {tab.label}
