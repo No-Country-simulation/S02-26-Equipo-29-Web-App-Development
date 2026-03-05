@@ -53,6 +53,12 @@ export class ShiftsController {
     return this.shiftsService.findAll(page, limit, status);
   }
 
+  @Get('report')
+  @Roles(ProfileRole.ADMIN)
+  findReport(@Query('from') from: string, @Query('to') to: string) {
+    return this.shiftsService.findReport(new Date(from), new Date(to));
+  }
+
   @Get(':id')
   @Roles(ProfileRole.ADMIN, ProfileRole.STAFF)
   findOne(@Param('id') id: string) {

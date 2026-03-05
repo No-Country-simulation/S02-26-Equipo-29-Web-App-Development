@@ -26,4 +26,18 @@ export class ProfilesService {
       relations: ['user'],
     });
   }
+
+  findReport(from: Date, to: Date) {
+    return this.profileRepo
+      .createQueryBuilder('profile')
+      .leftJoin('profile.user', 'user')
+      .where('profile.created_at >= :from', { from })
+      .andWhere('profile.created_at <= :to', { to })
+      .andWhere('profile.role IN (:...roles)', { roles: ['PATIENT', 'CAREGIVER'] })
+      .select('profile.full_name', 'full_name')
+      .addSelect('profile.role', 'role')
+      .addSelect('user.email', 'email')
+      .addSelect('profile.created_at', 'created_at')
+      .getRawMany();
+  }
 }

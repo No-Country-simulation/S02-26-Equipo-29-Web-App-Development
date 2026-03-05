@@ -136,4 +136,29 @@ export class PayrollsService {
   async remove(id: string): Promise<void> {
     await this.payrollRepository.delete(id);
   }
+
+  async findReport(from: Date, to: Date): Promise<any[]> {
+    return this.payrollRepository
+      .createQueryBuilder('payroll')
+      .leftJoin('payroll.caregiver', 'caregiver')
+      .leftJoin('caregiver.profile', 'profile')
+      .leftJoin('payroll.payment', 'payment')
+      .where('payroll.created_at >= :from', { from })
+      .andWhere('payroll.created_at <= :to', { to })
+      .select('caregiver.profile_id', 'profile_id')
+      .addSelect('profile.full_name', 'full_name')
+      .addSelect('caregiver.cbu', 'cbu')
+      .addSelect('caregiver.mercado_pago_alias', 'mercado_pago_alias')
+      .addSelect('SUM(payroll.total_hours)', 'totalHours')
+      .addSelect('SUM(payroll.total_amount)', 'totalAmount')
+      .addSelect('payroll.status', 'status')
+      .addSelect('payment.paid_at', 'paid_at')
+      .groupBy('caregiver.profile_id')
+      .addGroupBy('profile.full_name')
+      .addGroupBy('payroll.status')
+      .addGroupBy('payment.paid_at')
+      .addGroupBy('caregiver.cbu')
+      .addGroupBy('caregiver.mercado_pago_alias')
+      .getRawMany();
+  }
 }

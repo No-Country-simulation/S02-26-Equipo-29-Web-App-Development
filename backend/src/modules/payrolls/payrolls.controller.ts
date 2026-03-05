@@ -35,4 +35,10 @@ export class PayrollsController {
       status || 'pending',
     );
   }
+  @UseGuards(JwtAuthGuard)
+  @Roles(ProfileRole.ADMIN)
+  @Get('report')
+  findReport(@Query('from') from: string, @Query('to') to: string) {
+    return this.payrollsService.findReport(new Date(from), new Date(to));
+  }
 }
