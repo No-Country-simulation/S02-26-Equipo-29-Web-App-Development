@@ -61,7 +61,7 @@ export function Appointments() {
     }
   };
 
-console.log(shifts)
+
   return (
     <div className="p-5 bg-background min-h-screen">
       <header className="rounded-3xl border border-border bg-surface p-8 shadow-xl relative overflow-hidden group">

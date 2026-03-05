@@ -1,5 +1,0 @@
-﻿
-> frontend@0.0.0 build
-> tsc -b && vite build
-
-src/views/caregiver/AgendaCaregiver.tsx(4,1): error TS6133: 'useUser' is declared but its value is never read.

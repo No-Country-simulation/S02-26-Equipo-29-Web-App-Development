@@ -9,6 +9,7 @@ import {
   type LucideIcon,
   CalendarIcon,
   DollarSign,
+  FileText,
 } from "lucide-react";
 import { DashboardLink } from "../UI/DashboardLink";
 import { useUser } from "../../hooks";
@@ -20,11 +21,12 @@ const navLinks: Record<
 > = {
   ADMIN: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
-    { title: "Cuidados", href: "/appointments", icon: CalendarIcon },
+    { title: "Agenda", href: "/appointments", icon: CalendarIcon },
     { title: "Registro", href: "/registration", icon: UserPlusIcon },
     { title: "Pacientes", href: "/patients", icon: UserIcon },
     { title: "Cuidadores", href: "/caregivers", icon: UserCogIcon },
     { title: "Sueldos", href: "/payrolls", icon: DollarSign },
+    { title: "Reportes", href: "/reports", icon: FileText },
   ],
   CAREGIVER: [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },

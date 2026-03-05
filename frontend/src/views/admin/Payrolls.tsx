@@ -55,7 +55,7 @@ export function Payrolls() {
 
   const payrolls = data?.payrolls || [];
   const meta = data?.meta || { total: 0, page: 1, lastPage: 1 };
-  console.log(payrolls);
+
   return (
     <div className="p-5 bg-background space-y-6">
       <header className="rounded-3xl border border-border bg-surface p-8 shadow-xl relative overflow-hidden group">

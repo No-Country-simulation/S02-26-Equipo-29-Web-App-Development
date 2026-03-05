@@ -308,4 +308,22 @@ export class ShiftsService {
     const shift = await this.findOne(id);
     await this.shiftRepository.remove(shift);
   }
+
+  // 📊 REPORT
+  async findReport(from: Date, to: Date): Promise<Shift[]> {
+    return this.shiftRepository.find({
+      where: {
+        start_time: MoreThan(from),
+        end_time: LessThan(to),
+      },
+      relations: [
+        'caregiver',
+        'caregiver.profile',
+        'patient',
+        'patient.profile',
+        'rating',
+      ],
+      order: { start_time: 'ASC' },
+    });
+  }
 }

@@ -10,6 +10,7 @@ import {
   Patients,
   PatientSchedule,
   Payrolls,
+  Reports,
   Registration,
   PayrollsCaregiver,
 } from "../views";
@@ -87,7 +88,11 @@ export const router = createBrowserRouter([
       {
         path: "/caregiver/payrolls",
         element: <PayrollsCaregiver />,
-      }
+      },
+      {
+        path: "/reports",
+        element: <Reports />,
+      },
     ],
   },
 ]);
