@@ -1,0 +1,7 @@
+﻿
+> frontend@0.0.0 build
+> tsc -b && vite build
+
+src/components/dashboard/MainDashboard.tsx(18,27): error TS2322: Type '{ user: any; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'user' does not exist on type 'IntrinsicAttributes'.
+src/views/caregiver/AgendaCaregiver.tsx(13,17): error TS6133: 'user' is declared but its value is never read.

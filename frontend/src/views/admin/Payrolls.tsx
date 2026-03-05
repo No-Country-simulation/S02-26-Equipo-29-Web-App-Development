@@ -101,10 +101,10 @@ export function Payrolls() {
             <table className="min-w-full divide-y divide-border text-sm">
               <thead className="bg-background/50 text-left text-text-secondary uppercase tracking-widest text-[10px] font-bold">
                 <tr>
-                  <th className="px-6 py-4">Cuidador</th>
-                  <th className="px-6 py-4">Horas Totales</th>
-                  <th className="px-6 py-4">Monto a Liquidar</th>
-                  <th className="px-6 py-4 text-left">Estado</th>
+                  <th className="px-6 py-4 text-center">Cuidador</th>
+                  <th className="px-6 py-4 text-center">Horas Totales</th>
+                  <th className="px-6 py-4 text-center">Monto a Liquidar</th>
+                  <th className="px-6 py-4 text-center">Estado</th>
                   <th className="px-6 py-4 text-center">OPERACIONES</th>
                 </tr>
               </thead>
@@ -115,8 +115,8 @@ export function Payrolls() {
                       key={`${payroll.profile_id}-${payroll.status}-${index}`}
                       className="hover:bg-primary/5 transition-all group"
                     >
-                      <td className="px-6 py-5">
-                        <div className="flex items-center gap-4">
+                      <td className="px-6 py-5 text-center">
+                        <div className="flex items-center gap-4 justify-center">
                           <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-primary to-primary/40 flex items-center justify-center text-white font-bold shadow-lg ring-2 ring-primary/10 group-hover:scale-105 transition-transform">
                             {takeFirstLetters(payroll.full_name)}
                           </div>
@@ -139,7 +139,7 @@ export function Payrolls() {
                         </div>
                       </td>
                       <td className="px-6 py-5 text-center">
-                        <div className="flex flex-col items-start">
+                        <div className="flex flex-col items-center">
                           <span className="font-black text-xl text-text-primary tracking-tight">
                             {Number(payroll.totalHours).toFixed(1)}
                           </span>
@@ -148,8 +148,8 @@ export function Payrolls() {
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-5">
-                        <div className="flex flex-col items-start">
+                      <td className="px-6 py-5 text-center">
+                        <div className="flex flex-col items-center">
                           <span className="font-black text-xl text-primary tracking-tight">
                             ${Number(payroll.totalAmount).toLocaleString()}
                           </span>
@@ -158,7 +158,7 @@ export function Payrolls() {
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-5">
+                      <td className="px-6 py-5 text-center">
                         <span
                           className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm ${getStatusColor(
                             payroll.status,
@@ -167,7 +167,7 @@ export function Payrolls() {
                           {translateStatus(payroll.status)}
                         </span>
                       </td>
-                      <td className="px-6 py-5 text-right">
+                      <td className="px-6 py-5 text-center">
                        { payroll.status === "pending" ? <button
                           onClick={() => handleSelectPayroll(payroll)}
                           className="relative overflow-hidden cursor-pointer bg-surface hover:bg-primary hover:text-white border-2 border-border hover:border-primary rounded-2xl px-8 py-2.5 text-xs font-black uppercase tracking-widest transition-all hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] active:scale-95 group"

@@ -5,6 +5,7 @@ interface NextShiftResponse {
     phone: string;
     profile: {
       full_name: string;
+       phone: string;
     };
   };
   start_time: string;

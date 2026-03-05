@@ -115,6 +115,7 @@ export const getPatientShifts = async (patientId: string): Promise<Shift[]> => {
   const response = await api.get<PaginatedShiftsResponse>(
     `/shifts/patient/${patientId}`,
   );
+  console.log(response.data.data);
   return response.data.data.map(mapShift);
 };
 

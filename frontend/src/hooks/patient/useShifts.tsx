@@ -65,7 +65,7 @@ export const useShifts = () => {
     isLoading: shiftsQuery.isLoading,
     isError: shiftsQuery.isError,
     error: shiftsQuery.error,
-    createShift: createShiftMutation.mutate,
+    createShift: createShiftMutation.mutateAsync,
     isCreating: createShiftMutation.isPending,
     createError: createShiftMutation.error,
   };

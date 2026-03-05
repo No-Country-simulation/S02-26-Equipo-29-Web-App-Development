@@ -128,20 +128,20 @@ console.log(shifts)
                 <span className="xs:hidden">Asig.</span>
               </button>
               <button
-                onClick={() => setFilter("REJECTED")}
+                onClick={() => setFilter("CANCELLED")}
                 className={`cursor-pointer transition-all duration-200 hover:bg-red-500/20 rounded-2xl border border-border bg-background px-4 py-2 text-xs sm:text-sm font-medium flex items-center gap-2 ${
-                  filter === "REJECTED"
+                  filter === "CANCELLED"
                     ? "bg-red-500/10 text-red-500 border-red-500/50"
                     : "text-text-secondary"
                 }`}
               >
                 <Circle
                   className={`w-2 h-2 ${
-                    filter === "REJECTED" ? "fill-red-500" : "fill-red-500/50"
+                    filter === "CANCELLED" ? "fill-red-500" : "fill-red-500/50"
                   }`}
                 />
-                <span className="hidden xs:inline">Rechazadas</span>
-                <span className="xs:hidden">Rech.</span>
+                <span className="hidden xs:inline">Canceladas</span>
+                <span className="xs:hidden">Canc.</span>
               </button>
               <button
                 onClick={() => setFilter("COMPLETED")}
@@ -172,22 +172,22 @@ console.log(shifts)
           <table className="min-w-full divide-y divide-border text-sm">
             <thead className="bg-background/50 text-left text-text-secondary uppercase tracking-widest text-[10px] font-bold">
               <tr>
-                <th className="px-6 py-4 font-semibold tracking-wider ">
+                <th className="px-6 py-4 font-semibold tracking-wider text-center ">
                   Paciente
                 </th>
-                <th className="px-6 py-4 font-semibold tracking-wider ">
+                <th className="px-6 py-4 font-semibold tracking-wider text-center">
                   Fecha
                 </th>
-                <th className="px-6 py-4 font-semibold tracking-wider ">
+                <th className="px-6 py-4 font-semibold tracking-wider text-center">
                   Horario
                 </th>
-                <th className="px-6 py-4 font-semibold tracking-wider ">
+                <th className="px-6 py-4 font-semibold tracking-wider text-center">
                  Notas
                 </th>
-                <th className="px-6 py-4 font-semibold tracking-wider ">
+                <th className="px-6 py-4 font-semibold tracking-wider text-center">
                   Cuidador
                 </th>
-                <th className="px-6 py-4 font-semibold tracking-wider ">
+                <th className="px-6 py-4 font-semibold tracking-wider text-center">
                   Estado
                 </th>
                 <th className="px-6 py-4 font-semibold tracking-wider text-center">
@@ -201,7 +201,7 @@ console.log(shifts)
                   key={shift.id}
                   className="hover:bg-primary/5 transition-all group"
                 >
-                  <td className="px-6 py-5">
+                  <td className="px-6 py-5 ">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-primary to-primary/40 flex items-center justify-center text-white font-bold shadow-lg ring-2 ring-primary/10 group-hover:scale-105 transition-transform">
                         {takeFirstLetters(
@@ -213,23 +213,23 @@ console.log(shifts)
                       </p>
                     </div>
                   </td>
-                  <td className="px-6 py-5">
+                  <td className="px-6 py-5 text-center">
                     <p className="text-text-secondary  whitespace-nowrap">
                       {formatDateSafe(shift.start_time || "")}
                     </p>
                   </td>
-                  <td className="px-6 py-5 text-text-secondary  whitespace-nowrap">
+                  <td className="px-6 py-5 text-center text-text-secondary  whitespace-nowrap">
                     {formatTime(shift.start_time || "")} -{" "}
                     {formatTime(shift.end_time || "")}
                   </td>
-                  <td className="px-6 py-5  whitespace-nowrap">
+                  <td className="px-6 py-5 text-center whitespace-nowrap">
                     <span className="text-text-primary">
                       {shift.service || "general" }
                     </span>
                   </td>
-                  <td className="px-6 py-5 ">
+                  <td className="px-6 py-5 text-center">
                     {shift.caregiver ? (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 justify-center">
                         <span className="text-text-secondary text-sm">
                           {shift.caregiver?.profile?.full_name}
                         </span>
@@ -244,7 +244,7 @@ console.log(shifts)
                       </button>
                     )}
                   </td>
-                  <td className="px-6 py-5">
+                  <td className="px-6 py-5 text-center">
                     <span
                       className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm ring-1 ring-inset ${getStatusColorShift(
                         shift.status,
@@ -253,7 +253,7 @@ console.log(shifts)
                       {translateStatusShift(shift.status)}
                     </span>
                   </td>
-                  <td className="px-6 py-5">
+                  <td className="px-6 py-5 text-center">
                     <div className="flex gap-3 justify-center">
                       <button
                         disabled={shift.status !== "PENDING"}

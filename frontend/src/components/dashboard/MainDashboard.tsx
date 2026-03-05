@@ -15,7 +15,7 @@ const defaultView =
     role === "ADMIN" ? (
           <PanelAdmin />
         ) : role === "CAREGIVER" ? (
-          <PanelCaregiver user={user} />
+          <PanelCaregiver />
         ) : role === "PATIENT" || role === "FAMILY" ? (
           <PanelPatient />
         ) : null;

@@ -6,6 +6,7 @@ interface ShiftDay {
     startTime?: string;
     end_time?: string;
     endTime?: string;
+    status?: string;
 }
 
 interface OverviewProps {
@@ -15,6 +16,24 @@ interface OverviewProps {
 
 const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+/** Returns Tailwind classes based on the dominant status for a given day */
+const getDayStyles = (status: string | undefined): { border: string; bg: string; text: string; badge: string } => {
+    switch (status) {
+        case 'ASSIGNED':
+            return { border: 'border-green-400/60', bg: 'bg-green-400/10', text: 'text-green-600', badge: 'bg-green-500' };
+        case 'COMPLETED':
+            return { border: 'border-blue-400/60', bg: 'bg-blue-400/10', text: 'text-blue-600', badge: 'bg-blue-500' };
+        case 'CANCELLED':
+        case 'REJECTED':
+            return { border: 'border-red-400/60', bg: 'bg-red-400/10', text: 'text-red-600', badge: 'bg-red-500' };
+        case 'IN_PROGRESS':
+            return { border: 'border-yellow-400/60', bg: 'bg-yellow-400/10', text: 'text-yellow-600', badge: 'bg-yellow-500' };
+        case 'PENDING':
+        default:
+            return { border: 'border-primary/40', bg: 'bg-primary/10', text: 'text-primary', badge: 'bg-primary' };
+    }
+};
 
 export const Overview: React.FC<OverviewProps> = ({ shiftDays = [], isLoading = false }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -67,6 +86,7 @@ export const Overview: React.FC<OverviewProps> = ({ shiftDays = [], isLoading = 
             return {
                 start: new Date(startValue),
                 end: endValue ? new Date(endValue) : null,
+                status: shift.status,
             };
         })
         .filter(
@@ -75,6 +95,7 @@ export const Overview: React.FC<OverviewProps> = ({ shiftDays = [], isLoading = 
             ): shift is {
                 start: Date;
                 end: Date | null;
+                status: string | undefined;
             } => Boolean(shift),
         );
 
@@ -105,6 +126,17 @@ export const Overview: React.FC<OverviewProps> = ({ shiftDays = [], isLoading = 
             .sort((a, b) => a.start.getTime() - b.start.getTime())[0];
 
         return `${formatHour(firstShift.start)} - ${formatHour(firstShift.end)}`;
+    };
+
+    /** Returns the "dominant" status for a day (priority: IN_PROGRESS > ASSIGNED > PENDING > COMPLETED > CANCELLED) */
+    const getDayStatus = (day: number): string | undefined => {
+        const dayShifts = shiftsForDay(day);
+        if (dayShifts.length === 0) return undefined;
+        const priority = ['IN_PROGRESS', 'ASSIGNED', 'PENDING', 'COMPLETED', 'CANCELLED', 'REJECTED'];
+        for (const p of priority) {
+            if (dayShifts.some(s => s.status === p)) return p;
+        }
+        return dayShifts[0].status;
     };
 
     const hasShift = (day: number) => {
@@ -166,19 +198,21 @@ export const Overview: React.FC<OverviewProps> = ({ shiftDays = [], isLoading = 
 
                     {days.map((day: number) => {
                         const isShiftDay = hasShift(day);
+                        const status = getDayStatus(day);
+                        const styles = getDayStyles(status);
 
                         return (
                             <div
                                 key={day}
                                 className={`relative aspect-square rounded-2xl border p-2 text-center transition ${
                                     isShiftDay
-                                        ? 'border-primary/40 bg-primary/10 text-primary'
+                                        ? `${styles.border} ${styles.bg} ${styles.text}`
                                         : 'border-border bg-background text-text-secondary'
                                 }`}
                             >
                                 <div className="text-sm font-semibold sm:text-base">{day}</div>
                                 {isShiftDay && (
-                                    <span className="mt-1 inline-block rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-white sm:text-xs">
+                                    <span className={`mt-1 inline-block rounded-full ${styles.badge} px-2 py-0.5 text-[10px] font-semibold text-white sm:text-xs`}>
                                         {getShiftRangeText(day)}
                                         <span className="sr-only"> - Día con turno asignado</span>
                                     </span>
@@ -189,14 +223,31 @@ export const Overview: React.FC<OverviewProps> = ({ shiftDays = [], isLoading = 
                 </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-6 rounded-2xl border border-border bg-background px-4 py-3 text-sm text-text-secondary">
-                <div className="flex items-center gap-2">
-                    <span className="h-4 w-4 rounded-md border border-border bg-background" />
-                    <span>Sin turno</span>
+            {/* Legend */}
+            <div className="flex flex-wrap items-center justify-center gap-4 rounded-2xl border border-border bg-background px-4 py-3 text-xs text-text-secondary">
+                <div className="flex items-center gap-1.5">
+                    <span className="h-3 w-3 rounded-sm bg-green-500" />
+                    <span>Asignado</span>
                 </div>
-                <div className="flex items-center gap-2">
-                    <span className="h-4 w-4 rounded-md bg-primary/40" />
-                    <span>Con turno</span>
+                <div className="flex items-center gap-1.5">
+                    <span className="h-3 w-3 rounded-sm bg-primary" />
+                    <span>Pendiente</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <span className="h-3 w-3 rounded-sm bg-yellow-500" />
+                    <span>En curso</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <span className="h-3 w-3 rounded-sm bg-blue-500" />
+                    <span>Completado</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <span className="h-3 w-3 rounded-sm bg-red-500" />
+                    <span>Cancelado</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <span className="h-3 w-3 rounded-sm border border-border bg-background" />
+                    <span>Sin turno</span>
                 </div>
             </div>
         </section>

@@ -7,7 +7,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, MoreThan, Repository } from 'typeorm';
+import { LessThan, MoreThan, Repository, Not, In } from 'typeorm';
 import { Shift } from './shift.entity';
 import { Caregiver } from '../caregivers/caregiver.entity';
 import { Patient } from '../patients/patient.entity';
@@ -106,15 +106,16 @@ export class ShiftsService {
 
     const start = new Date(dto.start_time);
     const end = new Date(dto.end_time);
-    const report = dto.report ? dto.report : null;
-    const service = dto.service ? dto.service : null;
-    const location = dto.location ? dto.location : null;
 
     if (end <= start) {
       throw new BadRequestException(
         'La fecha de finalización debe ser mayor a la de inicio',
       );
     }
+
+    const report = dto.report ? dto.report : null;
+    const service = dto.service ? dto.service : null;
+    const location = dto.location ? dto.location : null;
 
     const alreadyExists = await this.allReadyExists(
       dto.start_time,
@@ -155,6 +156,7 @@ export class ShiftsService {
         patient: { profile_id: patientId },
         start_time: LessThan(end),
         end_time: MoreThan(start),
+        status: Not(In([ShiftStatus.CANCELLED, ShiftStatus.REJECTED])),
       },
     });
     return !!shift;
@@ -210,9 +212,8 @@ export class ShiftsService {
     return shift;
   }
   // FIND MANY BY PATIENT
-  async findByPatient(patientId: string, page: number = 1, limit: number = 10) {
-    const skip = (page - 1) * limit;
-    const [data, total] = await this.shiftRepository.findAndCount({
+  async findByPatient(patientId: string) {
+    const data = await this.shiftRepository.find({
       where: { patient: { profile_id: patientId } },
       relations: [
         'caregiver',
@@ -223,28 +224,21 @@ export class ShiftsService {
         'approved_by',
       ],
       order: { start_time: 'ASC' },
-      take: limit,
-      skip: skip,
     });
 
     return {
       data,
       meta: {
-        total,
-        page,
-        lastPage: Math.ceil(total / limit),
+        total: data.length,
+        page: 1,
+        lastPage: 1,
       },
     };
   }
 
   // FIND MANY BY CAREGIVER
-  async findByCaregiver(
-    caregiverProfileId: string,
-    page: number = 1,
-    limit: number = 10,
-  ) {
-    const skip = (page - 1) * limit;
-    const [data, total] = await this.shiftRepository.findAndCount({
+  async findByCaregiver(caregiverProfileId: string) {
+    const data = await this.shiftRepository.find({
       where: { caregiver: { profile_id: caregiverProfileId } },
       relations: [
         'caregiver',
@@ -255,16 +249,14 @@ export class ShiftsService {
         'rating',
       ],
       order: { start_time: 'ASC' },
-      take: limit,
-      skip: skip,
     });
 
     return {
       data,
       meta: {
-        total,
-        page,
-        lastPage: Math.ceil(total / limit),
+        total: data.length,
+        page: 1,
+        lastPage: 1,
       },
     };
   }

@@ -1,21 +1,28 @@
 
 import { useCaregiverShifts } from "../../hooks/caregiver/useCaregiver";
-import type { User } from "../../types";
+
 import { Overview } from "./Overview";
 import { Header } from "../../components/UI/Headers";
 
 
 
-export const PanelCaregiver = ({user}: {user: User}) => {
+export const PanelCaregiver = () => {
   const { data: hookShifts, isLoading } = useCaregiverShifts();
+
+  const shifts = Array.isArray(hookShifts)
+    ? hookShifts
+    : hookShifts?.data || [];
   
   return (
     <main className="min-h-screen flex-1 bg-background text-text-primary">
       <section className="mx-auto w-full max-w-5xl space-y-4">
 
-        <Header user={user} shifts={hookShifts?.data} />
+        <Header 
+          title="Panel del Cuidador" 
+          description="Gestión integral de tus servicios y pacientes" 
+        />
 
-        <Overview shiftDays={hookShifts?.data} isLoading={isLoading} />
+        <Overview shiftDays={shifts} isLoading={isLoading} />
       </section>
       
     </main>
