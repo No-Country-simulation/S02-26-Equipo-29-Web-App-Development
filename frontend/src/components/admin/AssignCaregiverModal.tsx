@@ -7,6 +7,9 @@ import { toast } from "sonner";
 import { takeFirstLetters } from "../../utils/firstLetters";
 import { useState } from "react";
 import { Loader2, Search, X } from "lucide-react";
+import { updateShiftStatus } from "../../api";
+import { useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
 interface Props {
   shift: Shift;
@@ -14,13 +17,13 @@ interface Props {
 }
 
 export const AssignCaregiverModal = ({ shift, onClose }: Props) => {
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const { data: caregivers, isLoading } = useAvailableCaregivers(
     shift.start_time || "",
-    shift.end_time || ""
+    shift.end_time || "",
   );
   const { mutate: assign, isPending: isAssigning } = useAssignCaregiver();
-
 
   const handleAssign = (caregiverId: string) => {
     assign(
@@ -28,17 +31,33 @@ export const AssignCaregiverModal = ({ shift, onClose }: Props) => {
       {
         onSuccess: () => {
           toast.success("Cuidador asignado correctamente");
-          onClose();
         },
         onError: (error) => {
           toast.error(error.message || "Error al asignar cuidador");
         },
-      }
+      },
     );
   };
 
+  const handleUpdateStatus = async (id: string, status: string) => {
+    try {
+      await updateShiftStatus(id, status);
+      toast.success("Turno confirmado correctamente");
+      queryClient.invalidateQueries({ queryKey: ["shifts"] });
+      onClose();
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        toast.error(error.response.data.message);
+        onClose();
+      } else {
+        toast.error("Error al confirmar el turno");
+        onClose();
+      }
+    }
+  };
+
   const filteredCaregivers = caregivers?.filter((c) =>
-    c.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+    c.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -47,9 +66,13 @@ export const AssignCaregiverModal = ({ shift, onClose }: Props) => {
         {/* Header */}
         <div className="p-6 border-b border-border flex items-center justify-between bg-gradient-to-r from-primary/5 to-transparent">
           <div>
-            <h2 className="text-xl font-bold text-text-primary">Asignar Cuidador</h2>
+            <h2 className="text-xl font-bold text-text-primary">
+              Asignar Cuidador
+            </h2>
             <p className="text-sm text-text-secondary mt-1">
-              {formatDateSafe(shift.start_time as string)} • {formatTime(shift.start_time as string)} - {formatTime(shift.end_time as string)}
+              {formatDateSafe(shift.start_time as string)} •{" "}
+              {formatTime(shift.start_time as string)} -{" "}
+              {formatTime(shift.end_time as string)}
             </p>
           </div>
           <button
@@ -63,7 +86,10 @@ export const AssignCaregiverModal = ({ shift, onClose }: Props) => {
         {/* Search */}
         <div className="p-4 bg-background/50 border-b border-border">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary"
+              size={18}
+            />
             <input
               type="text"
               placeholder="Buscar por nombre..."
@@ -79,11 +105,15 @@ export const AssignCaregiverModal = ({ shift, onClose }: Props) => {
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
               <Loader2 className="animate-spin text-primary" size={32} />
-              <p className="text-sm text-text-secondary">Buscando cuidadores disponibles...</p>
+              <p className="text-sm text-text-secondary">
+                Buscando cuidadores disponibles...
+              </p>
             </div>
           ) : filteredCaregivers?.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-sm text-text-secondary">No se encontraron cuidadores disponibles para este horario.</p>
+              <p className="text-sm text-text-secondary">
+                No se encontraron cuidadores disponibles para este horario.
+              </p>
             </div>
           ) : (
             <div className="grid gap-2">
@@ -97,13 +127,17 @@ export const AssignCaregiverModal = ({ shift, onClose }: Props) => {
                       {takeFirstLetters(caregiver.profile?.full_name || "")}
                     </div>
                     <div>
-                       <h4 className="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors">
+                      <h4 className="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors">
                         {caregiver.profile?.full_name}
                       </h4>
                       <div className="flex items-center gap-2 mt-0.5 text-xs text-text-secondary">
-                        <span>{caregiver.profile?.phone || "Sin teléfono"}</span>
+                        <span>
+                          {caregiver.profile?.phone || "Sin teléfono"}
+                        </span>
                         <span>•</span>
-                        <span className="text-primary font-medium">${caregiver.hourly_rate}/hr</span>
+                        <span className="text-primary font-medium">
+                          ${caregiver.hourly_rate}/hr
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -112,7 +146,11 @@ export const AssignCaregiverModal = ({ shift, onClose }: Props) => {
                     onClick={() => handleAssign(caregiver.profile_id || "")}
                     className="bg-primary text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all disabled:opacity-50 disabled:shadow-none"
                   >
-                    {isAssigning ? <Loader2 className="animate-spin" size={14} /> : "Asignar"}
+                    {isAssigning ? (
+                      <Loader2 className="animate-spin" size={14} />
+                    ) : (
+                      "Asignar"
+                    )}
                   </button>
                 </div>
               ))}
@@ -123,8 +161,16 @@ export const AssignCaregiverModal = ({ shift, onClose }: Props) => {
         {/* Footer */}
         <div className="p-4 border-t border-border bg-background/50 flex justify-end">
           <button
+            disabled={shift.status !== "PENDING"}
+            onClick={() => handleUpdateStatus(shift.id, "ASSIGNED")}
+            className="px-5 bg-primary text-white rounded-xl cursor-pointer py-2 text-sm font-medium  hover:bg-primary/80 transition-colors"
+            title="Aprobar"
+          >
+            Confirmar turno
+          </button>
+          <button
             onClick={onClose}
-            className="px-5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
+            className="px-5 cursor-pointer py-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
           >
             Cancelar
           </button>

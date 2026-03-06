@@ -22,7 +22,8 @@ export function Appointments() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const limit = 10;
-  const [selectedShiftForAssignment, setSelectedShiftForAssignment] = useState<Shift | null>(null);
+  const [selectedShiftForAssignment, setSelectedShiftForAssignment] =
+    useState<Shift | null>(null);
 
   const [filter, setFilter] = useState("PENDING");
   const {
@@ -50,18 +51,16 @@ export function Appointments() {
   const handleUpdateStatus = async (id: string, status: string) => {
     try {
       await updateShiftStatus(id, status);
-      toast.success("Estado actualizado correctamente");
+      toast.success("Turno confirmado correctamente");
       queryClient.invalidateQueries({ queryKey: ["shifts"] });
     } catch (error) {
       if (error instanceof AxiosError && error.response?.data?.message) {
         toast.error(error.response.data.message);
       } else {
-        toast.error("Error al actualizar el estado");
+        toast.error("Error al confirmar el turno");
       }
     }
   };
-
-
   return (
     <div className="p-5 bg-background min-h-screen">
       <header className="rounded-3xl border border-border bg-surface p-8 shadow-xl relative overflow-hidden group">
@@ -182,7 +181,7 @@ export function Appointments() {
                   Horario
                 </th>
                 <th className="px-6 py-4 font-semibold tracking-wider text-center">
-                 Notas
+                  Notas
                 </th>
                 <th className="px-6 py-4 font-semibold tracking-wider text-center">
                   Cuidador
@@ -224,7 +223,7 @@ export function Appointments() {
                   </td>
                   <td className="px-6 py-5 text-center whitespace-nowrap">
                     <span className="text-text-primary">
-                      {shift.service || "general" }
+                      {shift.service || "general"}
                     </span>
                   </td>
                   <td className="px-6 py-5 text-center">
@@ -239,7 +238,10 @@ export function Appointments() {
                         onClick={() => setSelectedShiftForAssignment(shift)}
                         className="bg-primary/10 text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 group w-full max-w-[140px] justify-center"
                       >
-                        <Plus size={14} className="group-hover:rotate-90 transition-transform" />
+                        <Plus
+                          size={14}
+                          className="group-hover:rotate-90 transition-transform"
+                        />
                         Asignar
                       </button>
                     )}
