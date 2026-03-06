@@ -118,8 +118,18 @@ Incluye:
 
 🔗 [Ver documentación QA en Google Sheets](https://docs.google.com/spreadsheets/d/1GNK3CKi6sCu4CDaH3_VZRvhGiE04omMR/edit?usp=sharing&ouid=108197313288252525313&rtpof=true&sd=true)
 
-# 🔧 API Testing
+### 🔧 API Testing
 
 La colección de Postman utilizada para validar los endpoints del backend se encuentra en:
 
-📂 [Ver colección de Postman](pyme-api.postman_collection.json)
+📂 [Ver colección de Postman](PYME_API_postman_collection.json)
+
+La colección incluye:
+- Requests para los principales endpoints de la API.
+- Automatización del login con guardado del token de autenticación.
+- Tests automatizados básicos para validar:
+  - Status code
+  - Tiempo de respuesta
+  - Presencia de token en la respuesta.
+
+Los tests pueden ejecutarse desde Postman utilizando la opción **Run collection**.
